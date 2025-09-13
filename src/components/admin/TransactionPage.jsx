@@ -49,6 +49,12 @@ const TransactionPage = () => {
           <Link to="/admin-surveyors" className="px-4 py-2 text-base sm:text-lg lg:text-2xl rounded-full hover:bg-white transition">Surveyor List</Link>
           <Link to="/add-surveyor" className="px-4 py-2 text-base sm:text-lg lg:text-2xl rounded-full hover:bg-white transition">Add More Surveyors</Link>
           <Link to="/transactions" className="px-4 py-2 text-base sm:text-lg lg:text-2xl rounded-full hover:bg-white transition">Transactions</Link>
+          <Link
+            to="/admin/permissions"
+            className="px-4 py-2 text-base sm:text-lg lg:text-2xl rounded-full hover:bg-white transition"
+          >
+            Booking Requests
+          </Link>
         </div>
       </div>
 

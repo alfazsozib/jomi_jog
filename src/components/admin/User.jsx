@@ -56,7 +56,7 @@ const UserPage = () => {
         <div className="flex flex-wrap bg-[#69DB7C] rounded-2xl px-6 sm:px-12 lg:px-20 py-3 gap-3">
           <Link
             to="/users"
-            className="px-4 py-2 text-base sm:text-lg lg:text-2xl rounded-full bg-white font-semibold"
+            className="px-4 py-2 text-base sm:text-lg lg:text-2xl rounded-full hover:bg-white font-semibold"
           >
             Users
           </Link>

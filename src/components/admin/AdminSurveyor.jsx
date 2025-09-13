@@ -53,6 +53,12 @@ const AdminSurveyor = () => {
           <Link to="/transactions" className="px-4 py-2 text-base sm:text-lg lg:text-2xl rounded-full hover:bg-white transition">
             Transactions
           </Link>
+          <Link
+            to="/admin/permissions"
+            className="px-4 py-2 text-base sm:text-lg lg:text-2xl rounded-full hover:bg-white transition"
+          >
+            Booking Requests
+          </Link>
         </div>
       </div>
 
