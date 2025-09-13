@@ -1,0 +1,16 @@
+/* @import "tailwindcss";
+
+body {
+  width: 1440px;
+  height: 100vh;
+  margin-inline: auto;
+} */
+
+@import "tailwindcss";
+
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background-color: #fff;
+}
