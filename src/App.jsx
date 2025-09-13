@@ -15,6 +15,10 @@ import LoginPage from "./components/pages/LoginPage";
 import SignupPage from "./components/pages/SignupPage";
 import Surveyor from "./components/pages/Surveyor";
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import SurveyorsDetails from "./components/pages/SurveyorsDetails.jsx";
+import AdminPermission from "./components/pages/AdminPermission.jsx";
+import UserDashboard from "./components/pages/UserDashboard.jsx";
+import SurveyorDashboard from "./components/pages/SurveyorDashboard.jsx";
 
 function App() {
   return (
@@ -36,6 +40,11 @@ function App() {
         <Route path="/transactions" element={<TransactionPage />} />
         <Route path="/admin-surveyors" element={<AdminSurveyor />} />
         <Route path="/add-surveyor" element={<AddSurveyor />} />
+        <Route path="/surveyors/:id" element={<SurveyorsDetails />} />
+<Route path="/admin/permissions" element={<AdminPermission />} />
+<Route path="/dashboard" element={<UserDashboard />} />
+<Route path="/surveyor-dashboard" element={<SurveyorDashboard/>} />
+
       </Routes>
 
       <Footer />

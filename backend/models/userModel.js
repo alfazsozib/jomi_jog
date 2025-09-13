@@ -52,6 +52,15 @@ const userSchema = new mongoose.Schema(
     profileImage: {
       type: String,
     },
+    approvals: [
+  {
+    surveyorName: String,
+    surveyorMobile: String,
+    surveyorPrice: Number,
+    accountNumber: String,
+  },
+],
+
   },
   { timestamps: true }
 );

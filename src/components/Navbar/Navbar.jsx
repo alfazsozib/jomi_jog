@@ -33,10 +33,17 @@ function Navbar() {
     navigate("/login");
   };
 
+  const handleDashboard = () => {
+    if (!user) return;
+    // Navigate based on role
+    if (user.role === "user") navigate("/dashboard"); 
+    else if (user.role === "surveyor") navigate("/surveyor-dashboard");
+  };
+
   return (
     <div>
-      {/*  Navbar  */}
-      <header className="flex items-center justify-between px-4 sm:px-[8%] py-4 ">
+      {/* Navbar */}
+      <header className="flex items-center justify-between px-4 sm:px-[8%] py-4">
         {/* Logo */}
         <div className="flex-shrink-0">
           <Link to={"/"}>
@@ -48,32 +55,17 @@ function Navbar() {
           </Link>
         </div>
 
-        {/* z */}
+        {/* Desktop Nav */}
         <nav className="hidden md:flex gap-6 text-[#151515] text-sm sm:text-base md:text-lg font-medium">
-          <Link to={"/"} className="hover:text-[#7ED957] transition">
-            হোম
-          </Link>
-          <Link to={"/surveyor"} className="hover:text-[#7ED957] transition">
-            সার্ভেয়ার
-          </Link>
-          <Link to={"consultant"} className="hover:text-[#7ED957] transition">
-            পরামর্শদাতা
-          </Link>
-          <Link to={"/about"} className="hover:text-[#7ED957] transition">
-            আমাদের সম্পর্কে
-          </Link>
-          <Link to={"/knowledge"} className="hover:text-[#7ED957] transition">
-            সাধারণ জ্ঞান
-          </Link>
-          <Link
-            to={"/contact-page"}
-            className="hover:text-[#7ED957] transition"
-          >
-            যোগাযোগ
-          </Link>
+          <Link to={"/"} className="hover:text-[#7ED957] transition">হোম</Link>
+          <Link to={"/surveyor"} className="hover:text-[#7ED957] transition">সার্ভেয়ার</Link>
+          <Link to={"consultant"} className="hover:text-[#7ED957] transition">পরামর্শদাতা</Link>
+          <Link to={"/about"} className="hover:text-[#7ED957] transition">আমাদের সম্পর্কে</Link>
+          <Link to={"/knowledge"} className="hover:text-[#7ED957] transition">সাধারণ জ্ঞান</Link>
+          <Link to={"/contact-page"} className="hover:text-[#7ED957] transition">যোগাযোগ</Link>
         </nav>
 
-        {/* Search + Login/Logout (desktop) */}
+        {/* Desktop Search + Login/Logout + Dashboard */}
         <div className="hidden md:flex items-center gap-3">
           <div className="flex items-center w-64 bg-[#f5f5eb] rounded-lg px-3 py-2 border border-gray-200">
             <FiSearch className="text-gray-500 mr-2 text-lg" />
@@ -83,6 +75,15 @@ function Navbar() {
               className="bg-transparent focus:outline-none text-gray-700 w-full text-base"
             />
           </div>
+
+          {user && (
+            <button
+              onClick={handleDashboard}
+              className="text-white font-semibold text-base bg-blue-500 px-6 py-3 rounded-lg hover:opacity-90 transition"
+            >
+              Dashboard
+            </button>
+          )}
 
           {user ? (
             <button
@@ -109,35 +110,20 @@ function Navbar() {
         </button>
       </header>
 
-      {/*  Mobile Menu */}
+      {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden px-4 py-4 bg-white border-b border-gray-200 space-y-4">
           {/* Mobile Nav */}
           <nav className="flex flex-col gap-3 text-[#151515] text-base font-medium">
-            <Link to={"/"} className="hover:text-[#7ED957] transition">
-              হোম
-            </Link>
-            <Link to={"/surveyor"} className="hover:text-[#7ED957] transition">
-              সার্ভেয়ার
-            </Link>
-            <Link to={"consultant"} className="hover:text-[#7ED957] transition">
-              পরামর্শদাতা
-            </Link>
-            <Link to={"/about"} className="hover:text-[#7ED957] transition">
-              আমাদের সম্পর্কে
-            </Link>
-            <Link to={"/knowledge"} className="hover:text-[#7ED957] transition">
-              সাধারণ জ্ঞান
-            </Link>
-            <Link
-              to={"/contact-page"}
-              className="hover:text-[#7ED957] transition"
-            >
-              যোগাযোগ করুন
-            </Link>
+            <Link to={"/"} className="hover:text-[#7ED957] transition">হোম</Link>
+            <Link to={"/surveyor"} className="hover:text-[#7ED957] transition">সার্ভেয়ার</Link>
+            <Link to={"consultant"} className="hover:text-[#7ED957] transition">পরামর্শদাতা</Link>
+            <Link to={"/about"} className="hover:text-[#7ED957] transition">আমাদের সম্পর্কে</Link>
+            <Link to={"/knowledge"} className="hover:text-[#7ED957] transition">সাধারণ জ্ঞান</Link>
+            <Link to={"/contact-page"} className="hover:text-[#7ED957] transition">যোগাযোগ করুন</Link>
           </nav>
 
-          {/* Search + Login/Logout (mobile) */}
+          {/* Mobile Search + Login/Logout + Dashboard */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center w-full bg-[#f5f5eb] rounded-lg px-3 py-2 border border-gray-200">
               <FiSearch className="text-gray-500 mr-2 text-lg" />
@@ -147,6 +133,15 @@ function Navbar() {
                 className="bg-transparent focus:outline-none text-gray-700 w-full text-sm"
               />
             </div>
+
+            {user && (
+              <button
+                onClick={handleDashboard}
+                className="text-white font-semibold text-sm bg-blue-500 px-4 py-2 rounded-lg hover:opacity-90 transition shadow-md"
+              >
+                Dashboard
+              </button>
+            )}
 
             {user ? (
               <button

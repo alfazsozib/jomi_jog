@@ -1,11 +1,13 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import experienceIcon from "../../assets/icons/Experience.jpg";
 import priceIcon from "../../assets/icons/Price.jpg";
 
 const CartSurveyor = () => {
   const [surveyors, setSurveyors] = useState([]);
+  const navigate = useNavigate();
 
   // Fetch surveyors from backend
   useEffect(() => {
@@ -21,7 +23,7 @@ const CartSurveyor = () => {
   }, []);
 
   // Reusable surveyor card
-  const SurveyorCard = ({ name, img, experience, price }) => (
+  const SurveyorCard = ({ _id, name, img, experience, price }) => (
     <div className="bg-white rounded-2xl border border-[#7ed95659] overflow-hidden">
       {/* Image */}
       <div className="relative w-full h-64 pt-5 flex items-center justify-center bg-white rounded-t-2xl overflow-hidden">
@@ -59,13 +61,10 @@ const CartSurveyor = () => {
 
         {/* Experience and Price */}
         <div className="flex flex-wrap items-center my-4 gap-3 text-gray-600 text-xs sm:text-sm">
-          {/* Experience */}
           <div className="flex items-center">
             <img src={experienceIcon} alt="" className="w-4 h-4" />
             <span className="ml-1">{experience}</span>
           </div>
-
-          {/* Price */}
           <div className="flex items-center">
             <img src={priceIcon} alt="" className="w-4 h-4" />
             <span className="ml-1">{price}</span>
@@ -74,7 +73,10 @@ const CartSurveyor = () => {
 
         {/* Button Section */}
         <div className="flex gap-2.5">
-          <button className="w-full bg-[#7ED957] text-white py-2 sm:py-3 rounded-lg font-semibold hover:opacity-90 transition">
+          <button
+            className="w-full bg-[#7ED957] text-white py-2 sm:py-3 rounded-lg font-semibold hover:opacity-90 transition"
+            onClick={() => navigate(`/surveyors/${_id}`)}
+          >
             বিস্তারিত
           </button>
           <button className="w-full bg-[#7ED957] text-white py-2 sm:py-3 rounded-lg font-semibold hover:opacity-90 transition">
@@ -97,6 +99,7 @@ const CartSurveyor = () => {
           {surveyors.map((surveyor) => (
             <SurveyorCard
               key={surveyor._id}
+              _id={surveyor._id}
               name={surveyor.name}
               img={surveyor.profileImage}
               experience={surveyor.experience ? `${surveyor.experience} বছর` : "অভিজ্ঞতা নেই"}

@@ -35,7 +35,6 @@ const UserPage = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        // ✅ this endpoint already returns only role="user"
         const { data } = await axios.get("http://localhost:5000/api/users"); 
         setUsers(data);
         setLoading(false);
@@ -68,22 +67,32 @@ const UserPage = () => {
           >
             Surveyor List
           </Link>
+          
           <Link
             to="/add-surveyor"
             className="px-4 py-2 text-base sm:text-lg lg:text-2xl rounded-full hover:bg-white transition"
           >
             Add More Surveyors
           </Link>
+          
           <Link
             to="/transactions"
             className="px-4 py-2 text-base sm:text-lg lg:text-2xl rounded-full hover:bg-white transition"
           >
             Transactions
           </Link>
+
+          {/* NEW Link for Admin Booking Requests */}
+          <Link
+            to="/admin/permissions"
+            className="px-4 py-2 text-base sm:text-lg lg:text-2xl rounded-full hover:bg-white transition"
+          >
+            Booking Requests
+          </Link>
         </div>
       </div>
 
-      {/* ✅ Total Users */}
+      {/* Total Users */}
       <div className="flex justify-center mb-6">
         <div className="px-4 sm:px-6 py-2 bg-green-100 rounded text-sm sm:text-base lg:text-lg font-medium">
           Total Users: {users.length}
@@ -94,7 +103,7 @@ const UserPage = () => {
       {loading && <p className="text-center text-lg">Loading users...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
-      {/* ✅ Only "users" will be displayed since backend already filters */}
+      {/* User Grid */}
       {!loading && !error && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-6">
           {visibleUsers.map((user) => (
