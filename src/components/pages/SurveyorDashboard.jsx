@@ -12,7 +12,7 @@ const SurveyorDashboard = () => {
 
       try {
         const { data } = await axios.get(
-          `http://localhost:5000/api/bookings/surveyor/${user._id}`
+          `https://jomijog.com/api/bookings/surveyor/${user._id}`
         );
         setBookings(data.filter((b) => b.status === "approved"));
       } catch (err) {

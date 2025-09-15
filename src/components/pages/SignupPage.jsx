@@ -56,7 +56,7 @@ const SignUpPage = () => {
       if (profileImage) dataToSend.append("profileImage", profileImage);
 
       const { data } = await axios.post(
-        "http://localhost:5000/api/users",
+        "https://jomijog.com/api/users",
         dataToSend,
       );
 

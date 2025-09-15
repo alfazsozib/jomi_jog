@@ -12,7 +12,7 @@ const UserDashboard = () => {
 
       try {
         const { data } = await axios.get(
-          `http://localhost:5000/api/bookings/user/${user._id}`
+          `https://jomijog.com/api/bookings/user/${user._id}`
         );
         setBookings(data);
       } catch (err) {
