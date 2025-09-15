@@ -62,7 +62,7 @@ const Home = () => {
 
       {/* Divisions Section */}
       <section className="px-4 sm:px-8 mt-10 mb-16">
-        <h2 className="text-lg sm:text-xl md:text-2xl text-center font-bold text-[#151515] mb-8">
+        <h2 className="text-[#151515] text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium text-center mb-8">
           বিভাগসমূহ
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
@@ -88,12 +88,10 @@ const Home = () => {
 
       <CartSurveyor />
 
+      {/* User Feedback Section */}
+      <UserFeedback />
       {/* User Reviews Section */}
-      <div className="bg-[#F5F3ED] px-4 sm:px-8 text-center py-8">
-        <h2 className="text-xl sm:text-2xl md:text-4xl font-bold text-[#151515] mb-6">
-          ক্লায়েন্টের মতামত
-        </h2>
-
+      <div className="bg-[#F5F3ED] px-4 sm:px-8 text-center ">
         <button
           onClick={() => setShowAddReview(!showAddReview)}
           className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300"
@@ -101,11 +99,10 @@ const Home = () => {
           {showAddReview ? "বাতিল করুন" : "আপনার মতামত যোগ করুন"}
         </button>
       </div>
-
       {/* Add Review Form (conditional) */}
       {showAddReview && (
-        <div className=" bg-[#F5F3ED] px-4 sm:px-8 md:px-16 py-12">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-center text-[#151515]">
+        <div className=" bg-[#F5F3ED] px-4 sm:px-8 md:px-16 py-2">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 mt-4 text-center text-[#151515]">
             আপনার মতামত জমা দিন
           </h2>
           <p className="text-sm sm:text-base md:text-lg mb-8 text-center text-[#303030] max-w-[700px] mx-auto">
@@ -187,11 +184,7 @@ const Home = () => {
         </div>
       )}
 
-      {/* User Feedback Section */}
-      <UserFeedback /> 
-      
       {/* FAQ section or page */}
-
       <FAQ />
     </div>
   );

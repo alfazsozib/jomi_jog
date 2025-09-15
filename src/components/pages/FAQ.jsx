@@ -46,7 +46,7 @@ const FAQ = () => {
 
       {/* Hero Section */}
       <div className="text-center px-4 sm:px-8 py-12 bg-[#F5F3ED]">
-        <h1 className="text-3xl sm:text-4xl font-bold text-[#2F2C2C]">
+        <h1 className="text-[#151515] text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium">
           প্রায় জিজ্ঞাসিত প্রশ্নাবলী (FAQ)
         </h1>
         <p className="mt-3 text-gray-600 max-w-2xl mx-auto text-sm sm:text-base">

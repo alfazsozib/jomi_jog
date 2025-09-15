@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
+import logoImage from "../../assets/icons/258x74_black.png";
 import facebookIcon from "../../assets/icons/facebook.png";
-import logoImage from "../../assets/icons/logo_2.png";
 import whatsappIcon from "../../assets/icons/whatsapp.png";
 
 const Footer = () => {
   return (
     <div className="bg-[#2F2C2C] px-6 sm:px-[8%]">
       {/* Top Section */}
-      <div className="flex flex-col md:flex-row py-10 md:py-[8%] justify-between gap-10 md:gap-0">
+      <div className="flex flex-col md:flex-row py-10 md:py-[5%] justify-between gap-10 md:gap-0">
         {/* Left Column */}
         <div className="text-white md:w-[47%]">
           <Link to={"/"}>
@@ -80,7 +80,7 @@ const Footer = () => {
             <p>jomijog@gmail.com</p>
           </div>
 
-          {/* Temporary Buttons for check for working */}
+          {/* Temporary Buttons for check for working
           <div className="flex flex-col gap-2">
             <Link
               to="/users"
@@ -101,15 +101,15 @@ const Footer = () => {
             >
               Surveyors
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* Divider */}
-      <div className="h-0.5 bg-[#ffffff40] mb-6 sm:mb-[45px]"></div>
+      <div className="h-0.5 bg-[#ffffff40] mb-6 sm:mb-[2%]"></div>
 
       {/* Bottom Bar */}
-      <div className="text-white flex flex-col sm:flex-row justify-between items-center gap-3 pb-6 sm:pb-[3%] text-sm sm:text-base">
+      <div className="text-white flex flex-col sm:flex-row justify-between items-center gap-3 pb-5 sm:pb-[2%] text-sm sm:text-base">
         <h1>
           কপিরাইট
           <span className="mx-1.5">©২০২৫</span>

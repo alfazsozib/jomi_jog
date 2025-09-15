@@ -16,7 +16,7 @@ export default function ContactPage() {
           style={{ backgroundImage: `url(${landImage2})` }}
         >
           <div className="absolute inset-0 bg-black/50"></div>
-          <h1 className="relative z-10 text-3xl sm:text-5xl md:text-6xl font-bold text-[#7ED957]">
+          <h1 className="relative z-10 text-xl sm:text-5xl md:text-6xl text-center font-bold text-[#7ED957]">
             আমাদের সাথে যোগাযোগ করুন
           </h1>
         </div>

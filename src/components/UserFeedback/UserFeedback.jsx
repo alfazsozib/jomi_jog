@@ -41,7 +41,7 @@ const UserFeedbackBangla = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-[#151515] mb-4"
+          className="text-[#151515] text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium mb-4"
         >
           আমাদের গ্রাহকদের মতামত
         </motion.h2>
