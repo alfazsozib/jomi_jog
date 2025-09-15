@@ -13,7 +13,9 @@ const CartSurveyor = () => {
   useEffect(() => {
     const fetchSurveyors = async () => {
       try {
-        const { data } = await axios.get("https://jomijog.com/api/users/surveyors");
+        const { data } = await axios.get(
+          "https://jomijog.com/api/users/surveyors"
+        );
         setSurveyors(data);
       } catch (error) {
         console.error("Error fetching surveyors:", error);
@@ -79,7 +81,10 @@ const CartSurveyor = () => {
           >
             বিস্তারিত
           </button>
-          <button className="w-full bg-[#7ED957] text-white py-2 sm:py-3 rounded-lg font-semibold hover:opacity-90 transition">
+          <button
+            className="w-full bg-[#7ED957] text-white py-2 sm:py-3 rounded-lg font-semibold hover:opacity-90 transition"
+            onClick={() => navigate(`/surveyors/${_id}`)}
+          >
             বুক দিন
           </button>
         </div>
@@ -102,8 +107,14 @@ const CartSurveyor = () => {
               _id={surveyor._id}
               name={surveyor.name}
               img={surveyor.profileImage}
-              experience={surveyor.experience ? `${surveyor.experience} বছর` : "অভিজ্ঞতা নেই"}
-              price={surveyor.price ? `${surveyor.price} টাকা` : "নির্ধারিত নেই"}
+              experience={
+                surveyor.experience
+                  ? `${surveyor.experience} বছর`
+                  : "অভিজ্ঞতা নেই"
+              }
+              price={
+                surveyor.price ? `${surveyor.price} টাকা` : "নির্ধারিত নেই"
+              }
             />
           ))}
         </div>

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-//import heroImage1 from "../../assets/images/hero page.jpg";
 import demo from "../../assets/images/demo-9.png";
 import CartSurveyor from "../cart/CartSurveyor";
 import Navbar from "../Navbar/Navbar";
@@ -15,6 +14,9 @@ const Home = () => {
     feedback: "",
     rating: "",
   });
+
+  // 👉 Active division state (default: রাজশাহী)
+  const [activeDivision, setActiveDivision] = useState("রাজশাহী");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,7 +38,7 @@ const Home = () => {
 
       {/* Hero Section */}
       <div className="relative px-4 sm:px-8">
-        <div className="relative w-full h-[40vh] sm:h-[55vh] lg:h-[70vh] rounded-2xl overflow-hidden  shadow-lg">
+        <div className="relative w-full h-[40vh] sm:h-[55vh] lg:h-[70vh] rounded-2xl overflow-hidden shadow-lg">
           <img
             src={demo}
             alt="Hero"
@@ -47,12 +49,15 @@ const Home = () => {
             <h2 className="text-xl sm:text-2xl md:text-5xl font-bold leading-snug mb-4">
               যখনই প্রয়োজন, <br /> খুঁজুন বিশ্বস্ত সার্ভেয়ার
             </h2>
-            <p className="text-sm sm:text-base md:text-lg mb-6 max-w-[480px] ">
+            <p className="text-sm sm:text-base md:text-lg mb-6 max-w-[480px]">
               বুকিং থেকে সার্ভে পর্যন্ত, জমিযোগ আনছে জমি সেবা অনলাইনে নিরাপদ,
               দ্রুত ও বিশ্বস্ত।
             </p>
             <Link to={"/surveyor"}>
-              <button className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300">
+              <button
+                className="relative px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md
+              border-pulse"
+              >
                 সার্ভেয়ার বুক করুন
               </button>
             </Link>
@@ -78,7 +83,13 @@ const Home = () => {
           ].map((division) => (
             <button
               key={division}
-              className="text-[#303030] text-sm sm:text-base md:text-lg border-2 border-black rounded-xl px-3 sm:px-4 py-2 sm:py-3 hover:bg-[#f5f5eb] transition shadow-sm hover:shadow-md"
+              onClick={() => setActiveDivision(division)}
+              className={`text-sm sm:text-base md:text-lg rounded-xl px-3 sm:px-4 py-2 sm:py-3 transition shadow-sm hover:shadow-md
+    ${
+      activeDivision === division
+        ? "bg-[#7ED957] text-white rounded-lg font-semibold shadow-md border-pulse2"
+        : "text-[#303030] border-2 border-black hover:bg-[#f5f5eb]"
+    }`}
             >
               {division}
             </button>
@@ -90,16 +101,17 @@ const Home = () => {
 
       {/* User Feedback Section */}
       <UserFeedback />
+
       {/* User Reviews Section */}
       <div className="bg-[#F5F3ED] px-4 sm:px-8 text-center ">
         <button
           onClick={() => setShowAddReview(!showAddReview)}
-          className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300"
+          className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md border-pulse3 "
         >
           {showAddReview ? "বাতিল করুন" : "আপনার মতামত যোগ করুন"}
         </button>
       </div>
-      {/* Add Review Form (conditional) */}
+
       {showAddReview && (
         <div className=" bg-[#F5F3ED] px-4 sm:px-8 md:px-16 py-2">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 mt-4 text-center text-[#151515]">
@@ -114,6 +126,7 @@ const Home = () => {
             onSubmit={handleSubmit}
             className="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-lg"
           >
+            {/* Name */}
             <div className="mb-4">
               <label className="block text-[#151515] font-semibold mb-2">
                 নাম
@@ -128,6 +141,7 @@ const Home = () => {
               />
             </div>
 
+            {/* Role */}
             <div className="mb-4">
               <label className="block text-[#151515] font-semibold mb-2">
                 পেশা
@@ -142,6 +156,7 @@ const Home = () => {
               />
             </div>
 
+            {/* Feedback */}
             <div className="mb-4">
               <label className="block text-[#151515] font-semibold mb-2">
                 পর্যালোচনা / প্রশ্ন
@@ -156,6 +171,7 @@ const Home = () => {
               />
             </div>
 
+            {/* Rating */}
             <div className="mb-6">
               <label className="block text-[#151515] font-semibold mb-2">
                 রেটিং (1-5)
@@ -184,7 +200,7 @@ const Home = () => {
         </div>
       )}
 
-      {/* FAQ section or page */}
+      {/* FAQ section */}
       <FAQ />
     </div>
   );

@@ -1,8 +1,8 @@
-import { useState } from "react";
 import axios from "axios";
-import Navbar from "../Navbar/Navbar";
+import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Navbar from "../Navbar/Navbar";
 
 const SignUpPage = () => {
   const [role, setRole] = useState("user");
@@ -11,13 +11,13 @@ const SignUpPage = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    mobile: "",
+    age: "",
     address: "",
     companyName: "",
     companyAddress: "",
-    licenseNumber: "",
+    mobileNumber: "",
     experience: "",
-    price:""
+    price: "",
   });
   const [profileImage, setProfileImage] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -46,7 +46,7 @@ const SignUpPage = () => {
       toast.error("Passwords do not match");
       return;
     }
-    console.log(formData)
+    console.log(formData);
     try {
       const dataToSend = new FormData();
       dataToSend.append("role", role);
@@ -57,7 +57,7 @@ const SignUpPage = () => {
 
       const { data } = await axios.post(
         "https://jomijog.com/api/users",
-        dataToSend,
+        dataToSend
       );
 
       console.log("Registered:", data);
@@ -69,18 +69,17 @@ const SignUpPage = () => {
         email: "",
         password: "",
         confirmPassword: "",
-        mobile: "",
+        age: "",
         address: "",
         companyName: "",
         companyAddress: "",
-        licenseNumber: "",
+        mobileNumber: "",
         experience: "",
-        price:""
+        price: "",
       });
-      
+
       setProfileImage(null);
       setPreview(null);
-
     } catch (error) {
       console.error(error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || "Registration failed");
@@ -191,15 +190,15 @@ const SignUpPage = () => {
             {/* Mobile */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-[#7ED957] mb-1">
-                মোবাইল নম্বর
+                বয়স 
               </label>
               <input
                 type="text"
-                name="mobile"
-                value={formData.mobile}
+                name="age"
+                value={formData.age}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                placeholder="আপনার মোবাইল নম্বর লিখুন"
+                placeholder="আপনার বয়স লিখুন"
                 required
               />
             </div>
@@ -246,7 +245,7 @@ const SignUpPage = () => {
               <>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-[#7ED957] mb-1">
-                    অফিস/কোম্পানির নাম
+                    প্রতিষ্ঠানের নাম
                   </label>
                   <input
                     type="text"
@@ -254,13 +253,13 @@ const SignUpPage = () => {
                     value={formData.companyName}
                     onChange={handleChange}
                     className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                    placeholder="কোম্পানির নাম লিখুন"
+                    placeholder="প্রতিষ্ঠানের নাম লিখুন"
                     required
                   />
                 </div>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-[#7ED957] mb-1">
-                    অফিস/কাজের ঠিকানা
+                    ঠিকানা
                   </label>
                   <input
                     type="text"
@@ -274,15 +273,15 @@ const SignUpPage = () => {
                 </div>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-[#7ED957] mb-1">
-                    সার্ভেয়ার লাইসেন্স/রেজিস্ট্রেশন নম্বর
+                    মোবাইল নম্বর
                   </label>
                   <input
                     type="text"
-                    name="licenseNumber"
-                    value={formData.licenseNumber}
+                    name="mobileNumber"
+                    value={formData.mobileNumber}
                     onChange={handleChange}
                     className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                    placeholder="লাইসেন্স নম্বর লিখুন"
+                    placeholder="মোবাইল নম্বর লিখুন"
                     required
                   />
                 </div>
@@ -300,7 +299,7 @@ const SignUpPage = () => {
                     required
                   />
                 </div>
-               <div className="mb-4">
+                <div className="mb-4">
                   <label className="block text-sm font-medium text-[#7ED957] mb-1">
                     সেবা মূল্য
                   </label>
@@ -314,7 +313,6 @@ const SignUpPage = () => {
                     required
                   />
                 </div>
-
               </>
             )}
 
@@ -332,7 +330,8 @@ const SignUpPage = () => {
 
       <div className="py-6 text-center ">
         <p className="text-gray-600 text-sm">
-          © ২০২৫ <span className="text-[#7ED957] font-bold">জমিযোগ</span> । সর্বস্বত্ব সংরক্ষিত
+          © ২০২৫ <span className="text-[#7ED957] font-bold">জমিযোগ</span> ।
+          সর্বস্বত্ব সংরক্ষিত
         </p>
       </div>
 

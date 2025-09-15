@@ -1,7 +1,7 @@
-import { useParams,  useNavigate } from "react-router-dom";
-import { useEffect, useState, } from "react";
 import axios from "axios";
+import { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
 import experienceIcon from "../../assets/icons/Experience.jpg";
 import priceIcon from "../../assets/icons/Price.jpg";
 import Navbar from "../Navbar/Navbar"; // adjust path if needed
@@ -26,41 +26,48 @@ const SurveyorsDetails = () => {
   if (!surveyor) return <p className="text-center py-10">লোড হচ্ছে...</p>;
 
   // Exclude these fields
-  const hiddenFields = ["email", "password", "__v", "createdAt", "updatedAt", "_id"];
+  const hiddenFields = [
+    "email",
+    "password",
+    "__v",
+    "createdAt",
+    "updatedAt",
+    "_id",
+  ];
 
   // Field labels in Bangla
   const fieldLabels = {
     role: "ভূমিকা",
     name: "নাম",
-    mobile: "মোবাইল নম্বর",
+    mobile: "বয়স", 
     address: "ঠিকানা",
-    companyName: "কোম্পানির নাম",
-    companyAddress: "কোম্পানির ঠিকানা",
-    licenseNumber: "লাইসেন্স নম্বর",
+    companyName: "প্রতিষ্ঠানের নাম",
+    companyAddress: "ঠিকানা",
+    licenseNumber: "মোবাইল নম্বর",
     experience: "অভিজ্ঞতা",
     price: "সেবা মূল্য",
     profileImage: "প্রোফাইল ছবি",
   };
-const handleBooking = async () => {
-  try {
-    const user = JSON.parse(localStorage.getItem("userInfo"));
-    if (!user) {
-      alert("Please login first");
-      return;
+  const handleBooking = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("userInfo"));
+      if (!user) {
+        alert("Please login first");
+        return;
+      }
+
+      const { data } = await axios.post("https://jomijog.com/api/bookings", {
+        userId: user._id,
+        surveyorId: surveyor._id, // the surveyor you are viewing
+        price: surveyor.price, // make sure this exists
+      });
+
+      alert("Booking request sent successfully!");
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || "Booking failed");
     }
-
-    const { data } = await axios.post("https://jomijog.com/api/bookings", {
-      userId: user._id,
-      surveyorId: surveyor._id, // the surveyor you are viewing
-      price: surveyor.price,     // make sure this exists
-    });
-
-    alert("Booking request sent successfully!");
-  } catch (error) {
-    console.error(error);
-    alert(error.response?.data?.message || "Booking failed");
-  }
-};
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
@@ -72,15 +79,17 @@ const handleBooking = async () => {
           {/* Surveyor Image */}
           <div className="flex justify-center">
             <div className="relative w-full max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white">
-              <img
-                src={
-                  surveyor.profileImage
-                    ? `https://jomijog.com${surveyor.profileImage}`
-                    : "/default-surveyor.jpg"
-                }
-                alt={surveyor.name}
-                className="w-full h-[400px] object-cover"
-              />
+              <div className="flex justify-center items-center ">
+                <img
+                  src={
+                    surveyor.profileImage
+                      ? `https://jomijog.com${surveyor.profileImage}`
+                      : "/default-surveyor.jpg"
+                  }
+                  alt={surveyor.name}
+                  className="h-full object-contain"
+                />
+              </div>
             </div>
           </div>
 
