@@ -1,8 +1,8 @@
+import land05 from "../../assets/images/about page lastpic.jpg";
 import land01 from "../../assets/images/land-01.jpg";
 import land02 from "../../assets/images/land-02.jpg";
 import land03 from "../../assets/images/land-03.jpg";
 import land04 from "../../assets/images/land-04.jpg";
-import land05 from "../../assets/images/land-05.jpg";
 import Navbar from "../Navbar/Navbar";
 
 const About = () => {
@@ -157,20 +157,20 @@ const About = () => {
 
       {/* Call to Action */}
       <div
-        className="relative  bg-cover bg-center py-8 md:py-20 text-center object-center object-cover"
+        className="relative bg-cover bg-center py-8 md:py-20 text-center"
         style={{ backgroundImage: `url(${land05})` }}
       >
         <div className="absolute inset-0 bg-black/60"></div>
         <div className="relative z-10 text-white px-6 sm:px-[8%]">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-8 ">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-8">
             জমি সংক্রান্ত সেবা দরকার?
           </h2>
-          <p className=" mb-3 md:mb-10 text-base md:text-xl">
+          <p className="mb-3 md:mb-10 text-base md:text-xl">
             আজই আমাদের সাথে যোগাযোগ করুন এবং বিশ্বস্ত সার্ভেয়ারের সহায়তা নিন।
           </p>
           <a
-            href="tel:+8801725548150"
-            className="bg-[#7ED957] text-black px-6 py-3 rounded-full font-semibold inline-block"
+            href="tel:+8801885447306"
+            className=" text-black px-6 py-3 rounded-full font-semibold inline-block bg-[#7ED957]  hover:opacity-90 transition shadow-md"
           >
             এখনই যোগাযোগ করুন
           </a>

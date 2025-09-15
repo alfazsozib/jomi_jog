@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import knowledgeImage from "../../assets/images/basic Knowledge title.jpg";
 import LandBuyingMistakes from "../GeneralKnowledgePages/LandBuyingMistakes";
 import LandDocumentGuide from "../GeneralKnowledgePages/LandDocumentGuide";
 import LandSurveyGuide from "../GeneralKnowledgePages/LandSurveyGuide";
 import Navbar from "../Navbar/Navbar";
-
 const GeneralKnowledge = () => {
   const [activePage, setActivePage] = useState(null);
   const contentRef = useRef(null); // scrolling
@@ -53,12 +53,21 @@ const GeneralKnowledge = () => {
 
       {/* Hero Section */}
       <div className="text-center px-4 sm:px-8 mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#2F2C2C]">
-          সাধারণ জ্ঞান
-        </h1>
-        <p className="mt-2 text-sm sm:text-base text-gray-600 max-w-xl mx-auto">
-          জমি কেনা-বেচা ও পরিচালনার গুরুত্বপূর্ণ তথ্য, নির্দেশনা এবং গাইডলাইন।
-        </p>
+        <div className="relative px-4 sm:px-8">
+          <div
+            className="relative  w-full h-[30vh] sm:h-[40vh] lg:h-[40vh] rounded-2xl overflow-hidden shadow-lg flex items-center flex-col justify-center bg-cover bg-center"
+            style={{ backgroundImage: `url(${knowledgeImage})` }}
+          >
+            <div className="absolute inset-0 bg-black/50"></div>
+            <h1 className="relative z-10 text-3xl sm:text-5xl md:text-6xl font-bold text-[#7ED957]">
+              সাধারণ জ্ঞান
+            </h1>
+            <p className="text-white drop-shadow-2xl mt-2 text-sm sm:text-base max-w-xl mx-auto">
+              জমি কেনা-বেচা ও পরিচালনার গুরুত্বপূর্ণ তথ্য, নির্দেশনা এবং
+              গাইডলাইন।
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Mobile view */}
@@ -79,9 +88,7 @@ const GeneralKnowledge = () => {
               <h2 className="text-lg font-semibold">{topic.title}</h2>
               <p
                 className={`mt-1 text-sm ${
-                  activePage === topic.title
-                    ? "text-green-50"
-                    : "text-gray-500"
+                  activePage === topic.title ? "text-green-50" : "text-gray-500"
                 }`}
               >
                 {topic.desc}
@@ -133,9 +140,7 @@ const GeneralKnowledge = () => {
 
         {/* Content Section */}
         <div className="mt-12 px-8 md:px-20" ref={contentRef}>
-          <div className="p-8 bg-white ">
-            {pages[activePage]}
-          </div>
+          <div className="p-8 bg-white ">{pages[activePage]}</div>
         </div>
       </div>
     </div>

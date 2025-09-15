@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import logoImage from "../../assets/icons/258x74_black.png";
 import facebookIcon from "../../assets/icons/facebook.png";
+import linkedinIcon from "../../assets/icons/linkedin.png";
 import whatsappIcon from "../../assets/icons/whatsapp.png";
 
 const Footer = () => {
@@ -28,9 +29,26 @@ const Footer = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img src={facebookIcon} alt="Facebook" className="w-6 sm:w-7" />
+              <img
+                src={facebookIcon}
+                alt="Facebook"
+                className="w-6 sm:w-7 href "
+              />
             </a>
-            <img src={whatsappIcon} alt="WhatsApp" className="w-6 sm:w-7" />
+            <a
+              href="https://wa.me/qr/ANA34YBZ644FJ1"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img src={whatsappIcon} alt="WhatsApp" className="w-6 sm:w-7" />
+            </a>
+             <a
+              href="https://www.linkedin.com/company/jomijog/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img src={linkedinIcon} alt="WhatsApp" className="w-6 sm:w-7" />
+            </a>
           </div>
         </div>
 
