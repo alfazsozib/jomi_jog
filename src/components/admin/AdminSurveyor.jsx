@@ -11,7 +11,7 @@ const AdminSurveyor = () => {
   useEffect(() => {
     const fetchSurveyors = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5000/api/users/surveyors");
+        const { data } = await axios.get("https://jomijog.com/api/users/surveyors");
         setSurveyors(data);
       } catch (err) {
         console.error("Failed to fetch surveyors", err);
@@ -27,7 +27,7 @@ const AdminSurveyor = () => {
 
     try {
       // call delete API if exists
-      await axios.delete(`http://localhost:5000/api/users/${id}`);
+      await axios.delete(`https://jomijog.com/api/users/${id}`);
       setSurveyors((prev) => prev.filter((s) => s._id !== id));
     } catch (err) {
       console.error("Failed to delete surveyor", err);
@@ -83,7 +83,7 @@ const AdminSurveyor = () => {
             <div className="relative w-full h-64 bg-gray-100 overflow-hidden">
               {s.profileImage ? (
                 <img
-                  src={`http://localhost:5000${s.profileImage}`}
+                  src={`https://jomijog.com${s.profileImage}`}
                   alt={s.name}
                   className="w-full h-full object-cover"
                 />

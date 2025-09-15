@@ -30,7 +30,7 @@ const approveBooking = asyncHandler(async (req, res) => {
   }
 
   booking.status = "approved";
-  booking.accountNumber = "01304396916"; // Example account number
+  booking.accountNumber = "01321769518"; // Example account number
   await booking.save();
 
   // Store info in user approvals

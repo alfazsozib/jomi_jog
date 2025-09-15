@@ -11,7 +11,7 @@ const CartConsultant = () => {
   useEffect(() => {
     const fetchConsultants = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5000/api/users/consultants"); 
+        const { data } = await axios.get("https://jomijog.com/api/users/consultants"); 
         setConsultants(data);
       } catch (error) {
         console.error("Error fetching consultants:", error);
