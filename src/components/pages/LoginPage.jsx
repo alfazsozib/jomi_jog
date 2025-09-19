@@ -6,6 +6,7 @@ import Navbar from "../Navbar/Navbar";
 const LoginPage = () => {
   const [role, setRole] = useState("user");
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -14,11 +15,13 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loading
+
     try {
-      const { data } = await axios.post("https://jomijog.com/api/users/login", {
-        ...formData,
-        role,
-      });
+      const { data } = await axios.post(
+        "https://jomijog.com/api/users/login",
+        { ...formData, role }
+      );
 
       // Save user info
       localStorage.setItem("userInfo", JSON.stringify(data));
@@ -30,6 +33,8 @@ const LoginPage = () => {
       navigate("/"); // redirect to home/dashboard
     } catch (error) {
       alert(error.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -37,7 +42,7 @@ const LoginPage = () => {
     <main className="min-h-screen bg-[#F5F3ED] flex flex-col justify-between">
       <Navbar />
       <div className="flex-grow flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6">
+        <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 relative">
           <h2 className="text-3xl font-bold text-[#7ED957] text-center mb-6">
             লগইন (Login)
           </h2>
@@ -102,11 +107,16 @@ const LoginPage = () => {
 
             <button
               type="submit"
-              className="w-full bg-[#7ED957] text-white py-3 rounded-md font-semibold"
+              className="w-full bg-[#7ED957] text-white py-3 rounded-md font-semibold relative flex justify-center items-center"
+              disabled={loading}
             >
-              {role === "user"
-                ? "লগইন করুন (ব্যবহারকারী হিসেবে)"
-                : "লগইন করুন (সার্ভেয়ার হিসেবে)"}
+              {loading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+              ) : role === "user" ? (
+                "লগইন করুন (ব্যবহারকারী হিসেবে)"
+              ) : (
+                "লগইন করুন (সার্ভেয়ার হিসেবে)"
+              )}
             </button>
 
             <Link to="/signup">

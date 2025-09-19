@@ -8,9 +8,15 @@ body {
 
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Alinur";
+  src: url("./assets/font/Li\ Alinur\ Banglaborno\ ANSI\ V2.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
 
 body {
   margin: 0;
-  font-family: sans-serif;
+    font-family: "Alinur", sans-serif;
   background-color: #fff;
 }

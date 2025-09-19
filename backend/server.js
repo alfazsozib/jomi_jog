@@ -6,6 +6,7 @@ import userRoutes from "./routes/userRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import path from "path";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import feedbackRoutes from "./routes/feedbackRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -27,6 +28,7 @@ app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/feedbacks", feedbackRoutes);
 
 
 // Error handling

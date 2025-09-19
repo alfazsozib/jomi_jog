@@ -193,7 +193,7 @@ const SignUpPage = () => {
                 বয়স 
               </label>
               <input
-                type="text"
+                type="number"
                 name="age"
                 value={formData.age}
                 onChange={handleChange}
