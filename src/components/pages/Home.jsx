@@ -10,6 +10,7 @@ import FAQ from "./FAQ";
 const Home = () => {
   const [showAddReview, setShowAddReview] = useState(false);
   const [review, setReview] = useState({
+    role: "",
     feedback: "",
     rating: "",
   });
@@ -44,7 +45,7 @@ const Home = () => {
       name: savedUser.name, // fetch name from localStorage
       profileImage: savedUser.profileImage || "", // fetch image
     };
-    console.log(reviewToSubmit)
+    
     const config = {
       headers: {
         Authorization: `Bearer ${savedUser.token}`,
@@ -63,7 +64,7 @@ const Home = () => {
   } catch (err) {
     alert("Failed to submit feedback ❌");
     console.error(err);
-  }
+  } 
 };
 
   return (
@@ -72,11 +73,36 @@ const Home = () => {
 
       {/* Hero Section */}
       <div className="relative px-4 sm:px-8">
-        {/* same hero section */}
-      </div>
+              <div className="relative w-full h-[40vh] sm:h-[55vh] lg:h-[70vh] rounded-2xl overflow-hidden shadow-lg">
+                <img
+                  src={demo}
+                  alt="Hero"
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                />
+                <div className="absolute inset-0 bg-[#131e3d]/70"></div>
+                <div className="relative z-10 flex flex-col items-start justify-center h-full px-6 sm:px-12 md:px-20 text-white">
+                  <h2 className="text-xl sm:text-2xl md:text-5xl font-bold leading-snug mb-4">
+                    যখনই প্রয়োজন, <br /> খুঁজুন বিশ্বস্ত সার্ভেয়ার
+                  </h2>
+                  <p className="text-sm sm:text-base md:text-lg mb-6 max-w-[480px] ">
+                    বুকিং থেকে সার্ভে পর্যন্ত, জমিযোগ আনছে জমি সেবা অনলাইনে— নিরাপদ,
+                    দ্রুত ও বিশ্বস্ত।
+                  </p>
+                  <button className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300">
+                    সার্ভেয়ার বুক করুন
+                  </button>
+                </div>
+              </div>
+            </div>
 
       <CartSurveyor />
-
+      
+      {/* See more button */}
+      <div className="flex justify-center pb-16">
+        <button className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300">
+          আরও দেখুন
+        </button>
+      </div>
       {/* Feedback Display Section */}
       <UserFeedback />
 

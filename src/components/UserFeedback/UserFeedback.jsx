@@ -50,7 +50,7 @@ const UserFeedback = () => {
                 <img
                   src={
                     rev.profileImage
-                      ? `https://jomijog.com${rev.profileImage}`
+                      ? `http://localhost:5000${rev.profileImage}`
                       : "https://via.placeholder.com/80"
                   }
                   alt={rev.name}

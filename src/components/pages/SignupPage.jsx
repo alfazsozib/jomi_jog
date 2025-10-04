@@ -15,12 +15,13 @@ const SignUpPage = () => {
     address: "",
     companyName: "",
     companyAddress: "",
-    mobileNumber: "",
+    mobile: "",
     experience: "",
     price: "",
   });
   const [profileImage, setProfileImage] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,7 +47,8 @@ const SignUpPage = () => {
       toast.error("Passwords do not match");
       return;
     }
-    console.log(formData);
+
+    setLoading(true);
     try {
       const dataToSend = new FormData();
       dataToSend.append("role", role);
@@ -56,14 +58,11 @@ const SignUpPage = () => {
       if (profileImage) dataToSend.append("profileImage", profileImage);
 
       const { data } = await axios.post(
-        "https://jomijog.com/api/users",
+        "http://localhost:5000/api/users",
         dataToSend
       );
 
-      console.log("Registered:", data);
       toast.success("Registration successful!");
-
-      // Reset form
       setFormData({
         name: "",
         email: "",
@@ -73,16 +72,16 @@ const SignUpPage = () => {
         address: "",
         companyName: "",
         companyAddress: "",
-        mobileNumber: "",
+        mobile: "",
         experience: "",
         price: "",
       });
-
       setProfileImage(null);
       setPreview(null);
     } catch (error) {
-      console.error(error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -133,9 +132,8 @@ const SignUpPage = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                placeholder="আপনার নাম লিখুন"
                 required
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
               />
             </div>
 
@@ -149,9 +147,8 @@ const SignUpPage = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                placeholder="আপনার ইমেইল লিখুন"
                 required
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
               />
             </div>
 
@@ -165,9 +162,8 @@ const SignUpPage = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                placeholder="কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন"
                 required
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
               />
             </div>
 
@@ -181,25 +177,38 @@ const SignUpPage = () => {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                placeholder="আবার পাসওয়ার্ড লিখুন"
                 required
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
               />
             </div>
 
-            {/* Mobile */}
+            {/* Age */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-[#7ED957] mb-1">
-                বয়স 
+                বয়স
               </label>
               <input
                 type="number"
                 name="age"
                 value={formData.age}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                placeholder="আপনার বয়স লিখুন"
                 required
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
+              />
+            </div>
+
+            {/* Mobile - always required */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-[#7ED957] mb-1">
+                মোবাইল নম্বর
+              </label>
+              <input
+                type="text"
+                name="mobile"
+                value={formData.mobile}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
               />
             </div>
 
@@ -234,9 +243,8 @@ const SignUpPage = () => {
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                  placeholder="আপনার ঠিকানা লিখুন"
                   required
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
                 />
               </div>
             )}
@@ -252,9 +260,8 @@ const SignUpPage = () => {
                     name="companyName"
                     value={formData.companyName}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                    placeholder="প্রতিষ্ঠানের নাম লিখুন"
                     required
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
                   />
                 </div>
                 <div className="mb-4">
@@ -266,23 +273,8 @@ const SignUpPage = () => {
                     name="companyAddress"
                     value={formData.companyAddress}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                    placeholder="ঠিকানা লিখুন"
                     required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-[#7ED957] mb-1">
-                    মোবাইল নম্বর
-                  </label>
-                  <input
-                    type="text"
-                    name="mobileNumber"
-                    value={formData.mobileNumber}
-                    onChange={handleChange}
                     className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                    placeholder="মোবাইল নম্বর লিখুন"
-                    required
                   />
                 </div>
                 <div className="mb-6">
@@ -294,9 +286,8 @@ const SignUpPage = () => {
                     name="experience"
                     value={formData.experience}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                    placeholder="কত বছরের অভিজ্ঞতা আছে লিখুন"
                     required
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
                   />
                 </div>
                 <div className="mb-4">
@@ -308,9 +299,8 @@ const SignUpPage = () => {
                     name="price"
                     value={formData.price || ""}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                    placeholder="আপনার সার্ভেয়ার সেবা মূল্য লিখুন"
                     required
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
                   />
                 </div>
               </>
@@ -318,24 +308,27 @@ const SignUpPage = () => {
 
             <button
               type="submit"
-              className="w-full bg-[#7ED957] hover:bg-[#7ED957]/90 transition-colors text-white py-3 rounded-md font-semibold"
+              disabled={loading}
+              className="w-full bg-[#7ED957] hover:bg-[#7ED957]/90 transition-colors text-white py-3 rounded-md font-semibold flex justify-center items-center"
             >
-              {role === "user"
-                ? "রেজিস্ট্রেশন করুন (ব্যবহারকারী হিসেবে)"
-                : "রেজিস্ট্রেশন করুন (সার্ভেয়ার হিসেবে)"}
+              {loading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+              ) : role === "user" ? (
+                "রেজিস্ট্রেশন করুন (ব্যবহারকারী হিসেবে)"
+              ) : (
+                "রেজিস্ট্রেশন করুন (সার্ভেয়ার হিসেবে)"
+              )}
             </button>
           </form>
         </div>
       </div>
 
-      <div className="py-6 text-center ">
+      <div className="py-6 text-center">
         <p className="text-gray-600 text-sm">
-          © ২০২৫ <span className="text-[#7ED957] font-bold">জমিযোগ</span> ।
-          সর্বস্বত্ব সংরক্ষিত
+          © ২০২৫ <span className="text-[#7ED957] font-bold">জমিযোগ</span> । সর্বস্বত্ব সংরক্ষিত
         </p>
       </div>
 
-      {/* Toast container */}
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
     </main>
   );

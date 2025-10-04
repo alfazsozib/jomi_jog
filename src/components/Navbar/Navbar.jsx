@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { FiMenu, FiSearch, FiX } from "react-icons/fi";
+import { FiMenu, FiSearch, FiX, FiUser, FiLoader } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import logoImage from "../../assets/icons/258x74_white.png";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [loggingOut, setLoggingOut] = useState(false); // 🔄 logout state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,13 +23,17 @@ function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("userInfo");
-    setUser(null);
-    window.dispatchEvent(new Event("storage"));
-    navigate("/login");
+    setLoggingOut(true); // start spinner
+    setTimeout(() => {
+      localStorage.removeItem("userInfo");
+      setUser(null);
+      window.dispatchEvent(new Event("storage"));
+      setLoggingOut(false); // stop spinner
+      navigate("/login");
+    }, 1000); // simulate delay for animation
   };
 
-  const handleDashboard = () => {
+  const handleProfileClick = () => {
     if (!user) return;
     if (user.role === "user") navigate("/dashboard");
     else if (user.role === "surveyor") navigate("/surveyor-dashboard");
@@ -43,13 +48,13 @@ function Navbar() {
             <img
               src={logoImage}
               alt="Logo"
-              className="w-24 sm:w-28 md:w-32 lg:w-30 xl:w-40  h-auto object-contain"
+              className="w-24 sm:w-28 md:w-32 lg:w-30 xl:w-40 h-auto object-contain"
             />
           </Link>
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex flex-1 justify-center gap-6 lg:gap-4 xl:gap-6  text-[#151515] text-sm sm:text-base md:text-lg lg:text-base xl:text-xl  font-medium">
+        <nav className="hidden md:flex flex-1 justify-center gap-6 lg:gap-4 xl:gap-6 text-[#151515] text-sm sm:text-base md:text-lg lg:text-base xl:text-xl font-medium">
           <Link to={"/"} className="hover:text-[#7ED957] transition">হোম</Link>
           <Link to={"/surveyor"} className="hover:text-[#7ED957] transition">সার্ভেয়ার</Link>
           <Link to={"/consultant"} className="hover:text-[#7ED957] transition">পরামর্শদাতা</Link>
@@ -70,26 +75,43 @@ function Navbar() {
             />
           </div>
 
-          {/* User Buttons */}
+          {/* User Section */}
           {user && (
-            <button
-              onClick={handleDashboard}
-              className="text-base bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300"
-            >
-              Dashboard
-            </button>
+            <div className="flex items-center gap-3">
+              {/* Profile button with click effect */}
+              <button
+                onClick={handleProfileClick}
+                className="w-10 h-10 rounded-full border-2 border-[#7ED957] overflow-hidden flex items-center justify-center transform transition-transform duration-200 active:scale-90"
+              >
+                {user.profileImage ? (
+                  <img
+                    src={`http://localhost:5000${user.profileImage}`}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <FiUser className="w-6 h-6 text-[#7ED957]" />
+                )}
+              </button>
+
+              {/* Logout with spinner */}
+              <button
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="flex items-center justify-center gap-2 text-base lg:px-5 lg:py-2 xl:px-8 xl:py-3 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300 disabled:opacity-70"
+              >
+                {loggingOut ? (
+                  <FiLoader className="animate-spin w-5 h-5" />
+                ) : (
+                  "লগআউট"
+                )}
+              </button>
+            </div>
           )}
 
-          {user ? (
-            <button
-              onClick={handleLogout}
-              className=" text-base  lg:px-5 lg:py-2 xl:px-8 xl:py-3 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300 "
-            >
-              লগআউট
-            </button>
-          ) : (
+          {!user && (
             <Link to={"/login"}>
-              <button className=" text-base lg:px-5 lg:py-2 xl:px-8 xl:py-3 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300 ">
+              <button className="text-base lg:px-5 lg:py-2 xl:px-8 xl:py-3 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300">
                 লগইন
               </button>
             </Link>
@@ -118,6 +140,7 @@ function Navbar() {
           </nav>
 
           <div className="flex flex-col gap-3">
+            {/* Search */}
             <div className="flex items-center w-full bg-[#f5f5eb] rounded-lg px-3 py-2 border border-gray-200">
               <FiSearch className="text-gray-500 mr-2 text-lg" />
               <input
@@ -127,25 +150,43 @@ function Navbar() {
               />
             </div>
 
+            {/* User Section */}
             {user && (
-              <button
-                onClick={handleDashboard}
-                className="text-white font-semibold text-sm bg-blue-500 px-4 py-2 rounded-lg hover:opacity-90 transition shadow-md"
-              >
-                Dashboard
-              </button>
+              <div className="flex items-center gap-3">
+                {/* Profile button with click effect */}
+                <button
+                  onClick={handleProfileClick}
+                  className="w-10 h-10 rounded-full border-2 border-[#7ED957] overflow-hidden flex items-center justify-center transform transition-transform duration-200 active:scale-90"
+                >
+                  {user.profileImage ? (
+                    <img
+                      src={`http://localhost:5000${user.profileImage}`}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <FiUser className="w-6 h-6 text-[#7ED957]" />
+                  )}
+                </button>
+
+                {/* Logout with spinner */}
+                <button
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  className="flex items-center justify-center gap-2 text-white font-semibold text-sm bg-red-500 px-4 py-2 rounded-lg hover:opacity-90 transition shadow-md disabled:opacity-70"
+                >
+                  {loggingOut ? (
+                    <FiLoader className="animate-spin w-5 h-5" />
+                  ) : (
+                    "লগআউট"
+                  )}
+                </button>
+              </div>
             )}
 
-            {user ? (
-              <button
-                onClick={handleLogout}
-                className="text-white font-semibold text-sm bg-red-500 px-4 py-2 rounded-lg hover:opacity-90 transition shadow-md"
-              >
-                লগআউট
-              </button>
-            ) : (
+            {!user && (
               <Link to={"/login"}>
-                <button className="text-white font-semibold text-sm bg-[#7ED957] px-4 py-2 rounded-lg hover:opacity-90 transition shadow-md">
+                <button className="text-white font-semibold cursor-pointer text-sm bg-[#7ED957] px-4 py-2 rounded-lg hover:opacity-90 transition shadow-md">
                   লগইন
                 </button>
               </Link>

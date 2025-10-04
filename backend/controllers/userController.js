@@ -14,7 +14,8 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
-    mobile,
+    age,
+    mobile,   // ✅ Added mobile here
     address,
     companyName,
     companyAddress,
@@ -34,7 +35,7 @@ const registerUser = asyncHandler(async (req, res) => {
   // Handle profile image
   let profileImageURL = null;
   if (req.file) {
-    profileImageURL = `/uploads/${req.file.filename}`; // store relative URL
+    profileImageURL = `/uploads/${req.file.filename}`;
   }
 
   const user = await User.create({
@@ -42,7 +43,8 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email: normalizedEmail,
     password,
-    mobile,
+    age,
+    mobile,   // ✅ Save mobile here
     ...(role === "user" && { address }),
     ...(role === "surveyor" && {
       companyName,
@@ -59,6 +61,7 @@ const registerUser = asyncHandler(async (req, res) => {
     role: user.role,
     name: user.name,
     email: user.email,
+    age: user.age,
     mobile: user.mobile,
     profileImage: user.profileImage,
     message: "Registration successful",
@@ -80,6 +83,7 @@ const loginUser = asyncHandler(async (req, res) => {
       role: user.role,
       name: user.name,
       email: user.email,
+      age: user.age,
       mobile: user.mobile,
       profileImage: user.profileImage,
       token: generateToken(user._id),
@@ -91,8 +95,6 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get all surveyors
-// @route   GET /api/users/surveyors
-// @access  Public
 const getSurveyors = asyncHandler(async (req, res) => {
   const surveyors = await User.find({ role: "surveyor" }).select(
     "name experience profileImage price"
@@ -100,9 +102,7 @@ const getSurveyors = asyncHandler(async (req, res) => {
   res.json(surveyors);
 });
 
-// @desc    Get all users (role = "user")
-// @route   GET /api/users
-// @access  Public
+// @desc    Get all users
 const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({ role: "user" }).select(
     "name email mobile address profileImage"
@@ -110,56 +110,42 @@ const getUsers = asyncHandler(async (req, res) => {
   res.json(users);
 });
 
-// @desc    Delete a user (and their uploaded image file if exists)
-// @route   DELETE /api/users/:id
+// @desc    Delete a user
 const deleteUser = asyncHandler(async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log("🔎 Deleting user with ID:", userId);
-
     const user = await User.findById(userId);
     if (!user) {
       res.status(404);
       throw new Error("User not found");
     }
 
-    // Try to delete image file if exists
     if (user.profileImage) {
       try {
         const relativePath = user.profileImage.startsWith("/")
           ? user.profileImage.slice(1)
           : user.profileImage;
-
-        console.log("🖼 Profile image path:", relativePath);
-
         const absolutePath = path.join(process.cwd(), relativePath);
-
-        console.log("📂 Absolute path:", absolutePath);
-
         if (fs.existsSync(absolutePath)) {
           await fs.promises.unlink(absolutePath);
-          console.log("✅ Image deleted");
         }
       } catch (err) {
         console.error("⚠️ Failed to delete file:", err.message);
       }
     }
 
-    await user.deleteOne(); // safer than user.remove()
+    await user.deleteOne();
     res.json({ message: "User removed" });
   } catch (err) {
-    console.error("❌ Delete error:", err.message);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
-// Get single user/surveyor by ID
+// Get single user
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });

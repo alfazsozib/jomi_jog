@@ -14,7 +14,7 @@ const SurveyorsDetails = () => {
   useEffect(() => {
     const fetchSurveyor = async () => {
       try {
-        const { data } = await axios.get(`https://jomijog.com/api/users/${id}`);
+        const { data } = await axios.get(`http://localhost:5000/api/users/${id}`);
         setSurveyor(data);
       } catch (error) {
         console.error("Error fetching surveyor:", error);
@@ -56,7 +56,7 @@ const SurveyorsDetails = () => {
         return;
       }
 
-      const { data } = await axios.post("https://jomijog.com/api/bookings", {
+      const { data } = await axios.post("http://localhost:5000/api/bookings", {
         userId: user._id,
         surveyorId: surveyor._id, // the surveyor you are viewing
         price: surveyor.price, // make sure this exists
@@ -83,7 +83,7 @@ const SurveyorsDetails = () => {
                 <img
                   src={
                     surveyor.profileImage
-                      ? `https://jomijog.com${surveyor.profileImage}`
+                      ? `http://localhost:5000${surveyor.profileImage}`
                       : "/default-surveyor.jpg"
                   }
                   alt={surveyor.name}

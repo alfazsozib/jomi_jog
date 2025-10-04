@@ -14,7 +14,7 @@ const CartSurveyor = () => {
     const fetchSurveyors = async () => {
       try {
         const { data } = await axios.get(
-          "https://jomijog.com/api/users/surveyors"
+          "http://localhost:5000/api/users/surveyors"
         );
         setSurveyors(data);
       } catch (error) {
@@ -31,7 +31,7 @@ const CartSurveyor = () => {
       <div className="relative w-full h-64 pt-5 flex items-center justify-center bg-white rounded-t-2xl overflow-hidden">
         {img ? (
           <img
-            src={`https://jomijog.com${img}`}
+            src={`http://localhost:5000${img}`}
             alt={name}
             className="max-h-full max-w-full object-cover"
             loading="lazy"
@@ -120,12 +120,6 @@ const CartSurveyor = () => {
         </div>
       </div>
 
-      {/* See more button */}
-      <div className="flex justify-center pb-16">
-        <button className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300">
-          আরও দেখুন
-        </button>
-      </div>
     </div>
   );
 };

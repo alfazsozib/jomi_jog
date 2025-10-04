@@ -35,7 +35,7 @@ const UserPage = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get("https://jomijog.com/api/users"); 
+        const { data } = await axios.get("http://localhost:5000/api/users"); 
         setUsers(data);
         setLoading(false);
       } catch (err) {
@@ -113,7 +113,7 @@ const UserPage = () => {
             >
               {user.profileImage ? (
                 <img
-                  src={`https://jomijog.com${user.profileImage}`}
+                  src={`http://localhost:5000${user.profileImage}`}
                   alt={user.name}
                   className="w-full h-48 sm:h-56 md:h-64 object-cover rounded"
                   loading="lazy"
