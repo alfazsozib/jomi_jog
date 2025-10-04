@@ -2,14 +2,14 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../Navbar/Navbar";
 import experienceIcon from "../../assets/icons/Experience.jpg";
 import priceIcon from "../../assets/icons/Price.jpg";
 
-const CartSurveyor = () => {
+const AllSurveyors = () => {
   const [surveyors, setSurveyors] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch surveyors from backend
   useEffect(() => {
     const fetchSurveyors = async () => {
       try {
@@ -24,7 +24,7 @@ const CartSurveyor = () => {
     fetchSurveyors();
   }, []);
 
-  // Reusable surveyor card
+  // Reusable Surveyor Card
   const SurveyorCard = ({ _id, name, img, experience, price }) => (
     <div className="bg-white rounded-2xl border border-[#7ed95659] overflow-hidden">
       {/* Image */}
@@ -61,7 +61,7 @@ const CartSurveyor = () => {
           {name}
         </h2>
 
-        {/* Experience and Price */}
+        {/* Experience & Price */}
         <div className="flex flex-wrap items-center my-4 gap-3 text-gray-600 text-xs sm:text-sm">
           <div className="flex items-center">
             <img src={experienceIcon} alt="" className="w-4 h-4" />
@@ -73,14 +73,8 @@ const CartSurveyor = () => {
           </div>
         </div>
 
-        {/* Button Section */}
+        {/* Buttons */}
         <div className="flex gap-2.5">
-          {/* <button
-            className="w-full bg-[#7ED957] text-white py-2 sm:py-3 rounded-lg font-semibold hover:opacity-90 transition"
-            onClick={() => navigate(`/surveyors/${_id}`)}
-          >
-            বিস্তারিত
-          </button> */}
           <button
             className="w-full bg-[#7ED957] text-white py-2 sm:py-3 rounded-lg font-semibold hover:opacity-90 transition"
             onClick={() => navigate(`/surveyors/${_id}`)}
@@ -93,35 +87,41 @@ const CartSurveyor = () => {
   );
 
   return (
-    <div className="bg-[#F5F3ED]">
-      <h1 className="pt-16 pb-10 text-[#151515] text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium text-center">
-        আমাদের সার্ভেয়ার সমূহ
-      </h1>
+    <div className="bg-[#F5F3ED] min-h-screen">
+      <Navbar />
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+        <h1 className="pt-20 pb-10 text-[#151515] text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium text-center">
+          আমাদের সব সার্ভেয়ার
+        </h1>
 
-      {/* Cards Grid */}
-      <div className="px-4 sm:px-8 pb-16">
-        <div className="grid gap-5 sm:gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {surveyors.map((surveyor) => (
-            <SurveyorCard
-              key={surveyor._id}
-              _id={surveyor._id}
-              name={surveyor.name}
-              img={surveyor.profileImage}
-              experience={
-                surveyor.experience
-                  ? `${surveyor.experience} বছর`
-                  : "অভিজ্ঞতা নেই"
-              }
-              price={
-                surveyor.price ? `${surveyor.price} টাকা` : "নির্ধারিত নেই"
-              }
-            />
-          ))}
+        {/* Cards Grid */}
+        <div className="grid gap-5 sm:gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-20">
+          {surveyors.length > 0 ? (
+            surveyors.map((surveyor) => (
+              <SurveyorCard
+                key={surveyor._id}
+                _id={surveyor._id}
+                name={surveyor.name}
+                img={surveyor.profileImage}
+                experience={
+                  surveyor.experience
+                    ? `${surveyor.experience} বছর`
+                    : "অভিজ্ঞতা নেই"
+                }
+                price={
+                  surveyor.price ? `${surveyor.price} টাকা` : "নির্ধারিত নেই"
+                }
+              />
+            ))
+          ) : (
+            <p className="text-center text-gray-600 col-span-full">
+              কোনো সার্ভেয়ার পাওয়া যায়নি।
+            </p>
+          )}
         </div>
       </div>
-
     </div>
   );
 };
 
-export default CartSurveyor;
+export default AllSurveyors;

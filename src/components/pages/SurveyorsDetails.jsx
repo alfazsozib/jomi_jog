@@ -16,6 +16,7 @@ const SurveyorsDetails = () => {
       try {
         const { data } = await axios.get(`http://localhost:5000/api/users/${id}`);
         setSurveyor(data);
+        console.log(data)
       } catch (error) {
         console.error("Error fetching surveyor:", error);
       }
@@ -61,6 +62,7 @@ const SurveyorsDetails = () => {
         surveyorId: surveyor._id, // the surveyor you are viewing
         price: surveyor.price, // make sure this exists
       });
+      console.log(data)
 
       alert("Booking request sent successfully!");
     } catch (error) {

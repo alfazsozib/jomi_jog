@@ -19,6 +19,7 @@ import SurveyorsDetails from "./components/pages/SurveyorsDetails.jsx";
 import AdminPermission from "./components/pages/AdminPermission.jsx";
 import UserDashboard from "./components/pages/UserDashboard.jsx";
 import SurveyorDashboard from "./components/pages/SurveyorDashboard.jsx";
+import AllSurveyors from "./components/pages/AllSurveyors.jsx";
 
 function App() {
   return (
@@ -34,6 +35,8 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/add-review" element={<AddReview />} />
         <Route path="/contact-page" element={<ContactPage />} />
+        <Route path="/allsurveyors" element={<AllSurveyors />} />
+
 
         {/* Demo add Admin pages */}
         <Route path="/users" element={<UserPage />} />

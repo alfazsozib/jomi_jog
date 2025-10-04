@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import demo from "../../assets/images/demo-9.png";
 import CartSurveyor from "../cart/CartSurveyor";
@@ -15,15 +15,15 @@ const Home = () => {
     rating: "",
   });
   const [reviews, setReviews] = useState([]);
-  const [user, setUser] = useState(null); // logged in user
+  const [user, setUser] = useState(null);
 
-  // 👉 Load user from localStorage (if logged in)
+  const navigate = useNavigate();
+
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("userInfo"));
     if (savedUser) setUser(savedUser);
   }, []);
 
-  // 👉 Fetch reviews
   useEffect(() => {
     axios.get("/api/feedbacks").then((res) => setReviews(res.data));
   }, []);
@@ -34,38 +34,37 @@ const Home = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    // Get user info from localStorage
-    const savedUser = JSON.parse(localStorage.getItem("userInfo"));
+    try {
+      const savedUser = JSON.parse(localStorage.getItem("userInfo"));
 
-    const reviewToSubmit = {
-      ...review,
-      name: savedUser.name, // fetch name from localStorage
-      profileImage: savedUser.profileImage || "", // fetch image
-    };
-    
-    const config = {
-      headers: {
-        Authorization: `Bearer ${savedUser.token}`,
-      },
-    };
+      const reviewToSubmit = {
+        ...review,
+        name: savedUser.name,
+        profileImage: savedUser.profileImage || "",
+      };
 
-    const { data } = await axios.post(
-      "http://localhost:5000/api/feedbacks",
-      reviewToSubmit,
-      config
-    );
+      const config = {
+        headers: {
+          Authorization: `Bearer ${savedUser.token}`,
+        },
+      };
 
-    alert("মতামত জমা হয়েছে ✅");
-    setShowAddReview(false);
-    setReview({ role: "", feedback: "", rating: "" });
-  } catch (err) {
-    alert("Failed to submit feedback ❌");
-    console.error(err);
-  } 
-};
+      const { data } = await axios.post(
+        "http://localhost:5000/api/feedbacks",
+        reviewToSubmit,
+        config
+      );
+
+      alert("মতামত জমা হয়েছে ✅");
+      setShowAddReview(false);
+      setReview({ role: "", feedback: "", rating: "" });
+    } catch (err) {
+      alert("Failed to submit feedback ❌");
+      console.error(err);
+    }
+  };
 
   return (
     <div className="overflow-x-hidden bg-white">
@@ -73,40 +72,43 @@ const Home = () => {
 
       {/* Hero Section */}
       <div className="relative px-4 sm:px-8">
-              <div className="relative w-full h-[40vh] sm:h-[55vh] lg:h-[70vh] rounded-2xl overflow-hidden shadow-lg">
-                <img
-                  src={demo}
-                  alt="Hero"
-                  className="absolute inset-0 w-full h-full object-cover object-top"
-                />
-                <div className="absolute inset-0 bg-[#131e3d]/70"></div>
-                <div className="relative z-10 flex flex-col items-start justify-center h-full px-6 sm:px-12 md:px-20 text-white">
-                  <h2 className="text-xl sm:text-2xl md:text-5xl font-bold leading-snug mb-4">
-                    যখনই প্রয়োজন, <br /> খুঁজুন বিশ্বস্ত সার্ভেয়ার
-                  </h2>
-                  <p className="text-sm sm:text-base md:text-lg mb-6 max-w-[480px] ">
-                    বুকিং থেকে সার্ভে পর্যন্ত, জমিযোগ আনছে জমি সেবা অনলাইনে— নিরাপদ,
-                    দ্রুত ও বিশ্বস্ত।
-                  </p>
-                  <button className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300">
-                    সার্ভেয়ার বুক করুন
-                  </button>
-                </div>
-              </div>
-            </div>
+        <div className="relative w-full h-[40vh] sm:h-[55vh] lg:h-[70vh] rounded-2xl overflow-hidden shadow-lg">
+          <img
+            src={demo}
+            alt="Hero"
+            className="absolute inset-0 w-full h-full object-cover object-top"
+          />
+          <div className="absolute inset-0 bg-[#131e3d]/70"></div>
+          <div className="relative z-10 flex flex-col items-start justify-center h-full px-6 sm:px-12 md:px-20 text-white">
+            <h2 className="text-xl sm:text-2xl md:text-5xl font-bold leading-snug mb-4">
+              যখনই প্রয়োজন, <br /> খুঁজুন বিশ্বস্ত সার্ভেয়ার
+            </h2>
+            <p className="text-sm sm:text-base md:text-lg mb-6 max-w-[480px] ">
+              বুকিং থেকে সার্ভে পর্যন্ত, জমিযোগ আনছে জমি সেবা অনলাইনে— নিরাপদ,
+              দ্রুত ও বিশ্বস্ত।
+            </p>
+            <button className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300">
+              সার্ভেয়ার বুক করুন
+            </button>
+          </div>
+        </div>
+      </div>
 
       <CartSurveyor />
-      
+
       {/* See more button */}
       <div className="flex justify-center pb-16">
-        <button className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300">
+        <button
+          onClick={() => navigate("/allsurveyors")}
+          className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300"
+        >
           আরও দেখুন
         </button>
       </div>
-      {/* Feedback Display Section */}
+
       <UserFeedback />
 
-      {/* User Reviews Add Section */}
+      {/* Add Review Section */}
       <div className="bg-[#F5F3ED] px-4 sm:px-8 text-center">
         {user ? (
           <button
@@ -132,7 +134,6 @@ const Home = () => {
             onSubmit={handleSubmit}
             className="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-lg"
           >
-            {/* Role */}
             <div className="mb-4">
               <label className="block text-[#151515] font-semibold mb-2">পেশা</label>
               <input
@@ -144,7 +145,6 @@ const Home = () => {
               />
             </div>
 
-            {/* Feedback */}
             <div className="mb-4">
               <label className="block text-[#151515] font-semibold mb-2">
                 পর্যালোচনা / প্রশ্ন
@@ -158,7 +158,6 @@ const Home = () => {
               />
             </div>
 
-            {/* Rating */}
             <div className="mb-6">
               <label className="block text-[#151515] font-semibold mb-2">
                 রেটিং (1-5)
