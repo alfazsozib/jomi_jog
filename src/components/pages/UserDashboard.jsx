@@ -13,7 +13,7 @@ const UserDashboard = () => {
 
       try {
         const { data } = await axios.get(
-          `http://localhost:5000/api/users/${storedUser._id}`
+          `https://jomijog.com/api/users/${storedUser._id}`
         );
         setUserData(data);
       } catch (error) {
@@ -27,7 +27,7 @@ const UserDashboard = () => {
 
       try {
         const { data } = await axios.get(
-          `http://localhost:5000/api/bookings/user/${storedUser._id}`
+          `https://jomijog.com/api/bookings/user/${storedUser._id}`
         );
         setBookings(data);
         console.log(data)
@@ -78,7 +78,7 @@ const UserDashboard = () => {
             <img
               src={
                 userData.profileImage
-                  ? `http://localhost:5000${userData.profileImage}`
+                  ? `https://jomijog.com${userData.profileImage}`
                   : "/default-user.jpg"
               }
               alt={userData.name}

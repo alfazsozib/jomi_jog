@@ -8,7 +8,7 @@ const AdminPermission = () => {
 
   const fetchRequests = async () => {
     try {
-      const { data } = await axios.get("http://localhost:5000/api/bookings/admin");
+      const { data } = await axios.get("https://jomijog.com/api/bookings/admin");
       setRequests(data);
     } catch (error) {
       console.error(error);
@@ -21,7 +21,7 @@ const AdminPermission = () => {
 
   const handleAction = async (id, action) => {
     try {
-      await axios.put(`http://localhost:5000/api/bookings/${action}/${id}`);
+      await axios.put(`https://jomijog.com/api/bookings/${action}/${id}`);
       fetchRequests();
     } catch (error) {
       console.error(error);

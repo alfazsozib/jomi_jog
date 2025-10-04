@@ -52,7 +52,7 @@ const Home = () => {
       };
 
       const { data } = await axios.post(
-        "http://localhost:5000/api/feedbacks",
+        "https://jomijog.com/api/feedbacks",
         reviewToSubmit,
         config
       );

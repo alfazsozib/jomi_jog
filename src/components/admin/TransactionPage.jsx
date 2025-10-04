@@ -14,7 +14,7 @@ const TransactionPage = () => {
       try {
         setLoading(true);
         // Fetch all approved bookings from backend
-        const { data } = await axios.get("http://localhost:5000/api/bookings/admin");
+        const { data } = await axios.get("https://jomijog.com/api/bookings/admin");
         // Filter only approved bookings
         const approvedBookings = data
           .filter((b) => b.status === "approved")

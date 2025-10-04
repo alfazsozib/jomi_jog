@@ -59,7 +59,7 @@ const AddSurveyor = () => {
 
       if (profileImage) dataToSend.append("profileImage", profileImage);
 
-      await axios.post("http://localhost:5000/api/users", dataToSend, {
+      await axios.post("https://jomijog.com/api/users", dataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
