@@ -7,7 +7,9 @@ import {
   getUsers,
   getSurveyors,
   deleteUser,
-  getUserById
+  getUserById,
+  forgotPassword, 
+  resetPassword
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -31,5 +33,8 @@ router.get("/", getUsers);
 router.get("/:id", getUserById);
 // DELETE (remove user by id)
 router.delete("/:id", deleteUser);
+
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 export default router;

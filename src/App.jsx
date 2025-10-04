@@ -20,6 +20,9 @@ import AdminPermission from "./components/pages/AdminPermission.jsx";
 import UserDashboard from "./components/pages/UserDashboard.jsx";
 import SurveyorDashboard from "./components/pages/SurveyorDashboard.jsx";
 import AllSurveyors from "./components/pages/AllSurveyors.jsx";
+import ForgotPassword from "./components/pages/ForgetPassword.jsx";
+import ResetPassword from "./components/pages/ResetPassword.jsx";
+
 
 function App() {
   return (
@@ -36,6 +39,8 @@ function App() {
         <Route path="/add-review" element={<AddReview />} />
         <Route path="/contact-page" element={<ContactPage />} />
         <Route path="/allsurveyors" element={<AllSurveyors />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+<Route path="/reset-password/:token" element={<ResetPassword />} />
 
 
         {/* Demo add Admin pages */}

@@ -29,7 +29,6 @@ const LoginPage = () => {
       // Trigger storage event so Navbar updates immediately
       window.dispatchEvent(new Event("storage"));
 
-      alert("Login successful");
       navigate("/"); // redirect to home/dashboard
     } catch (error) {
       alert(error.response?.data?.message || "Login failed");
@@ -103,6 +102,15 @@ const LoginPage = () => {
                 placeholder="আপনার পাসওয়ার্ড লিখুন"
                 required
               />
+              {/* 👇 Forgot Password Link */}
+              <div className="text-right mt-2">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-[#7ED957] hover:underline"
+                >
+                  পাসওয়ার্ড ভুলে গেছেন?
+                </Link>
+              </div>
             </div>
 
             <button

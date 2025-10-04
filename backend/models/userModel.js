@@ -63,6 +63,8 @@ const userSchema = new mongoose.Schema(
     surveyorPrice: Number,
     accountNumber: String,
   },
+  {resetPasswordToken: String},
+{resetPasswordExpire: Date},
 ],
 
   },
