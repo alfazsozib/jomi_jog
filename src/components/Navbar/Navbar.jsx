@@ -77,7 +77,7 @@ function Navbar() {
           <Link to={"/"} className="hover:text-[#7ED957] transition">
             হোম
           </Link>
-          <Link to={"/surveyor"} className="hover:text-[#7ED957] transition">
+          <Link to={"/allsurveyors"} className="hover:text-[#7ED957] transition">
             সার্ভেয়ার
           </Link>
           <Link to={"/consultant"} className="hover:text-[#7ED957] transition">
@@ -196,7 +196,7 @@ function Navbar() {
             <Link to={"/"} className="hover:text-[#7ED957] transition">
               হোম
             </Link>
-            <Link to={"/surveyor"} className="hover:text-[#7ED957] transition">
+            <Link to={"/allsurveyors"} className="hover:text-[#7ED957] transition">
               সার্ভেয়ার
             </Link>
             <Link to={"/consultant"} className="hover:text-[#7ED957] transition">

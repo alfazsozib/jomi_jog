@@ -67,7 +67,7 @@ const Home = () => {
   };
 
   return (
-    <div className="overflow-x-hidden bg-white">
+    <div className="overflow-x-hidden bg-[#F5F3ED]">
       <Navbar />
 
       {/* Hero Section */}
@@ -87,7 +87,10 @@ const Home = () => {
               বুকিং থেকে সার্ভে পর্যন্ত, জমিযোগ আনছে জমি সেবা অনলাইনে— নিরাপদ,
               দ্রুত ও বিশ্বস্ত।
             </p>
-            <button className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300">
+            
+            <button
+            onClick={() => navigate("/allsurveyors")}
+            className="px-8 py-3 sm:px-10 cursor-pointer sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300">
               সার্ভেয়ার বুক করুন
             </button>
           </div>

@@ -94,6 +94,7 @@ export default function ContactPage() {
             </div>
 
             <button
+            disabled={true}
               type="submit"
               className="w-full py-3 bg-[#7ED957] text-black font-semibold rounded-lg hover:bg-green-600 transition-colors"
             >

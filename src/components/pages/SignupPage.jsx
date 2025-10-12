@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../Navbar/Navbar";
 
 const SignUpPage = () => {
-  const [role, setRole] = useState("user");
+  const [role] = useState("user"); // fixed role
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -13,11 +13,7 @@ const SignUpPage = () => {
     confirmPassword: "",
     age: "",
     address: "",
-    companyName: "",
-    companyAddress: "",
     mobile: "",
-    experience: "",
-    price: "",
   });
   const [profileImage, setProfileImage] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -70,11 +66,7 @@ const SignUpPage = () => {
         confirmPassword: "",
         age: "",
         address: "",
-        companyName: "",
-        companyAddress: "",
         mobile: "",
-        experience: "",
-        price: "",
       });
       setProfileImage(null);
       setPreview(null);
@@ -94,32 +86,6 @@ const SignUpPage = () => {
           <h2 className="text-3xl font-bold text-[#7ED957] text-center mb-6">
             সাইন আপ (Sign Up)
           </h2>
-
-          {/* Role toggle */}
-          <div className="flex justify-center mb-8 space-x-4">
-            <button
-              type="button"
-              onClick={() => setRole("user")}
-              className={`px-6 py-2 rounded-md font-semibold transition-colors ${
-                role === "user"
-                  ? "bg-[#7ED957] text-white shadow-md"
-                  : "bg-[#7ED957]/10 text-[#7ED957] hover:bg-[#7ED957]/15"
-              }`}
-            >
-              ব্যবহারকারী
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole("surveyor")}
-              className={`px-6 py-2 rounded-md font-semibold transition-colors ${
-                role === "surveyor"
-                  ? "bg-[#7ED957] text-white shadow-md"
-                  : "bg-[#7ED957]/10 text-[#7ED957] hover:bg-[#7ED957]/15"
-              }`}
-            >
-              সার্ভেয়ার
-            </button>
-          </div>
 
           <form onSubmit={handleSubmit}>
             {/* Full Name */}
@@ -197,7 +163,7 @@ const SignUpPage = () => {
               />
             </div>
 
-            {/* Mobile - always required */}
+            {/* Mobile */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-[#7ED957] mb-1">
                 মোবাইল নম্বর
@@ -212,7 +178,22 @@ const SignUpPage = () => {
               />
             </div>
 
-            {/* Optional profile image */}
+            {/* Address */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-[#7ED957] mb-1">
+                ঠিকানা
+              </label>
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
+              />
+            </div>
+
+            {/* Profile Image (optional) */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-[#7ED957] mb-1">
                 প্রোফাইল ছবি (ঐচ্ছিক)
@@ -232,80 +213,7 @@ const SignUpPage = () => {
               )}
             </div>
 
-            {/* Conditional fields */}
-            {role === "user" && (
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-[#7ED957] mb-1">
-                  ঠিকানা
-                </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                />
-              </div>
-            )}
-
-            {role === "surveyor" && (
-              <>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-[#7ED957] mb-1">
-                    প্রতিষ্ঠানের নাম
-                  </label>
-                  <input
-                    type="text"
-                    name="companyName"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-[#7ED957] mb-1">
-                    ঠিকানা
-                  </label>
-                  <input
-                    type="text"
-                    name="companyAddress"
-                    value={formData.companyAddress}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                  />
-                </div>
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-[#7ED957] mb-1">
-                    অভিজ্ঞতা (বছর)
-                  </label>
-                  <input
-                    type="number"
-                    name="experience"
-                    value={formData.experience}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-[#7ED957] mb-1">
-                    সেবা মূল্য
-                  </label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price || ""}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7ED957] border-gray-300"
-                  />
-                </div>
-              </>
-            )}
-
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -313,10 +221,8 @@ const SignUpPage = () => {
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-              ) : role === "user" ? (
-                "রেজিস্ট্রেশন করুন (ব্যবহারকারী হিসেবে)"
               ) : (
-                "রেজিস্ট্রেশন করুন (সার্ভেয়ার হিসেবে)"
+                "রেজিস্ট্রেশন করুন"
               )}
             </button>
           </form>

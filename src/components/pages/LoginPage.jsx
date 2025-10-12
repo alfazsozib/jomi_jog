@@ -59,7 +59,7 @@ const LoginPage = () => {
             >
               ব্যবহারকারী লগইন
             </button>
-            <button
+            {/* <button
               type="button"
               onClick={() => setRole("surveyor")}
               className={`px-6 py-2 rounded-md font-semibold ${
@@ -69,7 +69,7 @@ const LoginPage = () => {
               }`}
             >
               সার্ভেয়ার লগইন
-            </button>
+            </button> */}
           </div>
 
           {/* Login Form */}

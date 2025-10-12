@@ -82,9 +82,6 @@ const Footer = () => {
             <Link to="/login" className="hover:text-[#7ED957] transition">
               লগইন
             </Link>
-            <Link to="/login" className="hover:text-[#7ED957] transition">
-              LogIn As a Admin
-            </Link>
           </div>
         </div>
 
