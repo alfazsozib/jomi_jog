@@ -1,6 +1,6 @@
 {
   "name": "bd-land-surveyor",
-  "homepage": "https://jomijog.com/",
+  "homepage": "http://localhost:5000/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
