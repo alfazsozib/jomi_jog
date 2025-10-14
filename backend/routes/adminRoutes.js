@@ -1,0 +1,48 @@
+import express from "express";
+import multer from "multer";
+import path from "path";
+import {
+  addSurveyor,
+  addConsultant,
+  getAllSurveyors,
+  getAllConsultants,
+  getAllUsers,
+  getPendingRequests,
+  deleteUserById,
+  updateSurveyor,
+  updateConsultant
+} from "../controllers/adminController.js";
+
+const router = express.Router();
+
+// Multer storage for profile images
+const storage = multer.diskStorage({
+  destination(req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename(req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+const upload = multer({ storage });
+
+// Surveyor routes
+router.post("/add-surveyor", upload.single("profileImage"), addSurveyor);
+router.get("/surveyors", getAllSurveyors);
+router.put("/update-surveyor/:id", upload.single("profileImage"), updateSurveyor);
+
+// Consultant routes
+router.post("/add-consultant", upload.single("profileImage"), addConsultant);
+router.get("/consultants", getAllConsultants);
+router.put("/update-consultant/:id", upload.single("profileImage"), updateConsultant);
+
+// General user routes
+router.get("/users", getAllUsers);
+
+// Pending Requests
+router.get("/pending", getPendingRequests);
+
+// Delete user
+router.delete("/delete/:id", deleteUserById);
+
+export default router;

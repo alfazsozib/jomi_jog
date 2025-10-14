@@ -1,9 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import AddSurveyor from "./components/admin/AddSurveyor";
-import AdminSurveyor from "./components/admin/AdminSurveyor";
-import TransactionPage from "./components/admin/TransactionPage";
-import UserPage from "./components/admin/User";
+
 import About from "./components/pages/About";
 import AddReview from "./components/pages/AddReview";
 import Consultant from "./components/pages/Consultant.jsx";
@@ -22,6 +19,7 @@ import SurveyorDashboard from "./components/pages/SurveyorDashboard.jsx";
 import AllSurveyors from "./components/pages/AllSurveyors.jsx";
 import ForgotPassword from "./components/pages/ForgetPassword.jsx";
 import ResetPassword from "./components/pages/ResetPassword.jsx";
+import AdminPanel from "./components/admin/AdminPanel.jsx";
 
 
 function App() {
@@ -44,12 +42,8 @@ function App() {
 
 
         {/* Demo add Admin pages */}
-        <Route path="/users" element={<UserPage />} />
-        <Route path="/transactions" element={<TransactionPage />} />
-        <Route path="/admin-surveyors" element={<AdminSurveyor />} />
-        <Route path="/add-surveyor" element={<AddSurveyor />} />
+        <Route path="/users" element={<AdminPanel />} />
         <Route path="/surveyors/:id" element={<SurveyorsDetails />} />
-<Route path="/admin/permissions" element={<AdminPermission />} />
 <Route path="/dashboard" element={<UserDashboard />} />
 <Route path="/surveyor-dashboard" element={<SurveyorDashboard/>} />
 
