@@ -1,3 +1,4 @@
+// routes/bookingRoutes.js
 import express from "express";
 import Booking from "../models/bookingModel.js";
 import Notification from "../models/notification.js";
@@ -7,15 +8,31 @@ const router = express.Router();
 // ================= User: Create booking =================
 router.post("/", async (req, res) => {
   try {
-    const { userId, surveyorId, price, date } = req.body; // ✅ accept date
+    const { userId, surveyorId, consultantId, price, date } = req.body;
 
-    if (!userId || !surveyorId || !price || !date) {
-      return res.status(400).json({ message: "All fields including date are required" });
+    // Validation
+    if (!userId || !price || !date) {
+      return res.status(400).json({ message: "User, price, and date are required" });
     }
 
-    const booking = await Booking.create({ userId, surveyorId, price, date }); // ✅ store date
+    if (!surveyorId && !consultantId) {
+      return res
+        .status(400)
+        .json({ message: "Either surveyorId or consultantId must be provided" });
+    }
+
+    // Create booking
+    const booking = await Booking.create({
+      userId,
+      surveyorId,
+      consultantId,
+      price,
+      date,
+    });
+
     res.status(201).json(booking);
   } catch (err) {
+    console.error("Error creating booking:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -25,10 +42,12 @@ router.get("/admin/pending", async (req, res) => {
   try {
     const bookings = await Booking.find({ status: "pending" })
       .populate("userId", "name email mobile")
-      .populate("surveyorId", "name price mobile");
+      .populate("surveyorId", "name price mobile")
+      .populate("consultantId", "name price mobile");
 
     res.json(bookings);
   } catch (err) {
+    console.error("Error fetching pending bookings:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -36,7 +55,7 @@ router.get("/admin/pending", async (req, res) => {
 // ================= Admin: Accept / Reject booking =================
 router.put("/admin/:id", async (req, res) => {
   try {
-    const { status } = req.body; // accepted / rejected
+    const { status } = req.body;
     if (!["accepted", "rejected"].includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
@@ -47,11 +66,13 @@ router.put("/admin/:id", async (req, res) => {
       { new: true }
     );
 
-    // Create notification for the user
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
     const message =
       status === "accepted"
         ? "Your booking has been accepted!"
         : "Your booking has been rejected!";
+
     await Notification.create({
       userId: booking.userId,
       bookingId: booking._id,
@@ -60,6 +81,7 @@ router.put("/admin/:id", async (req, res) => {
 
     res.json({ message: `Booking ${status}`, booking });
   } catch (err) {
+    console.error("Error updating booking:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -69,9 +91,12 @@ router.get("/user/:userId", async (req, res) => {
   try {
     const bookings = await Booking.find({ userId: req.params.userId })
       .populate("surveyorId", "name mobile price")
+      .populate("consultantId", "name mobile price")
       .populate("userId", "name email mobile");
+
     res.json(bookings);
   } catch (err) {
+    console.error("Error fetching user bookings:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -85,6 +110,7 @@ router.delete("/:id", async (req, res) => {
     await booking.remove();
     res.json({ message: "Booking deleted successfully" });
   } catch (error) {
+    console.error("Error deleting booking:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
