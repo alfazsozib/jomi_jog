@@ -4,17 +4,18 @@ import asyncHandler from "express-async-handler";
 
 // Create a booking
 const createBooking = asyncHandler(async (req, res) => {
-  const { userId, surveyorId, price } = req.body;
+  const { userId, surveyorId, price, date } = req.body;
 
-  if (!userId || !surveyorId || !price) {
+  if (!userId || !surveyorId || !price || !date) {
     res.status(400);
-    throw new Error("All fields are required");
+    throw new Error("All fields are required, including date");
   }
 
   const booking = await Booking.create({
     user: userId,
     surveyor: surveyorId,
     price,
+    date, // ✅ store the selected date
   });
 
   res.status(201).json(booking);
@@ -39,6 +40,7 @@ const approveBooking = asyncHandler(async (req, res) => {
     surveyorMobile: booking.surveyor.mobile,
     surveyorPrice: booking.price,
     accountNumber: booking.accountNumber,
+    date: booking.date, // ✅ include date in approval info if needed
   };
   await User.findByIdAndUpdate(booking.user._id, { $push: { approvals: approvalInfo } });
 

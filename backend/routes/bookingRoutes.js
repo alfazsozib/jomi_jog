@@ -7,8 +7,13 @@ const router = express.Router();
 // ================= User: Create booking =================
 router.post("/", async (req, res) => {
   try {
-    const { userId, surveyorId, price } = req.body;
-    const booking = await Booking.create({ userId, surveyorId, price });
+    const { userId, surveyorId, price, date } = req.body; // ✅ accept date
+
+    if (!userId || !surveyorId || !price || !date) {
+      return res.status(400).json({ message: "All fields including date are required" });
+    }
+
+    const booking = await Booking.create({ userId, surveyorId, price, date }); // ✅ store date
     res.status(201).json(booking);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -19,13 +24,11 @@ router.post("/", async (req, res) => {
 router.get("/admin/pending", async (req, res) => {
   try {
     const bookings = await Booking.find({ status: "pending" })
-  .populate("userId", "name email")
-  .populate("surveyorId", "name price");
+      .populate("userId", "name email mobile")
+      .populate("surveyorId", "name price mobile");
 
-    console.log("Pending bookings fetched:", bookings);
     res.json(bookings);
   } catch (err) {
-    console.error("Error fetching pending bookings:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
@@ -61,19 +64,19 @@ router.put("/admin/:id", async (req, res) => {
   }
 });
 
+// ================= Get bookings for a user =================
 router.get("/user/:userId", async (req, res) => {
   try {
     const bookings = await Booking.find({ userId: req.params.userId })
-      .populate("surveyorId", "name mobile") // get surveyor info
-      .populate("userId", "name email mobile"); // get user info
+      .populate("surveyorId", "name mobile price")
+      .populate("userId", "name email mobile");
     res.json(bookings);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-
-// DELETE booking by ID
+// ================= Delete booking =================
 router.delete("/:id", async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id);
@@ -82,7 +85,6 @@ router.delete("/:id", async (req, res) => {
     await booking.remove();
     res.json({ message: "Booking deleted successfully" });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 });

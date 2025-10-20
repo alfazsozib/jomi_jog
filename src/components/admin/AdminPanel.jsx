@@ -44,16 +44,15 @@ export default function AdminPanel() {
     fetchPendingRequests();
   }, []);
 
+  // ========== Fetch Functions ==========
   const fetchSurveyors = async () => {
     try {
       setLoading(true);
       const res = await axios.get("http://localhost:5000/api/admin/surveyors");
       setSurveyors(res.data);
-    } catch (err) {
+    } catch {
       toast.error("Error fetching surveyors");
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   const fetchConsultants = async () => {
@@ -61,11 +60,9 @@ export default function AdminPanel() {
       setLoading(true);
       const res = await axios.get("http://localhost:5000/api/admin/consultants");
       setConsultants(res.data);
-    } catch (err) {
+    } catch {
       toast.error("Error fetching consultants");
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   const fetchPendingRequests = async () => {
@@ -73,25 +70,23 @@ export default function AdminPanel() {
       setLoading(true);
       const res = await axios.get("http://localhost:5000/api/bookings/admin/pending");
       setPendingRequests(res.data);
-    } catch (err) {
+    } catch {
       toast.error("Error fetching pending requests");
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  // ================ Booking Accept / Reject ================
+  // ========== Booking Accept / Reject ==========
   const handleBookingStatus = async (id, status) => {
     try {
       await axios.put(`http://localhost:5000/api/bookings/admin/${id}`, { status });
       toast.success(`Booking ${status} successfully`);
-      fetchPendingRequests(); // Refresh list
+      fetchPendingRequests();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update booking status");
     }
   };
 
-  // ================ Add / Edit Surveyor =================
+  // ========== Add / Edit Surveyor ==========
   const submitSurveyor = async () => {
     try {
       setLoading(true);
@@ -109,9 +104,7 @@ export default function AdminPanel() {
       fetchSurveyors();
     } catch (err) {
       toast.error(err.response?.data?.message || "Error saving surveyor");
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   const editSurveyor = (surveyor) => {
@@ -125,14 +118,12 @@ export default function AdminPanel() {
       await axios.delete(`http://localhost:5000/api/admin/delete/${id}`);
       toast.success("Surveyor deleted successfully");
       fetchSurveyors();
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Error deleting surveyor");
-    } finally {
-      setLoading(false);
-    }
+    } catch {
+      toast.error("Error deleting surveyor");
+    } finally { setLoading(false); }
   };
 
-  // ================ Add / Edit Consultant =================
+  // ========== Add / Edit Consultant ==========
   const submitConsultant = async () => {
     try {
       setLoading(true);
@@ -148,11 +139,9 @@ export default function AdminPanel() {
       }
       setNewConsultant(initialConsultantState);
       fetchConsultants();
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Error saving consultant");
-    } finally {
-      setLoading(false);
-    }
+    } catch {
+      toast.error("Error saving consultant");
+    } finally { setLoading(false); }
   };
 
   const editConsultant = (consultant) => {
@@ -166,14 +155,12 @@ export default function AdminPanel() {
       await axios.delete(`http://localhost:5000/api/admin/delete/${id}`);
       toast.success("Consultant deleted successfully");
       fetchConsultants();
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Error deleting consultant");
-    } finally {
-      setLoading(false);
-    }
+    } catch {
+      toast.error("Error deleting consultant");
+    } finally { setLoading(false); }
   };
 
-  // ================= Render Pending Bookings =================
+  // ========== Render Pending Requests ==========
   const renderPendingRequests = () => (
     <div className="bg-white rounded-2xl shadow-md p-6">
       <h3 className="text-xl font-semibold mb-4">Pending Booking Requests</h3>
@@ -185,6 +172,7 @@ export default function AdminPanel() {
             <th className="p-3">Surveyor</th>
             <th className="p-3">Surveyor Contact</th>
             <th className="p-3">Price</th>
+            <th className="p-3">Date</th>
             <th className="p-3">Actions</th>
           </tr>
         </thead>
@@ -196,13 +184,10 @@ export default function AdminPanel() {
               <td className="p-3">{req.surveyorId?.name || "Unknown Surveyor"}</td>
               <td className="p-3">{req.surveyorId?.mobile || "N/A"}</td>
               <td className="p-3">{req.price || "N/A"}</td>
+              <td className="p-3">{req.date ? new Date(req.date).toLocaleDateString("en-GB") : "N/A"}</td>
               <td className="p-3 flex gap-2">
-                <button onClick={() => handleBookingStatus(req._id, "accepted")} className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 flex items-center gap-1">
-                  <Check size={16} /> Accept
-                </button>
-                <button onClick={() => handleBookingStatus(req._id, "rejected")} className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 flex items-center gap-1">
-                  <X size={16} /> Reject
-                </button>
+                <button onClick={() => handleBookingStatus(req._id, "accepted")} className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 flex items-center gap-1"><Check size={16} /> Accept</button>
+                <button onClick={() => handleBookingStatus(req._id, "rejected")} className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 flex items-center gap-1"><X size={16} /> Reject</button>
               </td>
             </tr>
           ))}
@@ -211,7 +196,7 @@ export default function AdminPanel() {
     </div>
   );
 
-  // ================= Render Table =================
+  // ========== Render Table ==========
   const renderTable = (data, type) => (
     <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
       <table className="w-full border-collapse">
@@ -242,16 +227,18 @@ export default function AdminPanel() {
     </div>
   );
 
-  // ================= Render Forms =================
+  // ========== Render Forms ==========
   const renderSurveyorForm = () => (
     <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
       <h3 className="text-lg font-semibold mb-4">{editSurveyorId ? "Edit Surveyor" : "Add New Surveyor"}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {Object.keys(initialSurveyorState).map((key) => key === "profileImage" ? (
-          <input key={key} type="file" accept="image/*" onChange={(e) => setNewSurveyor({ ...newSurveyor, profileImage: e.target.files[0] })} />
-        ) : (
-          <input key={key} type={key === "password" ? "password" : key === "price" ? "number" : "text"} placeholder={key.charAt(0).toUpperCase() + key.slice(1)} value={newSurveyor[key]} onChange={(e) => setNewSurveyor({ ...newSurveyor, [key]: e.target.value })} className="border p-2 rounded-md focus:outline-[#7ED957]" />
-        ))}
+        {Object.keys(initialSurveyorState).map((key) =>
+          key === "profileImage" ? (
+            <input key={key} type="file" accept="image/*" onChange={(e) => setNewSurveyor({ ...newSurveyor, profileImage: e.target.files[0] })} />
+          ) : (
+            <input key={key} type={key === "password" ? "password" : key === "price" ? "number" : "text"} placeholder={key.charAt(0).toUpperCase() + key.slice(1)} value={newSurveyor[key]} onChange={(e) => setNewSurveyor({ ...newSurveyor, [key]: e.target.value })} className="border p-2 rounded-md focus:outline-[#7ED957]" />
+          )
+        )}
       </div>
       <button onClick={submitSurveyor} className="bg-[#7ED957] text-black px-4 py-2 rounded-lg mt-4 font-semibold hover:bg-[#6dc44e] transition">{editSurveyorId ? "Update Surveyor" : "Add Surveyor"}</button>
     </div>
@@ -261,11 +248,13 @@ export default function AdminPanel() {
     <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
       <h3 className="text-lg font-semibold mb-4">{editConsultantId ? "Edit Consultant" : "Add New Consultant"}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {Object.keys(initialConsultantState).map((key) => key === "profileImage" ? (
-          <input key={key} type="file" accept="image/*" onChange={(e) => setNewConsultant({ ...newConsultant, profileImage: e.target.files[0] })} />
-        ) : (
-          <input key={key} type={key === "password" ? "password" : key === "price" ? "number" : "text"} placeholder={key.charAt(0).toUpperCase() + key.slice(1)} value={newConsultant[key]} onChange={(e) => setNewConsultant({ ...newConsultant, [key]: e.target.value })} className="border p-2 rounded-md focus:outline-[#7ED957]" />
-        ))}
+        {Object.keys(initialConsultantState).map((key) =>
+          key === "profileImage" ? (
+            <input key={key} type="file" accept="image/*" onChange={(e) => setNewConsultant({ ...newConsultant, profileImage: e.target.files[0] })} />
+          ) : (
+            <input key={key} type={key === "password" ? "password" : key === "price" ? "number" : "text"} placeholder={key.charAt(0).toUpperCase() + key.slice(1)} value={newConsultant[key]} onChange={(e) => setNewConsultant({ ...newConsultant, [key]: e.target.value })} className="border p-2 rounded-md focus:outline-[#7ED957]" />
+          )
+        )}
       </div>
       <button onClick={submitConsultant} className="bg-[#7ED957] text-black px-4 py-2 rounded-lg mt-4 font-semibold hover:bg-[#6dc44e] transition">{editConsultantId ? "Update Consultant" : "Add Consultant"}</button>
     </div>
