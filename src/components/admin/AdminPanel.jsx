@@ -38,6 +38,8 @@ export default function AdminPanel() {
     mobile: "",
     education: "",
     experience: "",
+    price: "",
+    licenseNumber: "",
     profileImage: null,
   };
 
@@ -89,23 +91,22 @@ export default function AdminPanel() {
       setLoading(true);
       const formData = new FormData();
       Object.keys(newSurveyor).forEach((key) => {
-        if (newSurveyor[key] !== null) formData.append(key, newSurveyor[key]);
+        formData.append(key, newSurveyor[key] !== null ? newSurveyor[key] : "");
       });
 
       if (editSurveyorId) {
-        // Edit
         await axios.put(`http://localhost:5000/api/admin/update-surveyor/${editSurveyorId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success("Surveyor updated successfully");
         setEditSurveyorId(null);
       } else {
-        // Add
         await axios.post("http://localhost:5000/api/admin/add-surveyor", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success("Surveyor added successfully");
       }
+
       setNewSurveyor(initialSurveyorState);
       fetchSurveyors();
     } catch (err) {
@@ -119,7 +120,7 @@ export default function AdminPanel() {
     setEditSurveyorId(surveyor._id);
     setNewSurveyor({
       ...surveyor,
-      profileImage: null, // reset file input
+      profileImage: null,
     });
   };
 
@@ -142,7 +143,7 @@ export default function AdminPanel() {
       setLoading(true);
       const formData = new FormData();
       Object.keys(newConsultant).forEach((key) => {
-        if (newConsultant[key] !== null) formData.append(key, newConsultant[key]);
+        formData.append(key, newConsultant[key] !== null ? newConsultant[key] : "");
       });
 
       if (editConsultantId) {
@@ -157,6 +158,7 @@ export default function AdminPanel() {
         });
         toast.success("Consultant added successfully");
       }
+
       setNewConsultant(initialConsultantState);
       fetchConsultants();
     } catch (err) {
@@ -192,29 +194,25 @@ export default function AdminPanel() {
     <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
       <h3 className="text-lg font-semibold mb-4">{editSurveyorId ? "Edit Surveyor" : "Add New Surveyor"}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {Object.keys(initialSurveyorState).map((key) => {
-          if (key === "profileImage") {
-            return (
-              <input
-                key={key}
-                type="file"
-                accept="image/*"
-                onChange={(e) => setNewSurveyor({ ...newSurveyor, profileImage: e.target.files[0] })}
-              />
-            );
-          } else {
-            return (
-              <input
-                key={key}
-                type={key === "password" ? "password" : "text"}
-                placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
-                value={newSurveyor[key]}
-                onChange={(e) => setNewSurveyor({ ...newSurveyor, [key]: e.target.value })}
-                className="border p-2 rounded-md focus:outline-[#7ED957]"
-              />
-            );
-          }
-        })}
+        {Object.keys(initialSurveyorState).map((key) =>
+          key === "profileImage" ? (
+            <input
+              key={key}
+              type="file"
+              accept="image/*"
+              onChange={(e) => setNewSurveyor({ ...newSurveyor, profileImage: e.target.files[0] })}
+            />
+          ) : (
+            <input
+              key={key}
+              type={key === "password" ? "password" : key === "price" ? "number" : "text"}
+              placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+              value={newSurveyor[key]}
+              onChange={(e) => setNewSurveyor({ ...newSurveyor, [key]: e.target.value })}
+              className="border p-2 rounded-md focus:outline-[#7ED957]"
+            />
+          )
+        )}
       </div>
       <button
         onClick={submitSurveyor}
@@ -229,29 +227,25 @@ export default function AdminPanel() {
     <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
       <h3 className="text-lg font-semibold mb-4">{editConsultantId ? "Edit Consultant" : "Add New Consultant"}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {Object.keys(initialConsultantState).map((key) => {
-          if (key === "profileImage") {
-            return (
-              <input
-                key={key}
-                type="file"
-                accept="image/*"
-                onChange={(e) => setNewConsultant({ ...newConsultant, profileImage: e.target.files[0] })}
-              />
-            );
-          } else {
-            return (
-              <input
-                key={key}
-                type={key === "password" ? "password" : "text"}
-                placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
-                value={newConsultant[key]}
-                onChange={(e) => setNewConsultant({ ...newConsultant, [key]: e.target.value })}
-                className="border p-2 rounded-md focus:outline-[#7ED957]"
-              />
-            );
-          }
-        })}
+        {Object.keys(initialConsultantState).map((key) =>
+          key === "profileImage" ? (
+            <input
+              key={key}
+              type="file"
+              accept="image/*"
+              onChange={(e) => setNewConsultant({ ...newConsultant, profileImage: e.target.files[0] })}
+            />
+          ) : (
+            <input
+              key={key}
+              type={key === "password" ? "password" : key === "price" ? "number" : "text"}
+              placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+              value={newConsultant[key]}
+              onChange={(e) => setNewConsultant({ ...newConsultant, [key]: e.target.value })}
+              className="border p-2 rounded-md focus:outline-[#7ED957]"
+            />
+          )
+        )}
       </div>
       <button
         onClick={submitConsultant}
@@ -262,6 +256,7 @@ export default function AdminPanel() {
     </div>
   );
 
+  // ================= Render Table =================
   const renderTable = (data, type) => (
     <div className="bg-white rounded-2xl shadow-md p-6">
       <table className="w-full border-collapse">

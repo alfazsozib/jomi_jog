@@ -20,7 +20,7 @@ import AllSurveyors from "./components/pages/AllSurveyors.jsx";
 import ForgotPassword from "./components/pages/ForgetPassword.jsx";
 import ResetPassword from "./components/pages/ResetPassword.jsx";
 import AdminPanel from "./components/admin/AdminPanel.jsx";
-
+import ConsultantDetails from "./components/pages/ConsultantDetails.jsx";
 
 function App() {
   return (
@@ -40,6 +40,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
 <Route path="/reset-password/:token" element={<ResetPassword />} />
 
+<Route path="/consultants/:id" element={<ConsultantDetails />} />
 
         {/* Demo add Admin pages */}
         <Route path="/users" element={<AdminPanel />} />

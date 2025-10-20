@@ -77,6 +77,7 @@ export const addConsultant = async (req, res) => {
       mobile,
       education,
       experience,
+      price,
     } = req.body;
 
     const profileImageFile = req.file ? req.file.filename : undefined;
@@ -98,6 +99,7 @@ export const addConsultant = async (req, res) => {
       mobile,
       education,
       experience,
+      price,
       profileImage: profileImageFile,
       status: "approved",
     });
@@ -125,6 +127,19 @@ export const getAllSurveyors = async (req, res) => {
   }
 };
 
+export const getSurveyorById = async (req, res) => {
+  try {
+    const surveyor = await User.findById(req.params.id);
+    if (!surveyor || surveyor.role !== "surveyor") {
+      return res.status(404).json({ message: "Surveyor not found" });
+    }
+    res.json(surveyor);
+  } catch (error) {
+    console.error("Error fetching surveyor by ID:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 // =============================
 // Get all Consultants
 // =============================
@@ -138,6 +153,17 @@ export const getAllConsultants = async (req, res) => {
   }
 };
 
+export const getConsultantById = async (req, res) => {
+  try {
+    const consultant = await User.findById(req.params.id);
+    if (!consultant || consultant.role !== "consultant") {
+      return res.status(404).json({ message: "Consultant not found" });
+    }
+    res.json(consultant);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+}
 // =============================
 // Get all Users
 // =============================

@@ -6,28 +6,28 @@ import experienceIcon from "../../assets/icons/Experience.jpg";
 import priceIcon from "../../assets/icons/Price.jpg";
 import Navbar from "../Navbar/Navbar";
 
-const SurveyorsDetails = () => {
+const ConsultantDetails = () => {
   const { id } = useParams();
-  const [surveyor, setSurveyor] = useState(null);
+  const [consultant, setConsultant] = useState(null);
   const navigate = useNavigate();
 
+  // Fetch consultant details
   useEffect(() => {
-    const fetchSurveyor = async () => {
+    const fetchConsultant = async () => {
       try {
-        // ✅ Fixed endpoint to match your backend route
         const { data } = await axios.get(
-          `http://localhost:5000/api/admin/surveyors/${id}`
+          `http://localhost:5000/api/admin/consultants/${id}`
         );
-        setSurveyor(data);
-        console.log("Fetched surveyor details:", data);
+        setConsultant(data);
+        console.log("Fetched consultant details:", data);
       } catch (error) {
-        console.error("Error fetching surveyor:", error);
+        console.error("Error fetching consultant:", error);
       }
     };
-    fetchSurveyor();
+    fetchConsultant();
   }, [id]);
 
-  if (!surveyor) return <p className="text-center py-10">লোড হচ্ছে...</p>;
+  if (!consultant) return <p className="text-center py-10">লোড হচ্ছে...</p>;
 
   // Fields to hide
   const hiddenFields = [
@@ -38,14 +38,15 @@ const SurveyorsDetails = () => {
     "updatedAt",
     "_id",
     "mobile",
-    "approvals",
-    "role"
+    "approvals"
   ];
 
-  // Field labels (Bangla)
+  // Bangla field labels
   const fieldLabels = {
+    role: "ভূমিকা",
     name: "নাম",
     age:"বয়স",
+    mobile: "মোবাইল নম্বর",
     address: "ঠিকানা",
     companyName: "প্রতিষ্ঠানের নাম",
     companyAddress: "প্রতিষ্ঠানের ঠিকানা",
@@ -67,8 +68,8 @@ const SurveyorsDetails = () => {
 
       const { data } = await axios.post("http://localhost:5000/api/bookings", {
         userId: user._id,
-        surveyorId: surveyor._id,
-        price: surveyor.price,
+        consultantId: consultant._id,
+        price: consultant.price,
       });
 
       console.log(data);
@@ -81,32 +82,29 @@ const SurveyorsDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
       <Navbar />
 
-      {/* Content */}
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-          {/* Surveyor Image */}
+          {/* Consultant Image */}
           <div className="flex justify-center">
             <div className="relative w-full max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white">
               <div className="flex justify-center items-center p-4">
                 <img
                   src={
-                    surveyor.profileImage
-                      ? `http://localhost:5000/uploads/${surveyor.profileImage}`
-                      : "/default-surveyor.jpg"
+                    consultant.profileImage
+                      ? `http://localhost:5000/uploads/${consultant.profileImage}`
+                      : "/default-consultant.jpg"
                   }
-                  alt={surveyor.name}
+                  alt={consultant.name}
                   className="h-auto w-full object-contain rounded-2xl"
                 />
               </div>
             </div>
           </div>
 
-          {/* Surveyor Info */}
+          {/* Consultant Info */}
           <div className="bg-white p-8 rounded-2xl shadow-lg">
-            {/* Rating (5 stars placeholder) */}
             <div className="flex items-center text-yellow-400 text-2xl">
               {Array(5)
                 .fill()
@@ -116,30 +114,30 @@ const SurveyorsDetails = () => {
             </div>
 
             <h1 className="text-3xl font-bold text-gray-800 mt-4">
-              {surveyor.name}
+              {consultant.name}
             </h1>
 
-            {/* Experience */}
             <div className="flex items-center text-gray-600 gap-3 mt-6">
               <img src={experienceIcon} alt="Experience" className="w-6 h-6" />
               <span className="text-lg">
-                {surveyor.experience
-                  ? `${surveyor.experience} বছর`
+                {consultant.experience
+                  ? `${consultant.experience} বছর`
                   : "অভিজ্ঞতা নেই"}
               </span>
             </div>
 
-            {/* Price */}
             <div className="flex items-center text-gray-600 gap-3 mt-3">
               <img src={priceIcon} alt="Price" className="w-6 h-6" />
               <span className="text-lg font-medium">
-                {surveyor.price ? `${surveyor.price} টাকা` : "নির্ধারিত নেই"}
+                {consultant.price
+                  ? `${consultant.price} টাকা`
+                  : "নির্ধারিত নেই"}
               </span>
             </div>
 
             {/* Other details */}
             <div className="mt-8 space-y-3">
-              {Object.entries(surveyor)
+              {Object.entries(consultant)
                 .filter(([key]) => !hiddenFields.includes(key))
                 .map(([key, value]) =>
                   key !== "profileImage" &&
@@ -159,7 +157,6 @@ const SurveyorsDetails = () => {
                 )}
             </div>
 
-            {/* Booking Button */}
             <button
               onClick={handleBooking}
               className="mt-10 w-full bg-[#7ED957] hover:bg-[#6cc14c] text-white py-3 px-6 rounded-lg font-semibold text-lg transition duration-300 shadow-md"
@@ -173,4 +170,4 @@ const SurveyorsDetails = () => {
   );
 };
 
-export default SurveyorsDetails;
+export default ConsultantDetails;

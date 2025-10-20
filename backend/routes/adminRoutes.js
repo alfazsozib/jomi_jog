@@ -10,7 +10,9 @@ import {
   getPendingRequests,
   deleteUserById,
   updateSurveyor,
-  updateConsultant
+  updateConsultant,
+  getSurveyorById,
+  getConsultantById
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -30,12 +32,13 @@ const upload = multer({ storage });
 router.post("/add-surveyor", upload.single("profileImage"), addSurveyor);
 router.get("/surveyors", getAllSurveyors);
 router.put("/update-surveyor/:id", upload.single("profileImage"), updateSurveyor);
+router.get("/surveyors/:id", getSurveyorById);
 
 // Consultant routes
 router.post("/add-consultant", upload.single("profileImage"), addConsultant);
 router.get("/consultants", getAllConsultants);
 router.put("/update-consultant/:id", upload.single("profileImage"), updateConsultant);
-
+router.get("/consultants/:id",getConsultantById );
 // General user routes
 router.get("/users", getAllUsers);
 
