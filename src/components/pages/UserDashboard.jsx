@@ -5,39 +5,30 @@ import Navbar from "../Navbar/Navbar";
 const UserDashboard = () => {
   const [userData, setUserData] = useState(null);
   const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true); // ✅ Spinner state
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       const storedUser = JSON.parse(localStorage.getItem("userInfo"));
       if (!storedUser || storedUser.role !== "user") return;
 
       try {
-        const { data } = await axios.get(
-          `http://localhost:5000/api/users/${storedUser._id}`
-        );
-        setUserData(data);
+        setLoading(true); // ✅ Start spinner
+        const [userRes, bookingRes] = await Promise.all([
+          axios.get(`http://localhost:5000/api/users/${storedUser._id}`),
+          axios.get(`http://localhost:5000/api/bookings/user/${storedUser._id}`)
+        ]);
+
+        setUserData(userRes.data);
+        setBookings(bookingRes.data);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Error fetching user data or bookings:", error);
+      } finally {
+        setLoading(false); // ✅ Stop spinner
       }
     };
 
-    const fetchBookings = async () => {
-      const storedUser = JSON.parse(localStorage.getItem("userInfo"));
-      if (!storedUser || storedUser.role !== "user") return;
-
-      try {
-        const { data } = await axios.get(
-          `http://localhost:5000/api/bookings/user/${storedUser._id}`
-        );
-        setBookings(data);
-        console.log(data)
-      } catch (error) {
-        console.error("Error fetching bookings:", error);
-      }
-    };
-
-    fetchUserData();
-    fetchBookings();
+    fetchData();
   }, []);
 
   const renderStatusBadge = (status) => {
@@ -62,6 +53,18 @@ const UserDashboard = () => {
         );
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center mt-20">
+          <div className="w-14 h-14 border-4 border-[#7ED957] border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-4 text-gray-600 text-lg font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -110,7 +113,9 @@ const UserDashboard = () => {
               <thead>
                 <tr className="bg-gray-100">
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">#</th>
-                  <th className="py-3 px-4 text-left font-semibold text-gray-700">Surveyor Name</th>
+                  <th className="py-3 px-4 text-left font-semibold text-gray-700">
+                    Name
+                  </th>
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">Price</th>
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">Status</th>
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">Message</th>
@@ -120,14 +125,18 @@ const UserDashboard = () => {
                 {bookings.map((booking, index) => (
                   <tr key={booking._id} className="border-b hover:bg-gray-50 transition">
                     <td className="py-3 px-4">{index + 1}</td>
-                    <td className="py-3 px-4">{booking.surveyorId?.name || "N/A"}</td>
+                    <td className="py-3 px-4">
+                      {booking.surveyorId?.name ||
+                        booking.consultantId?.name ||
+                        "N/A"}
+                    </td>
                     <td className="py-3 px-4">{booking.price || "N/A"} টাকা</td>
                     <td className="py-3 px-4">{renderStatusBadge(booking.status)}</td>
                     <td className="py-3 px-4 text-gray-700">
-                      {booking.status === "accepted" 
-                        ? "Your booking has been accepted. We will contact you soon" 
-                        : booking.status === "rejected" 
-                        ? "Your booking request was rejected." 
+                      {booking.status === "accepted"
+                        ? "Your booking has been accepted. We will contact you soon"
+                        : booking.status === "rejected"
+                        ? "Your booking request was rejected."
                         : "Your booking is pending approval."}
                     </td>
                   </tr>

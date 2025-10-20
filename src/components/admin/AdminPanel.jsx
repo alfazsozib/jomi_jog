@@ -44,14 +44,12 @@ export default function AdminPanel() {
     fetchPendingRequests();
   }, []);
 
-  // ================= Spinner Component =================
   const Spinner = () => (
     <div className="flex justify-center items-center h-full py-10">
       <div className="w-16 h-16 border-4 border-t-[#7ED957] border-gray-200 rounded-full animate-spin"></div>
     </div>
   );
 
-  // ================= Fetch Functions =================
   const fetchSurveyors = async () => {
     try {
       setLoading(true);
@@ -82,7 +80,6 @@ export default function AdminPanel() {
     } finally { setLoading(false); }
   };
 
-  // ================= Booking Accept / Reject =================
   const handleBookingStatus = async (id, status) => {
     try {
       await axios.put(`http://localhost:5000/api/bookings/admin/${id}`, { status });
@@ -93,7 +90,6 @@ export default function AdminPanel() {
     }
   };
 
-  // ================= Add / Edit Surveyor =================
   const submitSurveyor = async () => {
     try {
       setLoading(true);
@@ -130,7 +126,6 @@ export default function AdminPanel() {
     } finally { setLoading(false); }
   };
 
-  // ================= Add / Edit Consultant =================
   const submitConsultant = async () => {
     try {
       setLoading(true);
@@ -167,43 +162,54 @@ export default function AdminPanel() {
     } finally { setLoading(false); }
   };
 
-  // ================= Render Pending Requests =================
-  const renderPendingRequests = () => (
-    <div className="bg-white rounded-2xl shadow-md p-6">
-      <h3 className="text-xl font-semibold mb-4">Pending Booking Requests</h3>
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-100 text-left">
-            <th className="p-3">User</th>
-            <th className="p-3">User Contact</th>
-            <th className="p-3">Surveyor</th>
-            <th className="p-3">Surveyor Contact</th>
-            <th className="p-3">Price</th>
-            <th className="p-3">Date</th>
-            <th className="p-3">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {pendingRequests.map((req) => (
-            <tr key={req._id} className="border-b">
-              <td className="p-3">{req.userId?.name || "Unknown User"}</td>
-              <td className="p-3">{req.userId?.mobile || "N/A"}</td>
-              <td className="p-3">{req.surveyorId?.name || "Unknown Surveyor"}</td>
-              <td className="p-3">{req.surveyorId?.mobile || "N/A"}</td>
-              <td className="p-3">{req.price || "N/A"}</td>
-              <td className="p-3">{req.date ? new Date(req.date).toLocaleDateString("en-GB") : "N/A"}</td>
-              <td className="p-3 flex gap-2">
-                <button onClick={() => handleBookingStatus(req._id, "accepted")} className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 flex items-center gap-1"><Check size={16} /> Accept</button>
-                <button onClick={() => handleBookingStatus(req._id, "rejected")} className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 flex items-center gap-1"><X size={16} /> Reject</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  // ✅ Two separate tables for Surveyor & Consultant Requests
+  const renderPendingRequests = () => {
+    const surveyorRequests = pendingRequests.filter(req => req.surveyorId);
+    const consultantRequests = pendingRequests.filter(req => req.consultantId);
 
-  // ================= Render Table =================
+    const renderTable = (requests, title, type) => (
+      <div className="bg-white rounded-2xl shadow-md p-6 mb-10">
+        <h3 className="text-xl font-semibold mb-4">{title}</h3>
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-100 text-left">
+              <th className="p-3">User</th>
+              <th className="p-3">User Contact</th>
+              <th className="p-3">{type} Name</th>
+              <th className="p-3">{type} Contact</th>
+              <th className="p-3">Price</th>
+              <th className="p-3">Date</th>
+              <th className="p-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {requests.map((req) => (
+              <tr key={req._id} className="border-b">
+                <td className="p-3">{req.userId?.name || "Unknown User"}</td>
+                <td className="p-3">{req.userId?.mobile || "N/A"}</td>
+                <td className="p-3">{req[`${type.toLowerCase()}Id`]?.name || `Unknown ${type}`}</td>
+                <td className="p-3">{req[`${type.toLowerCase()}Id`]?.mobile || "N/A"}</td>
+                <td className="p-3">{req.price || "N/A"}</td>
+                <td className="p-3">{req.date ? new Date(req.date).toLocaleDateString("en-GB") : "N/A"}</td>
+                <td className="p-3 flex gap-2">
+                  <button onClick={() => handleBookingStatus(req._id, "accepted")} className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 flex items-center gap-1"><Check size={16} /> Accept</button>
+                  <button onClick={() => handleBookingStatus(req._id, "rejected")} className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 flex items-center gap-1"><X size={16} /> Reject</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+
+    return (
+      <div>
+        {renderTable(surveyorRequests, "Surveyor Booking Requests", "Surveyor")}
+        {renderTable(consultantRequests, "Consultant Booking Requests", "Consultant")}
+      </div>
+    );
+  };
+
   const renderTable = (data, type) => (
     <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
       <table className="w-full border-collapse">
@@ -219,7 +225,13 @@ export default function AdminPanel() {
         <tbody>
           {data.map((item) => (
             <tr key={item._id} className="border-b">
-              <td className="p-3">{item.profileImage ? <img src={`http://localhost:5000/uploads/${item.profileImage}`} alt={item.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 bg-gray-300 rounded-full" />}</td>
+              <td className="p-3">
+                {item.profileImage ? (
+                  <img src={`http://localhost:5000/uploads/${item.profileImage}`} alt={item.name} className="w-10 h-10 rounded-full object-cover" />
+                ) : (
+                  <div className="w-10 h-10 bg-gray-300 rounded-full" />
+                )}
+              </td>
               <td className="p-3">{item.name}</td>
               <td className="p-3">{item.email}</td>
               <td className="p-3">{item.mobile}</td>
@@ -234,7 +246,6 @@ export default function AdminPanel() {
     </div>
   );
 
-  // ================= Render Forms =================
   const renderSurveyorForm = () => (
     <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
       <h3 className="text-lg font-semibold mb-4">{editSurveyorId ? "Edit Surveyor" : "Add New Surveyor"}</h3>
@@ -272,7 +283,6 @@ export default function AdminPanel() {
       <Navbar />
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <div className="flex flex-1">
-        {/* Sidebar */}
         <div className="w-64 bg-[#2F2C2C] text-white flex flex-col p-4">
           <h2 className="text-2xl font-bold mb-6 text-[#7ED957]">Admin Panel</h2>
           {["dashboard", "surveyors", "consultants", "pending"].map((item) => (
@@ -282,7 +292,6 @@ export default function AdminPanel() {
           ))}
         </div>
 
-        {/* Main Content */}
         <div className="flex-1 p-8">
           {loading && <Spinner />}
 
