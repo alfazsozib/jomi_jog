@@ -1,3 +1,4 @@
+// File: src/components/Surveyors/SurveyorsDetails.jsx
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
@@ -14,12 +15,10 @@ const SurveyorsDetails = () => {
   useEffect(() => {
     const fetchSurveyor = async () => {
       try {
-        // ✅ Fixed endpoint to match your backend route
         const { data } = await axios.get(
           `http://localhost:5000/api/admin/surveyors/${id}`
         );
         setSurveyor(data);
-        console.log("Fetched surveyor details:", data);
       } catch (error) {
         console.error("Error fetching surveyor:", error);
       }
@@ -29,20 +28,11 @@ const SurveyorsDetails = () => {
 
   if (!surveyor) return <p className="text-center py-10">লোড হচ্ছে...</p>;
 
-  // Fields to hide
   const hiddenFields = [
-    "email",
-    "password",
-    "__v",
-    "createdAt",
-    "updatedAt",
-    "_id",
-    "mobile",
-    "approvals",
-    "role"
+    "email", "password", "__v", "createdAt", "updatedAt",
+    "_id", "mobile", "approvals", "role"
   ];
 
-  // Field labels (Bangla)
   const fieldLabels = {
     name: "নাম",
     age:"বয়স",
@@ -65,14 +55,14 @@ const SurveyorsDetails = () => {
         return;
       }
 
-      const { data } = await axios.post("http://localhost:5000/api/bookings", {
+      await axios.post("http://localhost:5000/api/bookings", {
         userId: user._id,
         surveyorId: surveyor._id,
         price: surveyor.price,
+        status: "pending", // default
       });
 
-      console.log(data);
-      alert("Booking request sent successfully!");
+      alert("Booking request sent! Admin will review it.");
     } catch (error) {
       console.error("Booking error:", error);
       alert(error.response?.data?.message || "Booking failed");
@@ -81,12 +71,11 @@ const SurveyorsDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
       <Navbar />
 
-      {/* Content */}
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+
           {/* Surveyor Image */}
           <div className="flex justify-center">
             <div className="relative w-full max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white">
@@ -106,30 +95,20 @@ const SurveyorsDetails = () => {
 
           {/* Surveyor Info */}
           <div className="bg-white p-8 rounded-2xl shadow-lg">
-            {/* Rating (5 stars placeholder) */}
+
             <div className="flex items-center text-yellow-400 text-2xl">
-              {Array(5)
-                .fill()
-                .map((_, i) => (
-                  <FaStar key={i} className="mr-1" />
-                ))}
+              {Array(5).fill().map((_, i) => <FaStar key={i} className="mr-1" />)}
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-800 mt-4">
-              {surveyor.name}
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-800 mt-4">{surveyor.name}</h1>
 
-            {/* Experience */}
             <div className="flex items-center text-gray-600 gap-3 mt-6">
               <img src={experienceIcon} alt="Experience" className="w-6 h-6" />
               <span className="text-lg">
-                {surveyor.experience
-                  ? `${surveyor.experience} বছর`
-                  : "অভিজ্ঞতা নেই"}
+                {surveyor.experience ? `${surveyor.experience} বছর` : "অভিজ্ঞতা নেই"}
               </span>
             </div>
 
-            {/* Price */}
             <div className="flex items-center text-gray-600 gap-3 mt-3">
               <img src={priceIcon} alt="Price" className="w-6 h-6" />
               <span className="text-lg font-medium">
@@ -137,29 +116,19 @@ const SurveyorsDetails = () => {
               </span>
             </div>
 
-            {/* Other details */}
             <div className="mt-8 space-y-3">
               {Object.entries(surveyor)
                 .filter(([key]) => !hiddenFields.includes(key))
                 .map(([key, value]) =>
-                  key !== "profileImage" &&
-                  key !== "name" &&
-                  key !== "experience" &&
-                  key !== "price" ? (
-                    <div
-                      key={key}
-                      className="flex justify-between border-b pb-2 text-gray-700"
-                    >
-                      <span className="font-semibold text-gray-600">
-                        {fieldLabels[key] || key}
-                      </span>
+                  key !== "profileImage" && key !== "name" && key !== "experience" && key !== "price" ? (
+                    <div key={key} className="flex justify-between border-b pb-2 text-gray-700">
+                      <span className="font-semibold text-gray-600">{fieldLabels[key] || key}</span>
                       <span>{value || "নাই"}</span>
                     </div>
                   ) : null
                 )}
             </div>
 
-            {/* Booking Button */}
             <button
               onClick={handleBooking}
               className="mt-10 w-full bg-[#7ED957] hover:bg-[#6cc14c] text-white py-3 px-6 rounded-lg font-semibold text-lg transition duration-300 shadow-md"

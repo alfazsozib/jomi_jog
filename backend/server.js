@@ -8,6 +8,8 @@ import path from "path";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
+
 
 dotenv.config();
 connectDB();
@@ -28,10 +30,10 @@ app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
 
 // Routes
 app.use("/api/users", userRoutes);
-app.use("/api/bookings", bookingRoutes);
 app.use("/api/feedbacks", feedbackRoutes);
 app.use("/api/admin", adminRoutes);
-
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Error handling
 app.use(notFound);

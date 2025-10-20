@@ -1,28 +1,75 @@
 import express from "express";
-import asyncHandler from "express-async-handler";
-import {
-  createBooking,
-  approveBooking,
-  cancelBooking,
-  getAdminBookings,
-  getUserBookings,
-  getSurveyorBookings,
-} from "../controllers/bookingController.js";
+import Booking from "../models/bookingModel.js";
+import Notification from "../models/notification.js";
 
 const router = express.Router();
 
-// User creates booking
-router.post("/", asyncHandler(createBooking));
+// ================= User: Create booking =================
+router.post("/", async (req, res) => {
+  try {
+    const { userId, surveyorId, price } = req.body;
+    const booking = await Booking.create({ userId, surveyorId, price });
+    res.status(201).json(booking);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
-// Admin routes
-router.get("/admin", asyncHandler(getAdminBookings));
-router.put("/approve/:id", asyncHandler(approveBooking));
-router.put("/cancel/:id", asyncHandler(cancelBooking));
+// ================= Admin: Get pending bookings =================
+router.get("/admin/pending", async (req, res) => {
+  try {
+    const bookings = await Booking.find({ status: "pending" })
+  .populate("userId", "name email")
+  .populate("surveyorId", "name price");
 
-// User dashboard
-router.get("/user/:id", asyncHandler(getUserBookings));
+    console.log("Pending bookings fetched:", bookings);
+    res.json(bookings);
+  } catch (err) {
+    console.error("Error fetching pending bookings:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
 
-// Surveyor dashboard
-router.get("/surveyor/:id", asyncHandler(getSurveyorBookings));
+// ================= Admin: Accept / Reject booking =================
+router.put("/admin/:id", async (req, res) => {
+  try {
+    const { status } = req.body; // accepted / rejected
+    if (!["accepted", "rejected"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    // Create notification for the user
+    const message =
+      status === "accepted"
+        ? "Your booking has been accepted!"
+        : "Your booking has been rejected!";
+    await Notification.create({
+      userId: booking.userId,
+      bookingId: booking._id,
+      message,
+    });
+
+    res.json({ message: `Booking ${status}`, booking });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const bookings = await Booking.find({ userId: req.params.userId })
+      .populate("surveyorId", "name mobile") // get surveyor info
+      .populate("userId", "name email mobile"); // get user info
+    res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 export default router;
