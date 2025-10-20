@@ -8,30 +8,33 @@ import priceIcon from "../../assets/icons/Price.jpg";
 
 const AllSurveyors = () => {
   const [surveyors, setSurveyors] = useState([]);
+  const [loading, setLoading] = useState(true); // loading state
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSurveyors = async () => {
       try {
+        setLoading(true);
         const { data } = await axios.get(
           "http://localhost:5000/api/users/surveyors"
         );
         setSurveyors(data);
       } catch (error) {
         console.error("Error fetching surveyors:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchSurveyors();
   }, []);
 
-  // Reusable Surveyor Card
+  // Surveyor Card
   const SurveyorCard = ({ _id, name, img, experience, price }) => (
     <div className="bg-white rounded-2xl border border-[#7ed95659] overflow-hidden">
-      {/* Image */}
       <div className="relative w-full h-64 pt-5 flex items-center justify-center bg-white rounded-t-2xl overflow-hidden">
         {img ? (
           <img
-            src={`http://localhost:5000${img}`}
+            src={`http://localhost:5000/uploads/${img}`}
             alt={name}
             className="max-h-full max-w-full object-cover"
             loading="lazy"
@@ -45,9 +48,7 @@ const AllSurveyors = () => {
         )}
       </div>
 
-      {/* Info Section */}
       <div className="p-4">
-        {/* Stars */}
         <div className="flex items-center text-[#7ED957] text-sm">
           {Array(5)
             .fill()
@@ -56,12 +57,10 @@ const AllSurveyors = () => {
             ))}
         </div>
 
-        {/* Name */}
         <h2 className="text-base sm:text-lg font-semibold text-gray-800 mt-2">
           {name}
         </h2>
 
-        {/* Experience & Price */}
         <div className="flex flex-wrap items-center my-4 gap-3 text-gray-600 text-xs sm:text-sm">
           <div className="flex items-center">
             <img src={experienceIcon} alt="" className="w-4 h-4" />
@@ -73,7 +72,6 @@ const AllSurveyors = () => {
           </div>
         </div>
 
-        {/* Buttons */}
         <div className="flex gap-2.5">
           <button
             className="w-full bg-[#7ED957] text-white py-2 sm:py-3 rounded-lg font-semibold hover:opacity-90 transition"
@@ -94,31 +92,44 @@ const AllSurveyors = () => {
           আমাদের সব সার্ভেয়ার
         </h1>
 
-        {/* Cards Grid */}
-        <div className="grid gap-5 sm:gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-20">
-          {surveyors.length > 0 ? (
-            surveyors.map((surveyor) => (
-              <SurveyorCard
-                key={surveyor._id}
-                _id={surveyor._id}
-                name={surveyor.name}
-                img={surveyor.profileImage}
-                experience={
-                  surveyor.experience
-                    ? `${surveyor.experience} বছর`
-                    : "অভিজ্ঞতা নেই"
-                }
-                price={
-                  surveyor.price ? `${surveyor.price} টাকা` : "নির্ধারিত নেই"
-                }
-              />
-            ))
-          ) : (
-            <p className="text-center text-gray-600 col-span-full">
-              কোনো সার্ভেয়ার পাওয়া যায়নি।
-            </p>
-          )}
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-20 w-20"></div>
+            <style>{`
+              .loader {
+                border-top-color: #7ED957;
+                animation: spin 1s linear infinite;
+              }
+              @keyframes spin {
+                0% { transform: rotate(0deg);}
+                100% { transform: rotate(360deg);}
+              }
+            `}</style>
+          </div>
+        ) : (
+          <div className="grid gap-5 sm:gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-20">
+            {surveyors.length > 0 ? (
+              surveyors.map((surveyor) => (
+                <SurveyorCard
+                  key={surveyor._id}
+                  _id={surveyor._id}
+                  name={surveyor.name}
+                  img={surveyor.profileImage}
+                  experience={
+                    surveyor.experience
+                      ? `${surveyor.experience} বছর`
+                      : "অভিজ্ঞতা নেই"
+                  }
+                  price={surveyor.price ? `${surveyor.price} টাকা` : "নির্ধারিত নেই"}
+                />
+              ))
+            ) : (
+              <p className="text-center text-gray-600 col-span-full">
+                কোনো সার্ভেয়ার পাওয়া যায়নি।
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

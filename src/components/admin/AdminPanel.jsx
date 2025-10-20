@@ -44,7 +44,14 @@ export default function AdminPanel() {
     fetchPendingRequests();
   }, []);
 
-  // ========== Fetch Functions ==========
+  // ================= Spinner Component =================
+  const Spinner = () => (
+    <div className="flex justify-center items-center h-full py-10">
+      <div className="w-16 h-16 border-4 border-t-[#7ED957] border-gray-200 rounded-full animate-spin"></div>
+    </div>
+  );
+
+  // ================= Fetch Functions =================
   const fetchSurveyors = async () => {
     try {
       setLoading(true);
@@ -75,7 +82,7 @@ export default function AdminPanel() {
     } finally { setLoading(false); }
   };
 
-  // ========== Booking Accept / Reject ==========
+  // ================= Booking Accept / Reject =================
   const handleBookingStatus = async (id, status) => {
     try {
       await axios.put(`http://localhost:5000/api/bookings/admin/${id}`, { status });
@@ -86,7 +93,7 @@ export default function AdminPanel() {
     }
   };
 
-  // ========== Add / Edit Surveyor ==========
+  // ================= Add / Edit Surveyor =================
   const submitSurveyor = async () => {
     try {
       setLoading(true);
@@ -102,8 +109,8 @@ export default function AdminPanel() {
       }
       setNewSurveyor(initialSurveyorState);
       fetchSurveyors();
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Error saving surveyor");
+    } catch {
+      toast.error("Error saving surveyor");
     } finally { setLoading(false); }
   };
 
@@ -123,7 +130,7 @@ export default function AdminPanel() {
     } finally { setLoading(false); }
   };
 
-  // ========== Add / Edit Consultant ==========
+  // ================= Add / Edit Consultant =================
   const submitConsultant = async () => {
     try {
       setLoading(true);
@@ -160,7 +167,7 @@ export default function AdminPanel() {
     } finally { setLoading(false); }
   };
 
-  // ========== Render Pending Requests ==========
+  // ================= Render Pending Requests =================
   const renderPendingRequests = () => (
     <div className="bg-white rounded-2xl shadow-md p-6">
       <h3 className="text-xl font-semibold mb-4">Pending Booking Requests</h3>
@@ -196,7 +203,7 @@ export default function AdminPanel() {
     </div>
   );
 
-  // ========== Render Table ==========
+  // ================= Render Table =================
   const renderTable = (data, type) => (
     <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
       <table className="w-full border-collapse">
@@ -227,7 +234,7 @@ export default function AdminPanel() {
     </div>
   );
 
-  // ========== Render Forms ==========
+  // ================= Render Forms =================
   const renderSurveyorForm = () => (
     <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
       <h3 className="text-lg font-semibold mb-4">{editSurveyorId ? "Edit Surveyor" : "Add New Surveyor"}</h3>
@@ -277,9 +284,9 @@ export default function AdminPanel() {
 
         {/* Main Content */}
         <div className="flex-1 p-8">
-          {loading && <div className="text-center py-4 text-gray-700 font-semibold">Loading...</div>}
+          {loading && <Spinner />}
 
-          {view === "dashboard" && !loading && (
+          {!loading && view === "dashboard" && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
               <h2 className="text-2xl font-semibold mb-6">Dashboard Overview</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -296,7 +303,7 @@ export default function AdminPanel() {
             </motion.div>
           )}
 
-          {view === "surveyors" && !loading && (
+          {!loading && view === "surveyors" && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
               <h2 className="text-2xl font-semibold mb-6">Surveyors Management</h2>
               {renderSurveyorForm()}
@@ -304,7 +311,7 @@ export default function AdminPanel() {
             </motion.div>
           )}
 
-          {view === "consultants" && !loading && (
+          {!loading && view === "consultants" && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
               <h2 className="text-2xl font-semibold mb-6">Consultants Management</h2>
               {renderConsultantForm()}
@@ -312,7 +319,7 @@ export default function AdminPanel() {
             </motion.div>
           )}
 
-          {view === "pending" && !loading && (
+          {!loading && view === "pending" && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
               {renderPendingRequests()}
             </motion.div>

@@ -7,55 +7,64 @@ import Navbar from "../Navbar/Navbar";
 import UserFeedback from "../UserFeedback/UserFeedback";
 import FAQ from "./FAQ";
 
+// Set default base URL for Axios
+axios.defaults.baseURL = "http://localhost:5000";
+
 const Home = () => {
   const [showAddReview, setShowAddReview] = useState(false);
-  const [review, setReview] = useState({
-    role: "",
-    feedback: "",
-    rating: "",
-  });
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [review, setReview] = useState({ role: "", feedback: "", rating: "" });
   const [reviews, setReviews] = useState([]);
   const [user, setUser] = useState(null);
 
   const navigate = useNavigate();
 
+  // Load user from localStorage
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("userInfo"));
     if (savedUser) setUser(savedUser);
   }, []);
 
+  // Fetch all reviews
   useEffect(() => {
-    axios.get("/api/feedbacks").then((res) => setReviews(res.data));
+    const fetchReviews = async () => {
+      try {
+        const { data } = await axios.get("/api/feedbacks");
+        setReviews(data);
+      } catch (err) {
+        console.error("Error fetching feedbacks:", err);
+      }
+    };
+    fetchReviews();
   }, []);
 
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setReview({ ...review, [name]: value });
   };
 
+  // Handle review submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user) return;
 
+    setLoadingSubmit(true);
     try {
-      const savedUser = JSON.parse(localStorage.getItem("userInfo"));
-
       const reviewToSubmit = {
         ...review,
-        name: savedUser.name,
-        profileImage: savedUser.profileImage || "",
+        name: user.name,
+        profileImage: user.profileImage || "",
       };
 
       const config = {
-        headers: {
-          Authorization: `Bearer ${savedUser.token}`,
-        },
+        headers: { Authorization: `Bearer ${user.token}` },
       };
 
-      const { data } = await axios.post(
-        "http://localhost:5000/api/feedbacks",
-        reviewToSubmit,
-        config
-      );
+      const { data } = await axios.post("/api/feedbacks", reviewToSubmit, config);
+
+      // Update reviews immediately
+      setReviews((prev) => [data, ...prev]);
 
       alert("মতামত জমা হয়েছে ✅");
       setShowAddReview(false);
@@ -63,6 +72,8 @@ const Home = () => {
     } catch (err) {
       alert("Failed to submit feedback ❌");
       console.error(err);
+    } finally {
+      setLoadingSubmit(false);
     }
   };
 
@@ -83,14 +94,14 @@ const Home = () => {
             <h2 className="text-xl sm:text-2xl md:text-5xl font-bold leading-snug mb-4">
               যখনই প্রয়োজন, <br /> খুঁজুন বিশ্বস্ত সার্ভেয়ার
             </h2>
-            <p className="text-sm sm:text-base md:text-lg mb-6 max-w-[480px] ">
-              বুকিং থেকে সার্ভে পর্যন্ত, জমিযোগ আনছে জমি সেবা অনলাইনে— নিরাপদ,
+            <p className="text-sm sm:text-base md:text-lg mb-6 max-w-[480px]">
+              বুকিং থেকে সার্ভে পর্যন্ত, জমিযোগ আনছে জমি সেবা অনলাইনে নিরাপদ,
               দ্রুত ও বিশ্বস্ত।
             </p>
-            
             <button
-            onClick={() => navigate("/allsurveyors")}
-            className="px-8 py-3 sm:px-10 cursor-pointer sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300">
+              onClick={() => navigate("/allsurveyors")}
+              className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300"
+            >
               সার্ভেয়ার বুক করুন
             </button>
           </div>
@@ -109,14 +120,14 @@ const Home = () => {
         </button>
       </div>
 
-      <UserFeedback />
+      <UserFeedback reviews={reviews} />
 
       {/* Add Review Section */}
       <div className="bg-[#F5F3ED] px-4 sm:px-8 text-center">
         {user ? (
           <button
             onClick={() => setShowAddReview(!showAddReview)}
-            className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md border-pulse3 "
+            className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md border-pulse3"
           >
             {showAddReview ? "বাতিল করুন" : "আপনার মতামত যোগ করুন"}
           </button>
@@ -162,9 +173,7 @@ const Home = () => {
             </div>
 
             <div className="mb-6">
-              <label className="block text-[#151515] font-semibold mb-2">
-                রেটিং (1-5)
-              </label>
+              <label className="block text-[#151515] font-semibold mb-2">রেটিং (1-5)</label>
               <input
                 type="number"
                 name="rating"
@@ -179,9 +188,12 @@ const Home = () => {
             <div className="text-center">
               <button
                 type="submit"
-                className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300"
+                disabled={loadingSubmit}
+                className={`px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300 ${
+                  loadingSubmit ? "opacity-70 cursor-not-allowed" : ""
+                }`}
               >
-                মতামত জমা দিন
+                {loadingSubmit ? "জমা দিচ্ছে..." : "মতামত জমা দিন"}
               </button>
             </div>
           </form>

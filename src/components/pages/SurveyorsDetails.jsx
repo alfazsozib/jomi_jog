@@ -11,7 +11,8 @@ import Navbar from "../Navbar/Navbar";
 const SurveyorsDetails = () => {
   const { id } = useParams();
   const [surveyor, setSurveyor] = useState(null);
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
+  const [bookingLoading, setBookingLoading] = useState(false); // added booking loading
   const [selectedDate, setSelectedDate] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const navigate = useNavigate();
@@ -79,6 +80,7 @@ const SurveyorsDetails = () => {
     }
 
     try {
+      setBookingLoading(true); // start button loading
       const user = JSON.parse(localStorage.getItem("userInfo"));
       if (!user) {
         toast.info("Please login first.");
@@ -100,6 +102,8 @@ const SurveyorsDetails = () => {
     } catch (error) {
       console.error("Booking error:", error);
       toast.error(error.response?.data?.message || "Booking failed");
+    } finally {
+      setBookingLoading(false); // stop button loading
     }
   };
 
@@ -185,9 +189,23 @@ const SurveyorsDetails = () => {
                   handleBooking();
                 }
               }}
-              className="mt-10 w-full bg-[#7ED957] hover:bg-[#6cc14c] text-white py-3 px-6 rounded-lg font-semibold text-lg transition duration-300 shadow-md"
+              disabled={bookingLoading} // disable button while loading
+              className="mt-10 w-full bg-[#7ED957] hover:bg-[#6cc14c] text-white py-3 px-6 rounded-lg font-semibold text-lg transition duration-300 shadow-md flex justify-center items-center gap-2"
             >
-              বুক দিন
+              {bookingLoading && (
+                <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 w-5 h-5"></div>
+              )}
+              {bookingLoading ? "Processing..." : "বুক দিন"}
+              <style>{`
+                .loader {
+                  border-top-color: #fff;
+                  animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                  0% { transform: rotate(0deg);}
+                  100% { transform: rotate(360deg);}
+                }
+              `}</style>
             </button>
           </div>
         </div>
