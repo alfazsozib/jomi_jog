@@ -2,8 +2,11 @@
 import express from "express";
 import Booking from "../models/bookingModel.js";
 import Notification from "../models/notification.js";
-
+import nodemailer from "nodemailer";
 const router = express.Router();
+
+
+
 
 // ================= User: Create booking =================
 router.post("/", async (req, res) => {
@@ -114,5 +117,6 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 export default router;

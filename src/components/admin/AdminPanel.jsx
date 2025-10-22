@@ -4,7 +4,17 @@ import axios from "axios";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../pages/Footer";
 import { motion } from "framer-motion";
-import { Users, UserPlus, UserCog, Clock, Trash2, Edit, Check, X } from "lucide-react";
+import {
+  Users,
+  UserPlus,
+  UserCog,
+  Clock,
+  Trash2,
+  Edit,
+  Check,
+  X,
+  DollarSign
+} from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -15,15 +25,37 @@ export default function AdminPanel() {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // tracks per-request sending/payment state: { [bookingId]: { accepting: bool, rejecting: bool, paying: bool } }
+  const [rowBusy, setRowBusy] = useState({});
+
   const initialSurveyorState = {
-    name: "", email: "", password: "", age: "", mobile: "", address: "",
-    companyName: "", companyAddress: "", licenseNumber: "", experience: "",
-    price: "", education: "", training: "", profileImage: null,
+    name: "",
+    email: "",
+    password: "",
+    age: "",
+    mobile: "",
+    address: "",
+    companyName: "",
+    companyAddress: "",
+    licenseNumber: "",
+    experience: "",
+    price: "",
+    education: "",
+    training: "",
+    profileImage: null
   };
 
   const initialConsultantState = {
-    name: "", email: "", password: "", age: "", mobile: "",
-    education: "", experience: "", price: "", licenseNumber: "", profileImage: null,
+    name: "",
+    email: "",
+    password: "",
+    age: "",
+    mobile: "",
+    education: "",
+    experience: "",
+    price: "",
+    licenseNumber: "",
+    profileImage: null
   };
 
   const [newSurveyor, setNewSurveyor] = useState(initialSurveyorState);
@@ -35,29 +67,35 @@ export default function AdminPanel() {
     { title: "Total Surveyors", value: surveyors.length, icon: <Users size={28} />, color: "#7ED957" },
     { title: "Total Consultants", value: consultants.length, icon: <UserCog size={28} />, color: "#7ED957" },
     { title: "Total Users", value: 0, icon: <UserPlus size={28} />, color: "#7ED957" },
-    { title: "Pending Requests", value: pendingRequests.length, icon: <Clock size={28} />, color: "#7ED957" },
+    { title: "Pending Requests", value: pendingRequests.length, icon: <Clock size={28} />, color: "#7ED957" }
   ];
 
   useEffect(() => {
     fetchSurveyors();
     fetchConsultants();
     fetchPendingRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ================= Spinner Component =================
   const Spinner = () => (
     <div className="flex justify-center items-center h-full py-10">
       <div className="w-16 h-16 border-4 border-t-[#7ED957] border-gray-200 rounded-full animate-spin"></div>
     </div>
   );
 
+  // ================= Fetch Functions =================
   const fetchSurveyors = async () => {
     try {
       setLoading(true);
       const res = await axios.get("http://localhost:5000/api/admin/surveyors");
       setSurveyors(res.data);
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Error fetching surveyors");
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchConsultants = async () => {
@@ -65,49 +103,91 @@ export default function AdminPanel() {
       setLoading(true);
       const res = await axios.get("http://localhost:5000/api/admin/consultants");
       setConsultants(res.data);
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Error fetching consultants");
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchPendingRequests = async () => {
     try {
       setLoading(true);
       const res = await axios.get("http://localhost:5000/api/bookings/admin/pending");
-      setPendingRequests(res.data);
-    } catch {
-      toast.error("Error fetching pending requests");
-    } finally { setLoading(false); }
-  };
-
-  const handleBookingStatus = async (id, status) => {
-    try {
-      await axios.put(`http://localhost:5000/api/bookings/admin/${id}`, { status });
-      toast.success(`Booking ${status} successfully`);
-      fetchPendingRequests();
+      setPendingRequests(res.data || []);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to update booking status");
+      console.error(err);
+      toast.error("Error fetching pending requests");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // helper to set busy flags for a booking row
+  const setRowFlag = (bookingId, flag, value) => {
+    setRowBusy(prev => ({ ...prev, [bookingId]: { ...(prev[bookingId] || {}), [flag]: value } }));
+  };
+
+  // ================ Booking Accept / Reject ================
+  const handleBookingStatus = async (id, status) => {
+    try {
+      setRowFlag(id, status === "accepted" ? "accepting" : "rejecting", true);
+      await axios.put(`http://localhost:5000/api/bookings/admin/${id}`, { status });
+      toast.success(`Booking ${status} successfully`);
+      await fetchPendingRequests();
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to update booking status");
+    } finally {
+      setRowFlag(id, status === "accepted" ? "accepting" : "rejecting", false);
+    }
+  };
+
+  // ================ Send Payment Request (Bkash) ================
+ const sendPaymentRequest = async (bookingId) => {
+  try {
+    console.log(bookingId)
+    setRowFlag(bookingId, "paying", true);
+    const res = await axios.post(
+      `http://localhost:5000/api/bookings/admin/payment-request/${bookingId}`
+    );
+    toast.success(res.data?.message || "Payment request sent");
+  } catch (err) {
+    console.error("Payment request error:", err);
+    toast.error(err.response?.data?.message || "Failed to send payment request");
+  } finally {
+    setRowFlag(bookingId, "paying", false);
+  }
+};
+
+
+  // ================ Add / Edit Surveyor =================
   const submitSurveyor = async () => {
     try {
       setLoading(true);
       const formData = new FormData();
       Object.keys(newSurveyor).forEach((key) => formData.append(key, newSurveyor[key] ?? ""));
       if (editSurveyorId) {
-        await axios.put(`http://localhost:5000/api/admin/update-surveyor/${editSurveyorId}`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+        await axios.put(`http://localhost:5000/api/admin/update-surveyor/${editSurveyorId}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
         toast.success("Surveyor updated successfully");
         setEditSurveyorId(null);
       } else {
-        await axios.post("http://localhost:5000/api/admin/add-surveyor", formData, { headers: { "Content-Type": "multipart/form-data" } });
+        await axios.post("http://localhost:5000/api/admin/add-surveyor", formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
         toast.success("Surveyor added successfully");
       }
       setNewSurveyor(initialSurveyorState);
       fetchSurveyors();
-    } catch {
-      toast.error("Error saving surveyor");
-    } finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Error saving surveyor");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const editSurveyor = (surveyor) => {
@@ -121,29 +201,40 @@ export default function AdminPanel() {
       await axios.delete(`http://localhost:5000/api/admin/delete/${id}`);
       toast.success("Surveyor deleted successfully");
       fetchSurveyors();
-    } catch {
-      toast.error("Error deleting surveyor");
-    } finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Error deleting surveyor");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // ================ Add / Edit Consultant =================
   const submitConsultant = async () => {
     try {
       setLoading(true);
       const formData = new FormData();
       Object.keys(newConsultant).forEach((key) => formData.append(key, newConsultant[key] ?? ""));
       if (editConsultantId) {
-        await axios.put(`http://localhost:5000/api/admin/update-consultant/${editConsultantId}`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+        await axios.put(`http://localhost:5000/api/admin/update-consultant/${editConsultantId}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
         toast.success("Consultant updated successfully");
         setEditConsultantId(null);
       } else {
-        await axios.post("http://localhost:5000/api/admin/add-consultant", formData, { headers: { "Content-Type": "multipart/form-data" } });
+        await axios.post("http://localhost:5000/api/admin/add-consultant", formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
         toast.success("Consultant added successfully");
       }
       setNewConsultant(initialConsultantState);
       fetchConsultants();
-    } catch {
-      toast.error("Error saving consultant");
-    } finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Error saving consultant");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const editConsultant = (consultant) => {
@@ -157,15 +248,18 @@ export default function AdminPanel() {
       await axios.delete(`http://localhost:5000/api/admin/delete/${id}`);
       toast.success("Consultant deleted successfully");
       fetchConsultants();
-    } catch {
-      toast.error("Error deleting consultant");
-    } finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Error deleting consultant");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ✅ Two separate tables for Surveyor & Consultant Requests
+  // ================= Render Pending Requests =================
   const renderPendingRequests = () => {
-    const surveyorRequests = pendingRequests.filter(req => req.surveyorId);
-    const consultantRequests = pendingRequests.filter(req => req.consultantId);
+    const surveyorRequests = pendingRequests.filter((req) => req.surveyorId);
+    const consultantRequests = pendingRequests.filter((req) => req.consultantId);
 
     const renderTable = (requests, title, type) => (
       <div className="bg-white rounded-2xl shadow-md p-6 mb-10">
@@ -183,25 +277,50 @@ export default function AdminPanel() {
             </tr>
           </thead>
           <tbody>
-            {requests.map((req) => (
-              <tr key={req._id} className="border-b">
-                <td className="p-3">{req.userId?.name || "Unknown User"}</td>
-                <td className="p-3">{req.userId?.mobile || "N/A"}</td>
-                <td className="p-3">{req[`${type.toLowerCase()}Id`]?.name || `Unknown ${type}`}</td>
-                <td className="p-3">{req[`${type.toLowerCase()}Id`]?.mobile || "N/A"}</td>
-                <td className="p-3">{req.price || "N/A"}</td>
-                <td className="p-3">{req.date ? new Date(req.date).toLocaleDateString("en-GB") : "N/A"}</td>
-                <td className="p-3 flex gap-2">
-                  <button onClick={() => handleBookingStatus(req._id, "accepted")} className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 flex items-center gap-1"><Check size={16} /> Accept</button>
-                  <button onClick={() => handleBookingStatus(req._id, "rejected")} className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 flex items-center gap-1"><X size={16} /> Reject</button>
-                </td>
-              </tr>
-            ))}
+            {requests.map((req) => {
+              const id = req._id;
+              const busy = rowBusy[id] || {};
+              return (
+                <tr key={id} className="border-b">
+                  <td className="p-3">{req.userId?.name || "Unknown User"}</td>
+                  <td className="p-3">{req.userId?.mobile || "N/A"}</td>
+                  <td className="p-3">{req[`${type.toLowerCase()}Id`]?.name || `Unknown ${type}`}</td>
+                  <td className="p-3">{req[`${type.toLowerCase()}Id`]?.mobile || "N/A"}</td>
+                  <td className="p-3">{req.price || "N/A"}</td>
+                  <td className="p-3">{req.date ? new Date(req.date).toLocaleDateString("en-GB") : "N/A"}</td>
+                  <td className="p-3 flex gap-2">
+                    <button
+                      onClick={() => handleBookingStatus(id, "accepted")}
+                      disabled={busy.accepting || busy.rejecting || busy.paying}
+                      className={`bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 flex items-center gap-1 ${busy.accepting ? "opacity-70 cursor-not-allowed" : ""}`}
+                    >
+                      {busy.accepting ? "Accepting..." : <><Check size={16} /> Accept</>}
+                    </button>
+
+                    <button
+                      onClick={() => handleBookingStatus(id, "rejected")}
+                      disabled={busy.rejecting || busy.accepting || busy.paying}
+                      className={`bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 flex items-center gap-1 ${busy.rejecting ? "opacity-70 cursor-not-allowed" : ""}`}
+                    >
+                      {busy.rejecting ? "Rejecting..." : <><X size={16} /> Reject</>}
+                    </button>
+
+                    {/* Payment button */}
+                    <button
+                      onClick={() => sendPaymentRequest(id)}
+                      disabled={busy.paying || busy.accepting || busy.rejecting}
+                      className={`bg-amber-500 text-white px-3 py-1 rounded-md hover:bg-amber-600 flex items-center gap-1 ${busy.paying ? "opacity-70 cursor-not-allowed" : ""}`}
+                    >
+                      {busy.paying ? "Sending..." : <><DollarSign size={16} /> Payment</>}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
     );
-
     return (
       <div>
         {renderTable(surveyorRequests, "Surveyor Booking Requests", "Surveyor")}
@@ -210,6 +329,7 @@ export default function AdminPanel() {
     );
   };
 
+  // ================= Render Table (surveyors/consultants lists) =================
   const renderTable = (data, type) => (
     <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
       <table className="w-full border-collapse">

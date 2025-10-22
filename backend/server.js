@@ -9,6 +9,8 @@ import bookingRoutes from "./routes/bookingRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import adminBooking from "./routes/bookingRoutes.js"
+import paymentRoutes from "./routes/paymentRoutes.js"
 
 
 dotenv.config();
@@ -34,6 +36,12 @@ app.use("/api/feedbacks", feedbackRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/bookings/admin", adminBooking);
+app.use("/api/bookings", paymentRoutes);
+
+
+
+
 
 // Error handling
 app.use(notFound);
