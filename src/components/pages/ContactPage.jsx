@@ -2,16 +2,15 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import landImage2 from "../../assets/images/land-10.jpg";
 import Navbar from "../Navbar/Navbar";
 import { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function ContactPage() {
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState(null); // "success" or "error"
-  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setStatus(null);
 
     const formData = new FormData(e.target);
     const data = {
@@ -30,17 +29,27 @@ export default function ContactPage() {
 
       const result = await res.json();
       if (res.ok) {
-        setStatus("success");
-        setMessage(result.message || "Message sent successfully!");
+        toast.success(result.message || "Message sent successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         e.target.reset();
       } else {
-        setStatus("error");
-        setMessage(result.message || "Failed to send message.");
+        toast.error(result.message || "Failed to send message.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
       }
     } catch (err) {
       console.error(err);
-      setStatus("error");
-      setMessage("Failed to send message.");
+      toast.error("Failed to send message.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     } finally {
       setLoading(false);
     }
@@ -175,16 +184,6 @@ export default function ContactPage() {
               {loading ? "পাঠানো হচ্ছে..." : "মেসেজ পাঠান"}
             </button>
           </form>
-
-          {status && (
-            <p
-              className={`mt-4 text-center font-semibold ${
-                status === "success" ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {message}
-            </p>
-          )}
         </div>
       </div>
 
@@ -194,6 +193,8 @@ export default function ContactPage() {
           © ২০২৫ <span className="text-[#7ED957] font-bold">জমিযোগ</span> । সর্বস্বত্ব সংরক্ষিত
         </p>
       </div>
+
+      <ToastContainer />
     </div>
   );
 }
