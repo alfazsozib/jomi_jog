@@ -12,6 +12,9 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import adminBooking from "./routes/bookingRoutes.js"
 import paymentRoutes from "./routes/paymentRoutes.js"
 
+import contactRoutes from "./routes/contactRoutes.js";
+
+
 
 dotenv.config();
 connectDB();
@@ -38,7 +41,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/bookings/admin", adminBooking);
 app.use("/api/bookings", paymentRoutes);
-
+app.use("/api", contactRoutes);
 
 
 

@@ -1,15 +1,56 @@
 import { Mail, MapPin, Phone } from "lucide-react";
-//import landImage from "../../assets/images/land-image.webp";
 import landImage2 from "../../assets/images/land-10.jpg";
 import Navbar from "../Navbar/Navbar";
+import { useState } from "react";
 
 export default function ContactPage() {
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(null); // "success" or "error"
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatus(null);
+
+    const formData = new FormData(e.target);
+    const data = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      subject: formData.get("subject"),
+      message: formData.get("message"),
+    };
+
+    try {
+      const res = await fetch("http://localhost:5000/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        setStatus("success");
+        setMessage(result.message || "Message sent successfully!");
+        e.target.reset();
+      } else {
+        setStatus("error");
+        setMessage(result.message || "Failed to send message.");
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus("error");
+      setMessage("Failed to send message.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
       <Navbar />
+
       {/* Hero Section */}
-      
       <div className="relative px-4 sm:px-8">
         <div
           className="relative w-full h-[30vh] sm:h-[40vh] lg:h-[40vh] rounded-2xl overflow-hidden shadow-lg flex items-center justify-center bg-cover bg-center"
@@ -56,59 +97,101 @@ export default function ContactPage() {
           <h2 className="text-2xl sm:text-3xl font-bold text-[#7ED957] mb-6">
             মেসেজ পাঠান
           </h2>
-          <form className="space-y-5">
+
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
               <label className="block text-gray-700 mb-2">পুরো নাম</label>
               <input
+                name="name"
                 type="text"
                 placeholder="আপনার নাম লিখুন"
                 className="w-full p-3 border-2 border-[#7ED957] rounded-lg outline-none focus:ring-2 focus:ring-[#7ED957]"
+                required
               />
             </div>
 
             <div>
               <label className="block text-gray-700 mb-2">ইমেইল</label>
               <input
+                name="email"
                 type="email"
                 placeholder="আপনার ইমেইল লিখুন"
                 className="w-full p-3 border-2 border-[#7ED957] rounded-lg outline-none focus:ring-2 focus:ring-[#7ED957]"
+                required
               />
             </div>
 
             <div>
               <label className="block text-gray-700 mb-2">বিষয়</label>
               <input
+                name="subject"
                 type="text"
                 placeholder="মেসেজের বিষয় লিখুন"
                 className="w-full p-3 border-2 border-[#7ED957] rounded-lg outline-none focus:ring-2 focus:ring-[#7ED957]"
+                required
               />
             </div>
 
             <div>
               <label className="block text-gray-700 mb-2">মেসেজ</label>
               <textarea
+                name="message"
                 rows="5"
                 placeholder="আপনার মেসেজ লিখুন"
                 className="w-full p-3 border-2 border-[#7ED957] rounded-lg outline-none focus:ring-2 focus:ring-[#7ED957]"
+                required
               ></textarea>
             </div>
 
             <button
-            disabled={true}
               type="submit"
-              className="w-full py-3 bg-[#7ED957] text-black font-semibold rounded-lg hover:bg-green-600 transition-colors"
+              className={`w-full py-3 bg-[#7ED957] text-black font-semibold rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2 ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
             >
-              মেসেজ পাঠান
+              {loading && (
+                <svg
+                  className="animate-spin h-5 w-5 text-black"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+              )}
+              {loading ? "পাঠানো হচ্ছে..." : "মেসেজ পাঠান"}
             </button>
           </form>
+
+          {status && (
+            <p
+              className={`mt-4 text-center font-semibold ${
+                status === "success" ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {message}
+            </p>
+          )}
         </div>
       </div>
 
       {/* Footer */}
       <div className="py-6 text-center">
         <p className="text-gray-600 text-sm">
-          © ২০২৫ <span className="text-[#7ED957] font-bold">জমিযোগ</span> ।
-          সর্বস্বত্ব সংরক্ষিত
+          © ২০২৫ <span className="text-[#7ED957] font-bold">জমিযোগ</span> । সর্বস্বত্ব সংরক্ষিত
         </p>
       </div>
     </div>
