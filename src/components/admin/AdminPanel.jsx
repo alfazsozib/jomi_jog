@@ -88,7 +88,7 @@ export default function AdminPanel() {
   const fetchSurveyors = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/admin/surveyors");
+      const res = await axios.get("https://jomijog.com/api/admin/surveyors");
       setSurveyors(res.data);
     } catch (err) {
       console.error(err);
@@ -101,7 +101,7 @@ export default function AdminPanel() {
   const fetchConsultants = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/admin/consultants");
+      const res = await axios.get("https://jomijog.com/api/admin/consultants");
       setConsultants(res.data);
     } catch (err) {
       console.error(err);
@@ -114,7 +114,7 @@ export default function AdminPanel() {
   const fetchPendingRequests = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/bookings/admin/pending");
+      const res = await axios.get("https://jomijog.com/api/bookings/admin/pending");
       setPendingRequests(res.data || []);
     } catch (err) {
       console.error(err);
@@ -133,7 +133,7 @@ export default function AdminPanel() {
   const handleBookingStatus = async (id, status) => {
     try {
       setRowFlag(id, status === "accepted" ? "accepting" : "rejecting", true);
-      await axios.put(`http://localhost:5000/api/bookings/admin/${id}`, { status });
+      await axios.put(`https://jomijog.com/api/bookings/admin/${id}`, { status });
       toast.success(`Booking ${status} successfully`);
       await fetchPendingRequests();
     } catch (err) {
@@ -150,7 +150,7 @@ export default function AdminPanel() {
     console.log(bookingId)
     setRowFlag(bookingId, "paying", true);
     const res = await axios.post(
-      `http://localhost:5000/api/bookings/admin/payment-request/${bookingId}`
+      `https://jomijog.com/api/bookings/admin/payment-request/${bookingId}`
     );
     toast.success(res.data?.message || "Payment request sent");
   } catch (err) {
@@ -169,13 +169,13 @@ export default function AdminPanel() {
       const formData = new FormData();
       Object.keys(newSurveyor).forEach((key) => formData.append(key, newSurveyor[key] ?? ""));
       if (editSurveyorId) {
-        await axios.put(`http://localhost:5000/api/admin/update-surveyor/${editSurveyorId}`, formData, {
+        await axios.put(`https://jomijog.com/api/admin/update-surveyor/${editSurveyorId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" }
         });
         toast.success("Surveyor updated successfully");
         setEditSurveyorId(null);
       } else {
-        await axios.post("http://localhost:5000/api/admin/add-surveyor", formData, {
+        await axios.post("https://jomijog.com/api/admin/add-surveyor", formData, {
           headers: { "Content-Type": "multipart/form-data" }
         });
         toast.success("Surveyor added successfully");
@@ -198,7 +198,7 @@ export default function AdminPanel() {
   const deleteSurveyor = async (id) => {
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:5000/api/admin/delete/${id}`);
+      await axios.delete(`https://jomijog.com/api/admin/delete/${id}`);
       toast.success("Surveyor deleted successfully");
       fetchSurveyors();
     } catch (err) {
@@ -216,13 +216,13 @@ export default function AdminPanel() {
       const formData = new FormData();
       Object.keys(newConsultant).forEach((key) => formData.append(key, newConsultant[key] ?? ""));
       if (editConsultantId) {
-        await axios.put(`http://localhost:5000/api/admin/update-consultant/${editConsultantId}`, formData, {
+        await axios.put(`https://jomijog.com/api/admin/update-consultant/${editConsultantId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" }
         });
         toast.success("Consultant updated successfully");
         setEditConsultantId(null);
       } else {
-        await axios.post("http://localhost:5000/api/admin/add-consultant", formData, {
+        await axios.post("https://jomijog.com/api/admin/add-consultant", formData, {
           headers: { "Content-Type": "multipart/form-data" }
         });
         toast.success("Consultant added successfully");
@@ -245,7 +245,7 @@ export default function AdminPanel() {
   const deleteConsultant = async (id) => {
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:5000/api/admin/delete/${id}`);
+      await axios.delete(`https://jomijog.com/api/admin/delete/${id}`);
       toast.success("Consultant deleted successfully");
       fetchConsultants();
     } catch (err) {
@@ -347,7 +347,7 @@ export default function AdminPanel() {
             <tr key={item._id} className="border-b">
               <td className="p-3">
                 {item.profileImage ? (
-                  <img src={`http://localhost:5000/uploads/${item.profileImage}`} alt={item.name} className="w-10 h-10 rounded-full object-cover" />
+                  <img src={`https://jomijog.com/uploads/${item.profileImage}`} alt={item.name} className="w-10 h-10 rounded-full object-cover" />
                 ) : (
                   <div className="w-10 h-10 bg-gray-300 rounded-full" />
                 )}

@@ -23,7 +23,7 @@ const ResetPassword = () => {
 
     try {
       await axios.post(
-        `http://localhost:5000/api/users/reset-password/${token}`,
+        `https://jomijog.com/api/users/reset-password/${token}`,
         { password }
       );
       setMessage("Password updated successfully! Redirecting to login...");

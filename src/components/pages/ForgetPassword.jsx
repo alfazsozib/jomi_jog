@@ -15,7 +15,7 @@ const ForgotPassword = () => {
 
     try {
       // Replace this endpoint with your backend reset password API
-      await axios.post("http://localhost:5000/api/users/forgot-password", { email });
+      await axios.post("https://jomijog.com/api/users/forgot-password", { email });
       setMessage("পাসওয়ার্ড রিসেট লিঙ্ক আপনার ইমেইলে পাঠানো হয়েছে।");
     } catch (error) {
       setMessage(

@@ -10,7 +10,7 @@ const UserFeedback = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5000/api/feedbacks");
+        const { data } = await axios.get("https://jomijog.com/api/feedbacks");
         if (Array.isArray(data)) setReviews(data);
         else setReviews([]);
       } catch (err) {
@@ -89,7 +89,7 @@ const UserFeedback = () => {
                   <img
                     src={
                       rev.profileImage
-                        ? `http://localhost:5000${rev.profileImage}`
+                        ? `https://jomijog.com${rev.profileImage}`
                         : "https://via.placeholder.com/80"
                     }
                     alt={rev.name}

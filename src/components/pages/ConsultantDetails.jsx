@@ -21,7 +21,7 @@ const ConsultantDetails = () => {
     const fetchConsultant = async () => {
       try {
         const { data } = await axios.get(
-          `http://localhost:5000/api/admin/consultants/${id}`
+          `https://jomijog.com/api/admin/consultants/${id}`
         );
         setConsultant(data);
       } catch (error) {
@@ -93,7 +93,7 @@ const ConsultantDetails = () => {
 
       setBookingLoading(true);
 
-      await axios.post("http://localhost:5000/api/bookings", {
+      await axios.post("https://jomijog.com/api/bookings", {
         userId: user._id,
         consultantId: consultant._id,
         price: consultant.price,
@@ -126,7 +126,7 @@ const ConsultantDetails = () => {
                 <img
                   src={
                     consultant.profileImage
-                      ? `http://localhost:5000/uploads/${consultant.profileImage}`
+                      ? `https://jomijog.com/uploads/${consultant.profileImage}`
                       : "/default-consultant.jpg"
                   }
                   alt={consultant.name}

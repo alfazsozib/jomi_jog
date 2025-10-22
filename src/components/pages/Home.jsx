@@ -8,7 +8,7 @@ import UserFeedback from "../UserFeedback/UserFeedback";
 import FAQ from "./FAQ";
 
 // Set default base URL for Axios
-axios.defaults.baseURL = "http://localhost:5000";
+axios.defaults.baseURL = "https://jomijog.com";
 
 const Home = () => {
   const [showAddReview, setShowAddReview] = useState(false);
