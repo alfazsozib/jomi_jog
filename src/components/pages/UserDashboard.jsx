@@ -113,34 +113,33 @@ const UserDashboard = () => {
               <thead>
                 <tr className="bg-gray-100">
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">#</th>
-                  <th className="py-3 px-4 text-left font-semibold text-gray-700">
-                    Name
-                  </th>
+                  <th className="py-3 px-4 text-left font-semibold text-gray-700">Name</th>
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">Price</th>
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">Status</th>
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">Message</th>
                 </tr>
               </thead>
               <tbody>
-                {bookings.map((booking, index) => (
-                  <tr key={booking._id} className="border-b hover:bg-gray-50 transition">
-                    <td className="py-3 px-4">{index + 1}</td>
-                    <td className="py-3 px-4">
-                      {booking.surveyorId?.name ||
-                        booking.consultantId?.name ||
-                        "N/A"}
-                    </td>
-                    <td className="py-3 px-4">{booking.price || "N/A"} টাকা</td>
-                    <td className="py-3 px-4">{renderStatusBadge(booking.status)}</td>
-                    <td className="py-3 px-4 text-gray-700">
-                      {booking.status === "accepted"
-                        ? "Your booking has been accepted. We will contact you soon"
-                        : booking.status === "rejected"
-                        ? "Your booking request was rejected."
-                        : "Your booking is pending approval."}
-                    </td>
-                  </tr>
-                ))}
+                {bookings
+                  .slice() // ✅ create a copy to avoid mutating state
+                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // ✅ recent first
+                  .map((booking, index) => (
+                    <tr key={booking._id} className="border-b hover:bg-gray-50 transition">
+                      <td className="py-3 px-4">{index + 1}</td>
+                      <td className="py-3 px-4">
+                        {booking.surveyorId?.name || booking.consultantId?.name || "N/A"}
+                      </td>
+                      <td className="py-3 px-4">{booking.price || "N/A"} টাকা</td>
+                      <td className="py-3 px-4">{renderStatusBadge(booking.status)}</td>
+                      <td className="py-3 px-4 text-gray-700">
+                        {booking.status === "accepted"
+                          ? "Your booking has been accepted. We will contact you soon"
+                          : booking.status === "rejected"
+                          ? "Your booking request was rejected."
+                          : "Your booking is pending approval."}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

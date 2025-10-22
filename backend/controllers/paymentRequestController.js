@@ -51,7 +51,7 @@ export const sendPaymentRequest = async (req, res) => {
     // ----- Send Email -----
     const mailOptions = {
       from: process.env.SMTP_USER,
-      to: "aspro1141@gmail.com",
+      to: user.email,
       subject: "Payment Request",
       html: `
         <p>Hello ${user.name},</p>

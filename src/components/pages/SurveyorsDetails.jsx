@@ -12,9 +12,8 @@ const SurveyorsDetails = () => {
   const { id } = useParams();
   const [surveyor, setSurveyor] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [bookingLoading, setBookingLoading] = useState(false); // added booking loading
+  const [bookingLoading, setBookingLoading] = useState(false); 
   const [selectedDate, setSelectedDate] = useState("");
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -74,38 +73,44 @@ const SurveyorsDetails = () => {
   };
 
   const handleBooking = async () => {
-    if (!selectedDate) {
-      toast.warning("Please select a date before booking.");
+  if (!selectedDate) {
+    toast.warning("Please select a date before booking.");
+    return;
+  }
+
+  try {
+    setBookingLoading(true); 
+    const user = JSON.parse(localStorage.getItem("userInfo"));
+    if (!user) {
+      toast.info("Please login first.");
+      navigate("/login");
       return;
     }
 
-    try {
-      setBookingLoading(true); // start button loading
-      const user = JSON.parse(localStorage.getItem("userInfo"));
-      if (!user) {
-        toast.info("Please login first.");
-        navigate("/login");
-        return;
-      }
+    await axios.post("http://localhost:5000/api/bookings", {
+      userId: user._id,
+      surveyorId: surveyor._id,
+      price: surveyor.price,
+      status: "pending",
+      date: selectedDate,
+    });
 
-      await axios.post("http://localhost:5000/api/bookings", {
-        userId: user._id,
-        surveyorId: surveyor._id,
-        price: surveyor.price,
-        status: "pending",
-        date: selectedDate,
-      });
+    toast.success("Booking request sent! Admin will review it.");
+    setSelectedDate("");
 
-      toast.success("Booking request sent! Admin will review it.");
-      setShowDatePicker(false);
-      setSelectedDate("");
-    } catch (error) {
-      console.error("Booking error:", error);
-      toast.error(error.response?.data?.message || "Booking failed");
-    } finally {
-      setBookingLoading(false); // stop button loading
-    }
-  };
+    // ✅ Redirect to dashboard after booking
+    setTimeout(() => {
+      navigate("/dashboard");
+    }, 1500); // delay to allow toast to show
+
+  } catch (error) {
+    console.error("Booking error:", error);
+    toast.error(error.response?.data?.message || "Booking failed");
+  } finally {
+    setBookingLoading(false); 
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -167,30 +172,22 @@ const SurveyorsDetails = () => {
                 )}
             </div>
 
-            {/* Date picker */}
-            {showDatePicker && (
-              <div className="mt-6">
-                <label className="block mb-2 font-semibold text-gray-700">Select a date:</label>
-                <input
-                  type="date"
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                />
-              </div>
-            )}
+            {/* Always visible date picker */}
+            <div className="mt-6">
+              <label className="block mb-2 font-semibold text-gray-700">Select a date:</label>
+              <input
+                type="date"
+                className="w-full border border-gray-300 rounded-lg p-2"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
+            </div>
 
             {/* Book Now Button */}
             <button
-              onClick={() => {
-                if (!showDatePicker) {
-                  setShowDatePicker(true);
-                } else {
-                  handleBooking();
-                }
-              }}
-              disabled={bookingLoading} // disable button while loading
-              className="mt-10 w-full bg-[#7ED957] hover:bg-[#6cc14c] text-white py-3 px-6 rounded-lg font-semibold text-lg transition duration-300 shadow-md flex justify-center items-center gap-2"
+              onClick={handleBooking}
+              disabled={bookingLoading} 
+              className="mt-6 w-full bg-[#7ED957] hover:bg-[#6cc14c] text-white py-3 px-6 rounded-lg font-semibold text-lg transition duration-300 shadow-md flex justify-center items-center gap-2"
             >
               {bookingLoading && (
                 <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 w-5 h-5"></div>
