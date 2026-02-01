@@ -11,7 +11,7 @@ import Navbar from "../Navbar/Navbar";
 import UserFeedback from "../UserFeedback/UserFeedback";
 import FAQ from "./FAQ";
 
-axios.defaults.baseURL = "http://localhost:5000";
+axios.defaults.baseURL = "https://jomijog.com";
 
 const Home = () => {
   const [showAddReview, setShowAddReview] = useState(false);
@@ -92,54 +92,53 @@ const Home = () => {
   return (
     <div className="overflow-x-hidden bg-[#F5F3ED]">
       <Navbar />
-{/* HERO SECTION */}
-<div className="relative px-4 sm:px-8">
-  <div className="relative w-full h-[45vh] sm:h-[55vh] lg:h-[70vh] rounded-2xl overflow-hidden shadow-lg">
+      {/* HERO SECTION */}
+      <div className="relative px-4 sm:px-8">
+        <div className="relative w-full h-[45vh] sm:h-[55vh] lg:h-[70vh] rounded-2xl overflow-hidden shadow-lg">
 
-    {/* 🔁 IMAGE CAROUSEL */}
-    {images.map((img, index) => (
-      <img
-        key={index}
-        src={img}
-        alt="Hero Slide"
-        className={`absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-500 ${
-          index === currentSlide ? "opacity-100" : "opacity-0"
-        }`}
-      />
-    ))}
+          {/* 🔁 IMAGE CAROUSEL */}
+          {images.map((img, index) => (
+            <img
+              key={index}
+              src={img}
+              alt="Hero Slide"
+              className={`absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-500 ${index === currentSlide ? "opacity-100" : "opacity-0"
+                }`}
+            />
+          ))}
 
-    {/* Overlay */}
-    <div className="absolute inset-0 bg-[#131e3d]/70"></div>
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-[#131e3d]/70"></div>
 
-    {/* TEXT (STATIC) */}
-    <div className="relative z-10 flex flex-col justify-center h-full px-4 sm:px-8 md:px-20 text-white">
+          {/* TEXT (STATIC) */}
+          <div className="relative z-10 flex flex-col justify-center h-full px-4 sm:px-8 md:px-20 text-white">
 
-      {/* Heading */}
-      <h2 className="text-xl sm:text-2xl md:text-5xl font-bold mb-3 sm:mb-4 leading-snug sm:leading-snug md:leading-snug">
-        যখনই প্রয়োজন, <br />
-        খুঁজুন বিশ্বস্ত সার্ভেয়ার
-      </h2>
+            {/* Heading */}
+            <h2 className="text-xl sm:text-2xl md:text-5xl font-bold mb-3 sm:mb-4 leading-snug sm:leading-snug md:leading-snug">
+              যখনই প্রয়োজন, <br />
+              খুঁজুন বিশ্বস্ত সার্ভেয়ার
+            </h2>
 
-      {/* Subtext */}
-      <p className="text-xs sm:text-sm md:text-lg mb-4 sm:mb-5 max-w-full sm:max-w-lg md:max-w-xl text-gray-100 leading-snug sm:leading-relaxed md:leading-tigth">
-        জমি সংক্রান্ত যেকোনো কাজ এখন আরও সহজ। বুকিং থেকে সার্ভে পর্যন্ত, 
-        জমিযোগ আনছে আপনার জমি সেবা অনলাইনে নিরাপদ, দ্রুত ও বিশ্বস্ত।
-      </p>
+            {/* Subtext */}
+            <p className="text-xs sm:text-sm md:text-lg mb-4 sm:mb-5 max-w-full sm:max-w-lg md:max-w-xl text-gray-100 leading-snug sm:leading-relaxed md:leading-tigth">
+              জমি সংক্রান্ত যেকোনো কাজ এখন আরও সহজ। বুকিং থেকে সার্ভে পর্যন্ত,
+              জমিযোগ আনছে আপনার জমি সেবা অনলাইনে নিরাপদ, দ্রুত ও বিশ্বস্ত।
+            </p>
 
-      {/* Call-to-action button */}
-      <div className="flex justify-start mt-3 sm:mt-4">
-        <button
-          onClick={() => navigate("/allsurveyors")}
-          className="px-6 py-2 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 transform transition duration-300 inline-block w-auto text-sm sm:text-base cursor-pointer"
-        >
-          সার্ভেয়ার বুক করুন
-        </button>
+            {/* Call-to-action button */}
+            <div className="flex justify-start mt-3 sm:mt-4">
+              <button
+                onClick={() => navigate("/allsurveyors")}
+                className="px-6 py-2 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 transform transition duration-300 inline-block w-auto text-sm sm:text-base cursor-pointer"
+              >
+                সার্ভেয়ার বুক করুন
+              </button>
+            </div>
+
+          </div>
+
+        </div>
       </div>
-
-    </div>
-   
-  </div>
-</div>
 
 
 

@@ -16,7 +16,7 @@ const AllSurveyors = () => {
       try {
         setLoading(true);
         const { data } = await axios.get(
-          "http://localhost:5000/api/users/surveyors"
+          "https://jomijog.com/api/users/surveyors"
         );
         setSurveyors(data);
       } catch (error) {
@@ -34,7 +34,7 @@ const AllSurveyors = () => {
       <div className="relative w-full h-64 pt-5 flex items-center justify-center bg-white rounded-t-2xl overflow-hidden">
         {img ? (
           <img
-            src={`http://localhost:5000/uploads/${img}`}
+            src={`https://jomijog.com/uploads/${img}`}
             alt={name}
             className="max-h-full max-w-full object-cover cursor-pointer"
             loading="lazy"
