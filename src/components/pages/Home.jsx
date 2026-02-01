@@ -130,7 +130,7 @@ const Home = () => {
       <div className="flex justify-start mt-3 sm:mt-4">
         <button
           onClick={() => navigate("/allsurveyors")}
-          className="px-6 py-2 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 transform transition duration-300 inline-block w-auto text-sm sm:text-base"
+          className="px-6 py-2 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 transform transition duration-300 inline-block w-auto text-sm sm:text-base cursor-pointer"
         >
           সার্ভেয়ার বুক করুন
         </button>
