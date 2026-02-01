@@ -7,7 +7,7 @@ import Navbar from "../Navbar/Navbar";
 import UserFeedback from "../UserFeedback/UserFeedback";
 import FAQ from "./FAQ";
 
-// Set default base URL for Axios
+// Axios base URL
 axios.defaults.baseURL = "http://localhost:5000";
 
 const Home = () => {
@@ -19,13 +19,13 @@ const Home = () => {
 
   const navigate = useNavigate();
 
-  // Load user from localStorage
+  // Load user
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("userInfo"));
     if (savedUser) setUser(savedUser);
   }, []);
 
-  // Fetch all reviews
+  // Fetch reviews
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -38,13 +38,13 @@ const Home = () => {
     fetchReviews();
   }, []);
 
-  // Handle input change
+  // Input handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     setReview({ ...review, [name]: value });
   };
 
-  // Handle review submission
+  // Submit review
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) return;
@@ -62,8 +62,6 @@ const Home = () => {
       };
 
       const { data } = await axios.post("/api/feedbacks", reviewToSubmit, config);
-
-      // Update reviews immediately
       setReviews((prev) => [data, ...prev]);
 
       alert("মতামত জমা হয়েছে ✅");
@@ -90,50 +88,60 @@ const Home = () => {
             className="absolute inset-0 w-full h-full object-cover object-top"
           />
           <div className="absolute inset-0 bg-[#131e3d]/70"></div>
-          <div className="relative z-10 flex flex-col items-start justify-center h-full px-6 sm:px-12 md:px-20 text-white">
-            <h2 className="text-xl sm:text-2xl md:text-5xl font-bold leading-snug mb-4">
+
+          <div className="relative z-10 flex flex-col justify-center h-full px-6 sm:px-12 md:px-20 text-white">
+            <h2 className="text-xl sm:text-2xl md:text-5xl font-bold mb-4">
               যখনই প্রয়োজন, <br /> খুঁজুন বিশ্বস্ত সার্ভেয়ার
             </h2>
             <p className="text-sm sm:text-base md:text-lg mb-6 max-w-[480px]">
               বুকিং থেকে সার্ভে পর্যন্ত, জমিযোগ আনছে জমি সেবা অনলাইনে নিরাপদ,
               দ্রুত ও বিশ্বস্ত।
             </p>
-            <button
-              onClick={() => navigate("/allsurveyors")}
-              className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300"
-            >
-              সার্ভেয়ার বুক করুন
-            </button>
+           
           </div>
         </div>
       </div>
 
       <CartSurveyor />
 
-      {/* See more button */}
+      {/* See more */}
       <div className="flex justify-center pb-16">
         <button
           onClick={() => navigate("/allsurveyors")}
-          className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300"
+          className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold hover:scale-105 transition"
         >
           আরও দেখুন
         </button>
       </div>
 
-      <UserFeedback reviews={reviews} />
+      {/* 🔒 LOCKED User Feedback Section (NO LAYOUT SHIFT) */}
+      <div
+        className="
+          relative
+          w-full
+          overflow-hidden
+          h-[560px]
+          sm:h-[580px]
+          lg:h-[620px]
+        "
+      >
+        <div className="absolute inset-0">
+          <UserFeedback reviews={reviews} />
+        </div>
+      </div>
 
-      {/* Add Review Section */}
+      {/* Add Review */}
       <div className="bg-[#F5F3ED] px-4 sm:px-8 text-center">
         {user ? (
           <button
             onClick={() => setShowAddReview(!showAddReview)}
-            className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md border-pulse3"
+            className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold"
           >
             {showAddReview ? "বাতিল করুন" : "আপনার মতামত যোগ করুন"}
           </button>
         ) : (
           <p className="text-gray-700 py-6">
-            মতামত দিতে হলে প্রথমে{" "}
+            মতামত দিতে হলে{" "}
             <Link to="/login" className="text-[#7ED957] underline">
               লগইন
             </Link>{" "}
@@ -143,63 +151,57 @@ const Home = () => {
       </div>
 
       {showAddReview && user && (
-        <div className="bg-[#F5F3ED] px-4 sm:px-8 md:px-16 py-2">
+        <div className="px-4 sm:px-8 md:px-16 py-6">
           <form
             onSubmit={handleSubmit}
             className="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-lg"
           >
             <div className="mb-4">
-              <label className="block text-[#151515] font-semibold mb-2">পেশা</label>
+              <label className="font-semibold">পেশা</label>
               <input
-                type="text"
                 name="role"
                 value={review.role}
                 onChange={handleChange}
-                className="w-full px-4 py-2 rounded-lg border"
+                className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
 
             <div className="mb-4">
-              <label className="block text-[#151515] font-semibold mb-2">
-                পর্যালোচনা / প্রশ্ন
-              </label>
+              <label className="font-semibold">মতামত</label>
               <textarea
                 name="feedback"
+                rows="4"
                 value={review.feedback}
                 onChange={handleChange}
-                rows="5"
-                className="w-full px-4 py-2 rounded-lg border"
+                className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
 
             <div className="mb-6">
-              <label className="block text-[#151515] font-semibold mb-2">রেটিং (1-5)</label>
+              <label className="font-semibold">রেটিং (1–5)</label>
               <input
                 type="number"
+                min="1"
+                max="5"
                 name="rating"
                 value={review.rating}
                 onChange={handleChange}
-                min="1"
-                max="5"
-                className="w-full px-4 py-2 rounded-lg border"
+                className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
 
-            <div className="text-center">
-              <button
-                type="submit"
-                disabled={loadingSubmit}
-                className={`px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:scale-105 transform transition duration-300 ${
-                  loadingSubmit ? "opacity-70 cursor-not-allowed" : ""
-                }`}
-              >
-                {loadingSubmit ? "জমা দিচ্ছে..." : "মতামত জমা দিন"}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loadingSubmit}
+              className="w-full bg-[#7ED957] text-white py-3 rounded-lg font-semibold"
+            >
+              {loadingSubmit ? "জমা দিচ্ছে..." : "মতামত জমা দিন"}
+            </button>
           </form>
         </div>
       )}
 
+      {/* FAQ — NOW 100% STATIC */}
       <FAQ />
     </div>
   );

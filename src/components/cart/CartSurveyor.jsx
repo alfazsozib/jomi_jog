@@ -40,14 +40,16 @@ const CartSurveyor = () => {
           <img
             src={`http://localhost:5000/uploads/${img}`}
             alt={name}
-            className="max-h-full max-w-full object-cover"
+            className="max-h-full max-w-full object-cover cursor-pointer"
             loading="lazy"
+            onClick={() => navigate(`/surveyors/${_id}`)}
           />
         ) : (
           <img
             src="/default-surveyor.jpg"
             alt={name}
-            className="max-h-full max-w-full object-cover"
+            className="max-h-full max-w-full object-cover cursor-pointer"
+            onClick={() => navigate(`/surveyors/${_id}`)}
           />
         )}
       </div>
@@ -64,7 +66,9 @@ const CartSurveyor = () => {
         </div>
 
         {/* Name */}
-        <h2 className="text-base sm:text-lg font-semibold text-gray-800 mt-2">
+        <h2 className="text-base sm:text-lg font-semibold text-gray-800 mt-2 cursor-pointer"
+         onClick={() => navigate(`/surveyors/${_id}`)}
+        >
           {name}
         </h2>
 
@@ -83,7 +87,7 @@ const CartSurveyor = () => {
         {/* Button Section */}
         <div className="flex gap-2.5">
           <button
-            className="w-full bg-[#7ED957] text-white py-2 sm:py-3 rounded-lg font-semibold hover:opacity-90 transition"
+            className="w-full bg-[#7ED957] text-white py-2 sm:py-3 rounded-lg font-semibold hover:opacity-90 transition cursor-pointer"
             onClick={() => navigate(`/surveyors/${_id}`)}
           >
             বুক দিন
