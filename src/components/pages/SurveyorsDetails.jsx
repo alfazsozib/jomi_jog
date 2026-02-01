@@ -56,7 +56,7 @@ const SurveyorsDetails = () => {
 
   const hiddenFields = [
     "email", "password", "__v", "createdAt", "updatedAt",
-    "_id", "mobile", "approvals", "role"
+    "_id", "mobile", "approvals", "role", "licenseNumber","training"
   ];
 
   const fieldLabels = {
@@ -65,9 +65,7 @@ const SurveyorsDetails = () => {
     address: "ঠিকানা",
     companyName: "প্রতিষ্ঠানের নাম",
     companyAddress: "প্রতিষ্ঠানের ঠিকানা",
-    licenseNumber: "লাইসেন্স নম্বর",
     education: "শিক্ষাগত যোগ্যতা",
-    training: "প্রশিক্ষণ কেন্দ্র",
     experience: "অভিজ্ঞতা",
     price: "সেবা মূল্য",
   };
