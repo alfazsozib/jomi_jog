@@ -4,7 +4,7 @@ import { FaStar } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
 import experienceIcon from "../../assets/icons/Experience.jpg";
-import priceIcon from "../../assets/icons/Price.jpg";
+import priceIcon from "../../assets/icons/taka.png";
 
 const AllSurveyors = () => {
   const [surveyors, setSurveyors] = useState([]);

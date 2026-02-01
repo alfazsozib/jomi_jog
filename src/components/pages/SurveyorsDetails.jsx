@@ -5,14 +5,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import experienceIcon from "../../assets/icons/Experience.jpg";
-import priceIcon from "../../assets/icons/Price.jpg";
+import priceIcon from "../../assets/icons/taka.png";
 import Navbar from "../Navbar/Navbar";
 
 const SurveyorsDetails = () => {
   const { id } = useParams();
   const [surveyor, setSurveyor] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [bookingLoading, setBookingLoading] = useState(false); 
+  const [bookingLoading, setBookingLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const navigate = useNavigate();
 
@@ -56,12 +56,12 @@ const SurveyorsDetails = () => {
 
   const hiddenFields = [
     "email", "password", "__v", "createdAt", "updatedAt",
-    "_id", "mobile", "approvals", "role", "licenseNumber","training"
+    "_id", "mobile", "approvals", "role", "licenseNumber", "training"
   ];
 
   const fieldLabels = {
     name: "নাম",
-    age:"বয়স",
+    age: "বয়স",
     address: "ঠিকানা",
     companyName: "প্রতিষ্ঠানের নাম",
     companyAddress: "প্রতিষ্ঠানের ঠিকানা",
@@ -71,43 +71,43 @@ const SurveyorsDetails = () => {
   };
 
   const handleBooking = async () => {
-  if (!selectedDate) {
-    toast.warning("Please select a date before booking.");
-    return;
-  }
-
-  try {
-    setBookingLoading(true); 
-    const user = JSON.parse(localStorage.getItem("userInfo"));
-    if (!user) {
-      toast.info("Please login first.");
-      navigate("/login");
+    if (!selectedDate) {
+      toast.warning("Please select a date before booking.");
       return;
     }
 
-    await axios.post("http://localhost:5000/api/bookings", {
-      userId: user._id,
-      surveyorId: surveyor._id,
-      price: surveyor.price,
-      status: "pending",
-      date: selectedDate,
-    });
+    try {
+      setBookingLoading(true);
+      const user = JSON.parse(localStorage.getItem("userInfo"));
+      if (!user) {
+        toast.info("Please login first.");
+        navigate("/login");
+        return;
+      }
 
-    toast.success("Booking request sent! Admin will review it.");
-    setSelectedDate("");
+      await axios.post("http://localhost:5000/api/bookings", {
+        userId: user._id,
+        surveyorId: surveyor._id,
+        price: surveyor.price,
+        status: "pending",
+        date: selectedDate,
+      });
 
-    // ✅ Redirect to dashboard after booking
-    setTimeout(() => {
-      navigate("/dashboard");
-    }, 1500); // delay to allow toast to show
+      toast.success("Booking request sent! Admin will review it.");
+      setSelectedDate("");
 
-  } catch (error) {
-    console.error("Booking error:", error);
-    toast.error(error.response?.data?.message || "Booking failed");
-  } finally {
-    setBookingLoading(false); 
-  }
-};
+      // ✅ Redirect to dashboard after booking
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500); // delay to allow toast to show
+
+    } catch (error) {
+      console.error("Booking error:", error);
+      toast.error(error.response?.data?.message || "Booking failed");
+    } finally {
+      setBookingLoading(false);
+    }
+  };
 
 
   return (
@@ -184,7 +184,7 @@ const SurveyorsDetails = () => {
             {/* Book Now Button */}
             <button
               onClick={handleBooking}
-              disabled={bookingLoading} 
+              disabled={bookingLoading}
               className="mt-6 w-full bg-[#7ED957] hover:bg-[#6cc14c] text-white py-3 px-6 rounded-lg font-semibold text-lg transition duration-300 shadow-md flex justify-center items-center gap-2"
             >
               {bookingLoading && (

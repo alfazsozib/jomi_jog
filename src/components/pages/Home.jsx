@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import demo from "../../assets/images/demo-9.png";
+import demo1 from "../../assets/images/hero page.jpg";
+import demo2 from "../../assets/images/hero_page_3.png"; // you can change later
+import demo3 from "../../assets/images/demo-9.png"; // you can change later
+import demo4 from "../../assets/images/Frame 74.png";
+
 import CartSurveyor from "../cart/CartSurveyor";
 import Navbar from "../Navbar/Navbar";
 import UserFeedback from "../UserFeedback/UserFeedback";
 import FAQ from "./FAQ";
 
-// Axios base URL
 axios.defaults.baseURL = "http://localhost:5000";
 
 const Home = () => {
@@ -17,7 +20,20 @@ const Home = () => {
   const [reviews, setReviews] = useState([]);
   const [user, setUser] = useState(null);
 
+  // 🔁 HERO IMAGE CAROUSEL STATE
+  const images = [demo1, demo2, demo3, demo4];
+  const [currentSlide, setCurrentSlide] = useState(0);
+
   const navigate = useNavigate();
+
+  // Auto slide hero images
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % images.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Load user
   useEffect(() => {
@@ -38,13 +54,11 @@ const Home = () => {
     fetchReviews();
   }, []);
 
-  // Input handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     setReview({ ...review, [name]: value });
   };
 
-  // Submit review
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) return;
@@ -78,33 +92,59 @@ const Home = () => {
   return (
     <div className="overflow-x-hidden bg-[#F5F3ED]">
       <Navbar />
+{/* HERO SECTION */}
+<div className="relative px-4 sm:px-8">
+  <div className="relative w-full h-[45vh] sm:h-[55vh] lg:h-[70vh] rounded-2xl overflow-hidden shadow-lg">
 
-      {/* Hero Section */}
-      <div className="relative px-4 sm:px-8">
-        <div className="relative w-full h-[40vh] sm:h-[55vh] lg:h-[70vh] rounded-2xl overflow-hidden shadow-lg">
-          <img
-            src={demo}
-            alt="Hero"
-            className="absolute inset-0 w-full h-full object-cover object-top"
-          />
-          <div className="absolute inset-0 bg-[#131e3d]/70"></div>
+    {/* 🔁 IMAGE CAROUSEL */}
+    {images.map((img, index) => (
+      <img
+        key={index}
+        src={img}
+        alt="Hero Slide"
+        className={`absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-500 ${
+          index === currentSlide ? "opacity-100" : "opacity-0"
+        }`}
+      />
+    ))}
 
-          <div className="relative z-10 flex flex-col justify-center h-full px-6 sm:px-12 md:px-20 text-white">
-            <h2 className="text-xl sm:text-2xl md:text-5xl font-bold mb-4">
-              যখনই প্রয়োজন, <br /> খুঁজুন বিশ্বস্ত সার্ভেয়ার
-            </h2>
-            <p className="text-sm sm:text-base md:text-lg mb-6 max-w-[480px]">
-              বুকিং থেকে সার্ভে পর্যন্ত, জমিযোগ আনছে জমি সেবা অনলাইনে নিরাপদ,
-              দ্রুত ও বিশ্বস্ত।
-            </p>
-           
-          </div>
-        </div>
+    {/* Overlay */}
+    <div className="absolute inset-0 bg-[#131e3d]/70"></div>
+
+    {/* TEXT (STATIC) */}
+    <div className="relative z-10 flex flex-col justify-center h-full px-4 sm:px-8 md:px-20 text-white">
+
+      {/* Heading */}
+      <h2 className="text-xl sm:text-2xl md:text-5xl font-bold mb-3 sm:mb-4 leading-snug sm:leading-snug md:leading-snug">
+        যখনই প্রয়োজন, <br />
+        খুঁজুন বিশ্বস্ত সার্ভেয়ার
+      </h2>
+
+      {/* Subtext */}
+      <p className="text-xs sm:text-sm md:text-lg mb-4 sm:mb-5 max-w-full sm:max-w-lg md:max-w-xl text-gray-100 leading-snug sm:leading-relaxed md:leading-tigth">
+        জমি সংক্রান্ত যেকোনো কাজ এখন আরও সহজ। বুকিং থেকে সার্ভে পর্যন্ত, 
+        জমিযোগ আনছে আপনার জমি সেবা অনলাইনে নিরাপদ, দ্রুত ও বিশ্বস্ত।
+      </p>
+
+      {/* Call-to-action button */}
+      <div className="flex justify-start mt-3 sm:mt-4">
+        <button
+          onClick={() => navigate("/allsurveyors")}
+          className="px-6 py-2 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 transform transition duration-300 inline-block w-auto text-sm sm:text-base"
+        >
+          সার্ভেয়ার বুক করুন
+        </button>
       </div>
+
+    </div>
+   
+  </div>
+</div>
+
+
 
       <CartSurveyor />
 
-      {/* See more */}
       <div className="flex justify-center pb-16">
         <button
           onClick={() => navigate("/allsurveyors")}
@@ -114,33 +154,24 @@ const Home = () => {
         </button>
       </div>
 
-      {/* 🔒 LOCKED User Feedback Section (NO LAYOUT SHIFT) */}
-      <div
-        className="
-          relative
-          w-full
-          overflow-hidden
-          h-[560px]
-          sm:h-[580px]
-          lg:h-[620px]
-        "
-      >
+      {/* LOCKED USER FEEDBACK */}
+      <div className="relative w-full overflow-hidden h-[560px] sm:h-[580px] lg:h-[620px]">
         <div className="absolute inset-0">
           <UserFeedback reviews={reviews} />
         </div>
       </div>
 
-      {/* Add Review */}
-      <div className="bg-[#F5F3ED] px-4 sm:px-8 text-center">
+      {/* ADD REVIEW */}
+      <div className="px-4 sm:px-8 text-center">
         {user ? (
           <button
             onClick={() => setShowAddReview(!showAddReview)}
-            className="px-8 py-3 sm:px-10 sm:py-4 bg-[#7ED957] text-white rounded-lg font-semibold"
+            className="px-8 py-3 bg-[#7ED957] text-white rounded-lg font-semibold"
           >
             {showAddReview ? "বাতিল করুন" : "আপনার মতামত যোগ করুন"}
           </button>
         ) : (
-          <p className="text-gray-700 py-6">
+          <p className="py-6">
             মতামত দিতে হলে{" "}
             <Link to="/login" className="text-[#7ED957] underline">
               লগইন
@@ -156,40 +187,31 @@ const Home = () => {
             onSubmit={handleSubmit}
             className="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-lg"
           >
-            <div className="mb-4">
-              <label className="font-semibold">পেশা</label>
-              <input
-                name="role"
-                value={review.role}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="font-semibold">মতামত</label>
-              <textarea
-                name="feedback"
-                rows="4"
-                value={review.feedback}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-            </div>
-
-            <div className="mb-6">
-              <label className="font-semibold">রেটিং (1–5)</label>
-              <input
-                type="number"
-                min="1"
-                max="5"
-                name="rating"
-                value={review.rating}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-            </div>
-
+            <input
+              name="role"
+              placeholder="পেশা"
+              value={review.role}
+              onChange={handleChange}
+              className="w-full mb-3 px-4 py-2 border rounded-lg"
+            />
+            <textarea
+              name="feedback"
+              rows="4"
+              placeholder="মতামত"
+              value={review.feedback}
+              onChange={handleChange}
+              className="w-full mb-3 px-4 py-2 border rounded-lg"
+            />
+            <input
+              type="number"
+              min="1"
+              max="5"
+              name="rating"
+              placeholder="রেটিং"
+              value={review.rating}
+              onChange={handleChange}
+              className="w-full mb-4 px-4 py-2 border rounded-lg"
+            />
             <button
               type="submit"
               disabled={loadingSubmit}
@@ -201,7 +223,6 @@ const Home = () => {
         </div>
       )}
 
-      {/* FAQ — NOW 100% STATIC */}
       <FAQ />
     </div>
   );
