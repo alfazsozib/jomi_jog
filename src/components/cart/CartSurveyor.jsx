@@ -16,7 +16,7 @@ const CartSurveyor = () => {
     const fetchSurveyors = async () => {
       try {
         const { data } = await axios.get(
-          "https://jomijog.com/api/admin/surveyors"
+          "http://localhost:5000/api/users/surveyors"
         );
 
         console.log("Surveyors fetched:", data); // Debug log
@@ -38,7 +38,7 @@ const CartSurveyor = () => {
       <div className="relative w-full h-64 pt-5 flex items-center justify-center bg-white rounded-t-2xl overflow-hidden">
         {img ? (
           <img
-            src={`https://jomijog.com/uploads/${img}`}
+            src={`http://localhost:5000/uploads/${img}`}
             alt={name}
             className="max-h-full max-w-full object-cover"
             loading="lazy"

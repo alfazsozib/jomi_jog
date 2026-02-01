@@ -28,18 +28,18 @@ connectDB();
 
 // Initialize Express app
 const app = express();
-
+app.use(cors())
 // Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS - replace with your frontend URL in production
-app.use(
-  cors({
-    origin: "https://jomijog.com", // change to your deployed frontend URL
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: "http://localhost:5000", // change to your deployed frontend URL
+//     credentials: true,
+//   })
+// );
 
 // Serve uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -59,12 +59,12 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Serve React build (frontend)
-const buildPath = path.join(__dirname, "build");
-app.use(express.static(buildPath));
+// const buildPath = path.join(__dirname, "build");
+// app.use(express.static(buildPath));
 
-app.get(/^\/(?!api).*$/, (req, res) => {
-  res.sendFile(path.join(buildPath, "index.html"));
-});
+// app.get(/^\/(?!api).*$/, (req, res) => {
+//   res.sendFile(path.join(buildPath, "index.html"));
+// });
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

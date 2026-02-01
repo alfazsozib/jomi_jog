@@ -21,7 +21,7 @@ const SurveyorsDetails = () => {
       setLoading(true);
       try {
         const { data } = await axios.get(
-          `https://jomijog.com/api/admin/surveyors/${id}`
+          `http://localhost:5000/api/admin/surveyors/${id}`
         );
         setSurveyor(data);
       } catch (error) {
@@ -87,7 +87,7 @@ const SurveyorsDetails = () => {
       return;
     }
 
-    await axios.post("https://jomijog.com/api/bookings", {
+    await axios.post("http://localhost:5000/api/bookings", {
       userId: user._id,
       surveyorId: surveyor._id,
       price: surveyor.price,
@@ -127,7 +127,7 @@ const SurveyorsDetails = () => {
                 <img
                   src={
                     surveyor.profileImage
-                      ? `https://jomijog.com/uploads/${surveyor.profileImage}`
+                      ? `http://localhost:5000/uploads/${surveyor.profileImage}`
                       : "/default-surveyor.jpg"
                   }
                   alt={surveyor.name}

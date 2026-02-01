@@ -19,7 +19,7 @@ const LoginPage = () => {
 
     try {
       const { data } = await axios.post(
-        "https://jomijog.com/api/users/login",
+        "http://localhost:5000/api/users/login",
         { ...formData, role }
       );
 
