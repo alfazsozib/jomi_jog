@@ -16,7 +16,7 @@ const Consultant = () => {
     const fetchConsultants = async () => {
       try {
         const { data } = await axios.get(
-          "https://jomijog.com/api/admin/consultants"
+          "http://localhost:5000/api/admin/consultants"
         );
         setConsultants(data);
         console.log(data)
@@ -34,7 +34,7 @@ const Consultant = () => {
       <div className="relative w-full h-64 pt-5 flex items-center justify-center bg-white rounded-t-2xl overflow-hidden">
         {profileImage ? (
           <img
-            src={`https://jomijog.com/uploads/${profileImage}`}
+            src={`http://localhost:5000/uploads/${profileImage}`}
             alt={name}
             className="max-h-full max-w-full object-cover"
             loading="lazy"

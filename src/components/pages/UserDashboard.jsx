@@ -15,8 +15,8 @@ const UserDashboard = () => {
       try {
         setLoading(true); // ✅ Start spinner
         const [userRes, bookingRes] = await Promise.all([
-          axios.get(`https://jomijog.com/api/users/${storedUser._id}`),
-          axios.get(`https://jomijog.com/api/bookings/user/${storedUser._id}`)
+          axios.get(`http://localhost:5000/api/users/${storedUser._id}`),
+          axios.get(`http://localhost:5000/api/bookings/user/${storedUser._id}`)
         ]);
 
         setUserData(userRes.data);
@@ -81,7 +81,7 @@ const UserDashboard = () => {
             <img
               src={
                 userData.profileImage
-                  ? `https://jomijog.com${userData.profileImage}`
+                  ? `http://localhost:5000${userData.profileImage}`
                   : "/default-user.jpg"
               }
               alt={userData.name}

@@ -18,10 +18,13 @@ const LoginPage = () => {
     setLoading(true); // Start loading
 
     try {
+      console.log(role)
       const { data } = await axios.post(
-        "https://jomijog.com/api/users/login",
+        "http://localhost:5000/api/users/login",
         { ...formData, role }
       );
+
+
 
       // Save user info
       localStorage.setItem("userInfo", JSON.stringify(data));
@@ -59,7 +62,7 @@ const LoginPage = () => {
             >
               ব্যবহারকারী লগইন
             </button>
-            {/* <button
+            <button
               type="button"
               onClick={() => setRole("surveyor")}
               className={`px-6 py-2 rounded-md font-semibold ${
@@ -69,7 +72,7 @@ const LoginPage = () => {
               }`}
             >
               সার্ভেয়ার লগইন
-            </button> */}
+            </button>
           </div>
 
           {/* Login Form */}

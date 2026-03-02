@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import generateToken from "../utils/generateToken.js";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 
 // @desc    Register new user
 // @route   POST /api/users
@@ -15,7 +16,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password,
     age,
-    mobile,   // ✅ Added mobile here
+    mobile,
     address,
     companyName,
     companyAddress,
@@ -26,6 +27,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   const normalizedEmail = email.toLowerCase();
 
+  // Check if user already exists
   const userExists = await User.findOne({ email: normalizedEmail });
   if (userExists) {
     res.status(400);
@@ -38,13 +40,14 @@ const registerUser = asyncHandler(async (req, res) => {
     profileImageURL = `/uploads/${req.file.filename}`;
   }
 
+  // ✅ Pass plain password — pre-save hook in userModel will hash it ONCE
   const user = await User.create({
     role,
     name,
     email: normalizedEmail,
-    password,
+    password, // plain text — pre-save hook handles hashing
     age,
-    mobile,   // ✅ Save mobile here
+    mobile,
     ...(role === "user" && { address }),
     ...(role === "surveyor" && {
       companyName,
@@ -75,26 +78,45 @@ const loginUser = asyncHandler(async (req, res) => {
   const { email, password, role } = req.body;
 
   const normalizedEmail = email.toLowerCase();
-  const user = await User.findOne({ email: normalizedEmail, role });
 
-  if (user && (await bcrypt.compare(password, user.password))) {
-    res.json({
-      _id: user._id,
-      role: user.role,
-      name: user.name,
-      email: user.email,
-      age: user.age,
-      mobile: user.mobile,
-      profileImage: user.profileImage,
-      token: generateToken(user._id),
-    });
-  } else {
+  // Step 1: Find user by email
+  const user = await User.findOne({ email: normalizedEmail });
+
+  if (!user) {
     res.status(401);
-    throw new Error("Invalid email or password");
+    throw new Error("No account found with this email");
   }
+
+  // Step 2: Check role
+  if (user.role !== role) {
+    res.status(401);
+    throw new Error(`This account is registered as '${user.role}', not '${role}'`);
+  }
+
+  // Step 3: Check password
+  const isMatch = await user.matchPassword(password);
+
+  if (!isMatch) {
+    res.status(401);
+    throw new Error("Incorrect password");
+  }
+
+  // Step 4: Send response with token
+  res.json({
+    _id: user._id,
+    role: user.role,
+    name: user.name,
+    email: user.email,
+    age: user.age,
+    mobile: user.mobile,
+    profileImage: user.profileImage,
+    token: generateToken(user._id),
+  });
 });
 
 // @desc    Get all surveyors
+// @route   GET /api/users/surveyors
+// @access  Public
 const getSurveyors = asyncHandler(async (req, res) => {
   const surveyors = await User.find({ role: "surveyor" }).select(
     "name experience profileImage price"
@@ -103,6 +125,8 @@ const getSurveyors = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get all users
+// @route   GET /api/users
+// @access  Private/Admin
 const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({ role: "user" }).select(
     "name email mobile address profileImage"
@@ -111,6 +135,8 @@ const getUsers = asyncHandler(async (req, res) => {
 });
 
 // @desc    Delete a user
+// @route   DELETE /api/users/:id
+// @access  Private/Admin
 const deleteUser = asyncHandler(async (req, res) => {
   try {
     const userId = req.params.id;
@@ -141,7 +167,9 @@ const deleteUser = asyncHandler(async (req, res) => {
   }
 });
 
-// Get single user
+// @desc    Get single user by ID
+// @route   GET /api/users/:id
+// @access  Private
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -152,26 +180,23 @@ const getUserById = async (req, res) => {
   }
 };
 
-
-// Generate token and send email
+// @desc    Forgot password - generate token & send email
+// @route   POST /api/users/forgot-password
+// @access  Public
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
 
   if (!user) return res.status(404).json({ message: "User not found" });
 
-  // Create reset token
   const resetToken = crypto.randomBytes(32).toString("hex");
 
-  // Save token and expiration in user model
   user.resetPasswordToken = resetToken;
   user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 mins
   await user.save();
 
-  // Create reset URL
-  const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+  const resetUrl = `http://localhost:5000/reset-password/${resetToken}`;
 
-  // Send email
   try {
     await sendEmail({
       to: user.email,
@@ -188,7 +213,9 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-// Reset password controller
+// @desc    Reset password
+// @route   PUT /api/users/reset-password/:token
+// @access  Public
 export const resetPassword = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
@@ -200,11 +227,52 @@ export const resetPassword = async (req, res) => {
 
   if (!user) return res.status(400).json({ message: "Invalid or expired token" });
 
-  user.password = password; // hash in pre-save hook
+  // ✅ Plain password — pre-save hook will hash it
+  user.password = password;
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
   await user.save();
 
   res.json({ message: "Password reset successfully" });
 };
+
+
+
+
+// ─────────────────────────────────────────────────────────
+// ADD THESE TWO FUNCTIONS TO THE BOTTOM OF userController.js
+// (before the export line)
+// ─────────────────────────────────────────────────────────
+
+// @desc    Get surveyor's booked dates
+// @route   GET /api/users/:id/booked-dates
+// @access  Public
+export const getBookedDates = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id).select("bookedDates");
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+  res.json({ bookedDates: user.bookedDates || [] });
+});
+
+// @desc    Update surveyor's booked dates
+// @route   PUT /api/users/:id/booked-dates
+// @access  Private (surveyor only)
+export const updateBookedDates = asyncHandler(async (req, res) => {
+  const { bookedDates } = req.body;
+
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  user.bookedDates = bookedDates;
+  await user.save();
+
+  res.json({ message: "Booked dates updated", bookedDates: user.bookedDates });
+});
+
+
 export { registerUser, loginUser, getSurveyors, getUsers, deleteUser, getUserById };

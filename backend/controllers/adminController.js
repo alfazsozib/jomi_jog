@@ -1,5 +1,4 @@
 import User from "../models/userModel.js";
-import bcrypt from "bcryptjs";
 import path from "path";
 import fs from "fs";
 
@@ -32,14 +31,12 @@ export const addSurveyor = async (req, res) => {
       return res.status(400).json({ message: "Surveyor already exists" });
     }
 
-    // Hash password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    // ✅ Pass plain password — pre-save hook in userModel will hash it ONCE
     const newSurveyor = await User.create({
       role: "surveyor",
       name,
       email: email.toLowerCase(),
-      password: hashedPassword,
+      password, // ✅ plain text only
       age,
       mobile,
       address,
@@ -50,7 +47,7 @@ export const addSurveyor = async (req, res) => {
       price,
       education,
       training,
-      profileImage: profileImageFile,
+      ...(profileImageFile && { profileImage: profileImageFile }),
       status: "approved",
     });
 
@@ -78,6 +75,7 @@ export const addConsultant = async (req, res) => {
       education,
       experience,
       price,
+      licenseNumber,
     } = req.body;
 
     const profileImageFile = req.file ? req.file.filename : undefined;
@@ -88,19 +86,19 @@ export const addConsultant = async (req, res) => {
       return res.status(400).json({ message: "Consultant already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    // ✅ Pass plain password — pre-save hook in userModel will hash it ONCE
     const newConsultant = await User.create({
       role: "consultant",
       name,
       email: email.toLowerCase(),
-      password: hashedPassword,
+      password, // ✅ plain text only
       age,
       mobile,
       education,
       experience,
       price,
-      profileImage: profileImageFile,
+      licenseNumber,
+      ...(profileImageFile && { profileImage: profileImageFile }),
       status: "approved",
     });
 
@@ -163,7 +161,8 @@ export const getConsultantById = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
-}
+};
+
 // =============================
 // Get all Users
 // =============================
@@ -200,6 +199,12 @@ export const deleteUserById = async (req, res) => {
 
     if (!deletedUser) {
       return res.status(404).json({ message: "User not found" });
+    }
+
+    // Delete profile image if exists
+    if (deletedUser.profileImage) {
+      const imgPath = path.join(process.cwd(), "uploads", deletedUser.profileImage);
+      if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
     }
 
     res.json({
@@ -245,7 +250,8 @@ export const updateSurveyor = async (req, res) => {
     surveyor.education = education || surveyor.education;
     surveyor.training = training || surveyor.training;
 
-    if (password) surveyor.password = await bcrypt.hash(password, 10);
+    // ✅ Assign plain password — pre-save hook will hash it ONCE via isModified check
+    if (password) surveyor.password = password;
 
     // Update profile image
     if (req.file) {
@@ -256,7 +262,7 @@ export const updateSurveyor = async (req, res) => {
       surveyor.profileImage = req.file.filename;
     }
 
-    await surveyor.save();
+    await surveyor.save(); // pre-save hook handles hashing
     res.json({ message: "Surveyor updated successfully", surveyor });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -272,7 +278,7 @@ export const updateConsultant = async (req, res) => {
     const consultant = await User.findById(id);
     if (!consultant) return res.status(404).json({ message: "Consultant not found" });
 
-    const { name, email, password, age, mobile, education, experience } = req.body;
+    const { name, email, password, age, mobile, education, experience, price } = req.body;
 
     if (email && email !== consultant.email) {
       const existing = await User.findOne({ email });
@@ -285,8 +291,10 @@ export const updateConsultant = async (req, res) => {
     consultant.mobile = mobile || consultant.mobile;
     consultant.education = education || consultant.education;
     consultant.experience = experience || consultant.experience;
+    consultant.price = price || consultant.price;
 
-    if (password) consultant.password = await bcrypt.hash(password, 10);
+    // ✅ Assign plain password — pre-save hook will hash it ONCE
+    if (password) consultant.password = password;
 
     // Update profile image
     if (req.file) {
@@ -297,7 +305,7 @@ export const updateConsultant = async (req, res) => {
       consultant.profileImage = req.file.filename;
     }
 
-    await consultant.save();
+    await consultant.save(); // pre-save hook handles hashing
     res.json({ message: "Consultant updated successfully", consultant });
   } catch (err) {
     res.status(500).json({ message: err.message });

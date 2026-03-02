@@ -3,10 +3,9 @@ import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
-    // Common fields for all users
     role: {
       type: String,
-      enum: ["user", "surveyor","consultant"],
+      enum: ["user", "surveyor", "consultant"],
       required: true,
       default: "user",
     },
@@ -35,45 +34,35 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     address: {
-      type: String, // For regular users
+      type: String,
     },
 
     // Surveyor-specific fields
-    companyName: {
-      type: String,
-    },
-    companyAddress: {
-      type: String,
-    },
-    licenseNumber: {
-      type: String,
-    },
-    experience: {
-      type: Number, // in years
-    },
-    price: {
-      type: Number, // service price
-    },
-    education: {
-      type: String, // qualifications
-    },
-    training: {
-      type: String, // certifications or courses
-    },
-    profileImage: {
-      type: String,
+    companyName:    { type: String },
+    companyAddress: { type: String },
+    licenseNumber:  { type: String },
+    experience:     { type: Number },
+    price:          { type: Number },
+    education:      { type: String },
+    training:       { type: String },
+    profileImage:   { type: String },
+
+    // ✅ Surveyor blocked/booked dates — array of "YYYY-MM-DD" strings
+    bookedDates: {
+      type: [String],
+      default: [],
     },
 
-    // Optional approvals or password reset fields
     approvals: [
       {
-        surveyorName: String,
+        surveyorName:   String,
         surveyorMobile: String,
-        surveyorPrice: Number,
-        accountNumber: String,
+        surveyorPrice:  Number,
+        accountNumber:  String,
       },
     ],
-    resetPasswordToken: String,
+
+    resetPasswordToken:  String,
     resetPasswordExpire: Date,
   },
   { timestamps: true }
