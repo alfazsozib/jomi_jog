@@ -2,454 +2,412 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../Navbar/Navbar";
 
-const COLORS = {
-  primary: "#7ED957",
-  primaryDark: "#5cb83a",
-  primaryLight: "#e8f8de",
-  bg: "#F5F3ED",
-  dark: "#1a1a2e",
-  text: "#2d2d2d",
-  muted: "#888",
-  white: "#ffffff",
+const C = {
+  primary: "#7ED957", primaryDark: "#5cb83a", primaryLight: "#e8f8de",
+  bg: "#F5F3ED", dark: "#1a1a2e", muted: "#888", white: "#ffffff",
+  red: "#ef4444", redLight: "#fef2f2", redBorder: "#fca5a5",
+  amber: "#f59e0b", amberLight: "#fffbeb",
 };
 
-// ─── Helpers ───────────────────────────────────────────────
-const today = new Date();
-today.setHours(0, 0, 0, 0);
+const todayD = new Date(); todayD.setHours(0,0,0,0);
+const toKey = (d) => { const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${dd}`; };
+const getDaysInMonth = (y,m) => new Date(y,m+1,0).getDate();
+const getFirstDay = (y,m) => new Date(y,m,1).getDay();
 
-const toKey = (date) => date.toISOString().split("T")[0]; // "YYYY-MM-DD"
+const MONTHS = ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"];
+const DAYS   = ["রবি","সোম","মঙ্গল","বুধ","বৃহস্পতি","শুক্র","শনি"];
 
-const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
-const getFirstDay = (year, month) => new Date(year, month, 1).getDay();
+const fmtDate = (key) => new Date(key+"T00:00:00").toLocaleDateString("bn-BD",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
 
-const MONTHS = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December",
-];
-const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const Backdrop = ({onClick}) => <div onClick={onClick} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:1000,backdropFilter:"blur(2px)"}}/>;
 
-// ─── Mini Calendar ──────────────────────────────────────────
-const Calendar = ({ bookedDates, onToggle, readOnly = false, onSelect }) => {
-  const [cur, setCur] = useState({ year: today.getFullYear(), month: today.getMonth() });
+// ─── পছন্দ ডায়ালগ ────────────────────────────────────────────
+const ChoiceDialog = ({date,onNote,onOther,onClose}) => (
+  <><Backdrop onClick={onClose}/>
+  <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",zIndex:1001,background:C.white,borderRadius:24,padding:36,boxShadow:"0 20px 60px rgba(0,0,0,0.18)",width:360,maxWidth:"90vw"}}>
+    <div style={{textAlign:"center",marginBottom:20}}>
+      <div style={{fontSize:32,marginBottom:8}}>📅</div>
+      <h3 style={{margin:0,fontSize:18,fontWeight:800,color:C.dark}}>তারিখ চিহ্নিত করুন</h3>
+      <p style={{margin:"6px 0 0",color:C.muted,fontSize:13}}>{fmtDate(date)}</p>
+    </div>
+    <p style={{textAlign:"center",color:C.muted,fontSize:13,marginBottom:20}}>এই তারিখটি কেন অনুপলব্ধ করছেন?</p>
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <button onClick={onNote} style={{padding:"14px 0",background:C.primary,color:C.white,border:"none",borderRadius:14,fontWeight:700,fontSize:15,cursor:"pointer"}}>
+        📝 নোট — বুকিং তথ্য যোগ করুন
+      </button>
+      <button onClick={onOther} style={{padding:"14px 0",background:C.bg,color:C.dark,border:"2px solid #e5e7eb",borderRadius:14,fontWeight:700,fontSize:15,cursor:"pointer"}}>
+        🔒 অন্যান্য — ব্যক্তিগত কারণ
+      </button>
+      <button onClick={onClose} style={{padding:"10px 0",background:"transparent",color:C.muted,border:"none",fontSize:13,cursor:"pointer"}}>বাতিল</button>
+    </div>
+  </div></>
+);
 
-  const prev = () => {
-    setCur((c) => {
-      if (c.month === 0) return { year: c.year - 1, month: 11 };
-      return { year: c.year, month: c.month - 1 };
-    });
-  };
-
-  const next = () => {
-    setCur((c) => {
-      if (c.month === 11) return { year: c.year + 1, month: 0 };
-      return { year: c.year, month: c.month + 1 };
-    });
-  };
-
-  const daysInMonth = getDaysInMonth(cur.year, cur.month);
-  const firstDay = getFirstDay(cur.year, cur.month);
-
-  const cells = [];
-  for (let i = 0; i < firstDay; i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+// ─── নোট ফর্ম ডায়ালগ ─────────────────────────────────────────
+const NoteDialog = ({date,existing,onSave,onClose}) => {
+  const [form,setForm] = useState({
+    clientName:   existing?.clientName   || "",
+    clientMobile: existing?.clientMobile || "",
+    location:     existing?.location     || "",
+    note:         existing?.note         || "",
+  });
+  const handle = (e) => setForm(f=>({...f,[e.target.name]:e.target.value}));
+  const inp = {width:"100%",padding:"10px 14px",border:"2px solid #e5e7eb",borderRadius:10,fontSize:14,outline:"none",boxSizing:"border-box",fontFamily:"inherit"};
+  const lbl = {fontSize:12,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:"0.05em",display:"block",marginBottom:4};
 
   return (
-    <div style={styles.calendarWrap}>
-      {/* Header */}
-      <div style={styles.calHeader}>
-        <button style={styles.navBtn} onClick={prev}>‹</button>
-        <span style={styles.monthLabel}>{MONTHS[cur.month]} {cur.year}</span>
-        <button style={styles.navBtn} onClick={next}>›</button>
+    <><Backdrop onClick={onClose}/>
+    <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",zIndex:1001,background:C.white,borderRadius:24,padding:32,boxShadow:"0 20px 60px rgba(0,0,0,0.18)",width:420,maxWidth:"90vw",maxHeight:"90vh",overflowY:"auto"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+        <div>
+          <h3 style={{margin:0,fontSize:18,fontWeight:800,color:C.dark}}>{existing?"বুকিং নোট সম্পাদনা":"বুকিং নোট যোগ করুন"}</h3>
+          <p style={{margin:"4px 0 0",color:C.muted,fontSize:12}}>{fmtDate(date)}</p>
+        </div>
+        <button onClick={onClose} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:C.muted}}>✕</button>
       </div>
-
-      {/* Day names */}
-      <div style={styles.dayGrid}>
-        {DAYS.map((d) => (
-          <div key={d} style={styles.dayName}>{d}</div>
-        ))}
+      <div style={{display:"flex",flexDirection:"column",gap:16}}>
+        <div><label style={lbl}>ক্লায়েন্টের নাম</label><input name="clientName" value={form.clientName} onChange={handle} placeholder="ক্লায়েন্টের পূর্ণ নাম" style={inp}/></div>
+        <div><label style={lbl}>মোবাইল নম্বর</label><input name="clientMobile" value={form.clientMobile} onChange={handle} placeholder="০১XXXXXXXXX" style={inp}/></div>
+        <div><label style={lbl}>জরিপের স্থান</label><input name="location" value={form.location} onChange={handle} placeholder="গ্রাম / এলাকা / জেলা" style={inp}/></div>
+        <div><label style={lbl}>নোট</label><textarea name="note" value={form.note} onChange={handle} placeholder="অতিরিক্ত তথ্য লিখুন..." rows={3} style={{...inp,resize:"vertical"}}/></div>
       </div>
+      <div style={{display:"flex",gap:10,marginTop:20}}>
+        <button onClick={()=>onSave(date,form)} style={{flex:1,padding:"12px 0",background:C.primary,color:C.white,border:"none",borderRadius:12,fontWeight:700,fontSize:15,cursor:"pointer"}}>
+          {existing?"আপডেট করুন":"বুকিং সংরক্ষণ করুন"}
+        </button>
+        <button onClick={onClose} style={{padding:"12px 20px",background:C.bg,color:C.muted,border:"2px solid #e5e7eb",borderRadius:12,fontWeight:600,cursor:"pointer"}}>বাতিল</button>
+      </div>
+    </div></>
+  );
+};
 
-      {/* Date cells */}
-      <div style={styles.dayGrid}>
-        {cells.map((day, i) => {
-          if (!day) return <div key={`e-${i}`} />;
+// ─── ক্যালেন্ডার ──────────────────────────────────────────────
+const Calendar = ({bookedDates,noteEvents,onDayClick}) => {
+  const [cur,setCur] = useState({year:todayD.getFullYear(),month:todayD.getMonth()});
+  const prev = () => setCur(c=>c.month===0?{year:c.year-1,month:11}:{...c,month:c.month-1});
+  const next = () => setCur(c=>c.month===11?{year:c.year+1,month:0}:{...c,month:c.month+1});
+  const daysInMonth=getDaysInMonth(cur.year,cur.month), firstDay=getFirstDay(cur.year,cur.month);
+  const cells=[]; for(let i=0;i<firstDay;i++) cells.push(null); for(let d=1;d<=daysInMonth;d++) cells.push(d);
 
-          const date = new Date(cur.year, cur.month, day);
-          date.setHours(0, 0, 0, 0);
-          const key = toKey(date);
-          const isPast = date < today;
-          const isBooked = bookedDates.includes(key);
-          const isToday = key === toKey(today);
-
-          let cellStyle = { ...styles.dayCell };
-          if (isPast) cellStyle = { ...cellStyle, ...styles.pastCell };
-          else if (isBooked) cellStyle = { ...cellStyle, ...styles.bookedCell };
-          else if (isToday) cellStyle = { ...cellStyle, ...styles.todayCell };
-          else cellStyle = { ...cellStyle, ...styles.availCell };
-
-          const handleClick = () => {
-            if (isPast) return;
-            if (readOnly) {
-              if (!isBooked && onSelect) onSelect(key);
-            } else {
-              onToggle(key);
-            }
-          };
-
+  return (
+    <div style={{width:"100%"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+        <button style={S.navBtn} onClick={prev}>‹</button>
+        <span style={{fontWeight:800,fontSize:17,color:C.dark}}>{MONTHS[cur.month]} {cur.year}</span>
+        <button style={S.navBtn} onClick={next}>›</button>
+      </div>
+      <div style={S.dayGrid}>{DAYS.map(d=><div key={d} style={S.dayName}>{d}</div>)}</div>
+      <div style={S.dayGrid}>
+        {cells.map((day,i)=>{
+          if(!day) return <div key={`e-${i}`}/>;
+          const date=new Date(cur.year,cur.month,day); date.setHours(0,0,0,0);
+          const key=toKey(date), isPast=date<todayD;
+          const isNote=Object.prototype.hasOwnProperty.call(noteEvents,key);
+          const isOther=bookedDates.includes(key)&&!isNote;
+          const isToday=key===toKey(todayD);
+          let cs={...S.cell};
+          if(isPast)       cs={...cs,...S.pastCell};
+          else if(isNote)  cs={...cs,...S.noteCell};
+          else if(isOther) cs={...cs,...S.bookedCell};
+          else if(isToday) cs={...cs,...S.todayCell};
+          else             cs={...cs,...S.availCell};
           return (
-            <div
-              key={key}
-              style={cellStyle}
-              onClick={handleClick}
-              title={
-                isPast ? "Past date"
-                : isBooked ? (readOnly ? "Already booked" : "Click to unmark")
-                : readOnly ? "Click to select"
-                : "Click to mark as booked"
-              }
-            >
+            <div key={key} style={cs} onClick={()=>!isPast&&onDayClick(key)}
+              title={isPast?"অতীত তারিখ":isNote?`বুকিং: ${noteEvents[key]?.clientName||"নোট"}`:isOther?"ব্লক করা":"পাওয়া যাচ্ছে"}>
               {day}
-              {isBooked && !readOnly && (
-                <span style={styles.dot} />
-              )}
+              {isNote&&<span style={S.noteDot}/>}
             </div>
           );
         })}
       </div>
-
-      {/* Legend */}
-      <div style={styles.legend}>
-        {!readOnly && (
-          <span style={styles.legendItem}>
-            <span style={{ ...styles.legendDot, background: COLORS.primary }} /> Available
-          </span>
-        )}
-        <span style={styles.legendItem}>
-          <span style={{ ...styles.legendDot, background: "#ef4444" }} /> Booked
-        </span>
-        {readOnly && (
-          <span style={styles.legendItem}>
-            <span style={{ ...styles.legendDot, background: COLORS.primary }} /> Free
-          </span>
-        )}
-        <span style={styles.legendItem}>
-          <span style={{ ...styles.legendDot, background: "#d1d5db" }} /> Past
-        </span>
+      <div style={S.legend}>
+        <span style={S.li}><span style={{...S.ld,background:C.primary}}/> পাওয়া যাচ্ছে</span>
+        <span style={S.li}><span style={{...S.ld,background:C.amber}}/> নোট বুকিং</span>
+        <span style={S.li}><span style={{...S.ld,background:C.red}}/> ব্লক করা</span>
+        <span style={S.li}><span style={{...S.ld,background:"#d1d5db"}}/> অতীত</span>
       </div>
     </div>
   );
 };
 
-// ─── Main Surveyor Dashboard ────────────────────────────────
+// ─── মূল ড্যাশবোর্ড ──────────────────────────────────────────
 const SurveyorDashboard = () => {
-  const [bookings, setBookings] = useState([]);
-  const [bookedDates, setBookedDates] = useState([]);
-  const [saving, setSaving] = useState(false);
-  const [saveMsg, setSaveMsg] = useState("");
-  const [activeTab, setActiveTab] = useState("calendar");
+  const user = JSON.parse(localStorage.getItem("userInfo")||"{}");
+  const [bookings,setBookings]       = useState([]);
+  const [bookedDates,setBookedDates] = useState([]);
+  const [noteEvents,setNoteEvents]   = useState({});
+  const [activeTab,setActiveTab]     = useState("calendar");
+  const [choiceDate,setChoiceDate]   = useState(null);
+  const [noteDate,setNoteDate]       = useState(null);
+  const [editingNote,setEditingNote] = useState(null);
+  const [saving,setSaving]           = useState(false);
+  const [saveMsg,setSaveMsg]         = useState("");
 
-  const user = JSON.parse(localStorage.getItem("userInfo") || "{}");
-
-  useEffect(() => {
-    if (!user?._id || user.role !== "surveyor") return;
-    fetchBookings();
-    fetchBookedDates();
-  }, []);
+  useEffect(()=>{ if(!user?._id||user.role!=="surveyor") return; fetchBookings(); fetchBookedDates(); },[]);
 
   const fetchBookings = async () => {
     try {
-      const { data } = await axios.get(
-        `http://localhost:5000/api/bookings/surveyor/${user._id}`
-      );
-      setBookings(data.filter((b) => b.status === "approved"));
-    } catch (err) {
-      console.error("Error fetching bookings:", err);
-    }
+      const {data}=await axios.get(`http://localhost:5000/api/bookings/surveyor/${user._id}`);
+      setBookings(data.filter(b=>b.status==="approved"));
+    } catch(err){console.error(err);}
   };
 
   const fetchBookedDates = async () => {
     try {
-      const { data } = await axios.get(
-        `http://localhost:5000/api/users/${user._id}/booked-dates`
-      );
-      setBookedDates(data.bookedDates || []);
-    } catch (err) {
-      // If endpoint not yet made, start empty
-      setBookedDates([]);
+      const {data} = await axios.get(`http://localhost:5000/api/users/${user._id}/booked-dates`);
+      setBookedDates(data.bookedDates||[]);
+      const raw = data.noteEvents;
+      if(raw && typeof raw==="object" && !Array.isArray(raw)) {
+        const cleaned = {};
+        Object.keys(raw).forEach(k => {
+          const v = raw[k];
+          if(v && typeof v==="object") {
+            cleaned[k] = {
+              clientName:   String(v.clientName||""),
+              clientMobile: String(v.clientMobile||""),
+              location:     String(v.location||""),
+              note:         String(v.note||""),
+            };
+          }
+        });
+        setNoteEvents(cleaned);
+      } else { setNoteEvents({}); }
+    } catch(err){ setBookedDates([]); setNoteEvents({}); }
+  };
+
+  const handleDayClick = (key) => {
+    if(bookedDates.includes(key)){
+      if(window.confirm(`${fmtDate(key)} — এই তারিখের ব্লক সরাতে চান?`)){
+        const newDates=bookedDates.filter(d=>d!==key);
+        const newNotes={...noteEvents}; delete newNotes[key];
+        setBookedDates(newDates); setNoteEvents(newNotes);
+        persistToServer(newDates,newNotes);
+      }
+      return;
     }
+    setChoiceDate(key);
   };
 
-  const toggleDate = (key) => {
-    setBookedDates((prev) =>
-      prev.includes(key) ? prev.filter((d) => d !== key) : [...prev, key]
-    );
+  const handleChooseNote  = () => { setNoteDate(choiceDate); setEditingNote(null); setChoiceDate(null); };
+  const handleChooseOther = async () => {
+    const key=choiceDate; setChoiceDate(null);
+    const newDates=[...bookedDates,key]; setBookedDates(newDates);
+    await persistToServer(newDates,noteEvents);
   };
 
-  const saveBookedDates = async () => {
-    setSaving(true);
-    setSaveMsg("");
+  const handleSaveNote = async (key,form) => {
+    const newDates=bookedDates.includes(key)?bookedDates:[...bookedDates,key];
+    const newNotes={...noteEvents,[key]:form};
+    setBookedDates(newDates); setNoteEvents(newNotes);
+    setNoteDate(null); setEditingNote(null);
+    await persistToServer(newDates,newNotes);
+  };
+
+  const handleDeleteNote = async (key) => {
+    if(!window.confirm(`${fmtDate(key)} — এই বুকিং নোট মুছতে চান?`)) return;
+    const newDates=bookedDates.filter(d=>d!==key);
+    const newNotes={...noteEvents}; delete newNotes[key];
+    setBookedDates(newDates); setNoteEvents(newNotes);
+    await persistToServer(newDates,newNotes);
+  };
+
+  const handleEditNote = (key) => { setEditingNote(noteEvents[key]); setNoteDate(key); };
+
+  const persistToServer = async (dates,notes) => {
+    setSaving(true); setSaveMsg("");
     try {
       await axios.put(
         `http://localhost:5000/api/users/${user._id}/booked-dates`,
-        { bookedDates },
-        { headers: { Authorization: `Bearer ${user.token}` } }
+        { bookedDates: dates, noteEvents: notes },
+        { headers:{Authorization:`Bearer ${user.token}`} }
       );
-      setSaveMsg("✓ Availability saved successfully!");
-    } catch (err) {
-      setSaveMsg("✗ Failed to save. Please try again.");
-    } finally {
-      setSaving(false);
-      setTimeout(() => setSaveMsg(""), 3000);
-    }
+      setSaveMsg("✓ সফলভাবে সংরক্ষিত হয়েছে!");
+    } catch(err){ console.error(err); setSaveMsg("✗ সংরক্ষণ ব্যর্থ হয়েছে"); }
+    finally{ setSaving(false); setTimeout(()=>setSaveMsg(""),2500); }
   };
 
-  return (
-    <div style={styles.page}>
-      <Navbar />
+  const noteList = Object.entries(noteEvents).sort(([a],[b])=>a.localeCompare(b));
 
-      <div style={styles.container}>
-        {/* Header */}
-        <div style={styles.header}>
+  return (
+    <div style={S.page}>
+      <Navbar/>
+
+      {choiceDate && <ChoiceDialog date={choiceDate} onNote={handleChooseNote} onOther={handleChooseOther} onClose={()=>setChoiceDate(null)}/>}
+      {noteDate   && <NoteDialog date={noteDate} existing={editingNote} onSave={handleSaveNote} onClose={()=>{setNoteDate(null);setEditingNote(null);}}/>}
+
+      <div style={S.container}>
+
+        {/* হেডার */}
+        <div style={S.header}>
           <div>
-            <h1 style={styles.title}>Surveyor Dashboard</h1>
-            <p style={styles.subtitle}>Welcome back, <strong>{user.name}</strong></p>
+            <h1 style={S.title}>সার্ভেয়ার ড্যাশবোর্ড</h1>
+            <p style={S.subtitle}>স্বাগতম, <strong>{user.name}</strong></p>
           </div>
-          <div style={styles.statsRow}>
-            <div style={styles.statCard}>
-              <span style={styles.statNum}>{bookings.length}</span>
-              <span style={styles.statLabel}>Approved Bookings</span>
-            </div>
-            <div style={styles.statCard}>
-              <span style={styles.statNum}>{bookedDates.length}</span>
-              <span style={styles.statLabel}>Blocked Dates</span>
-            </div>
+          <div style={S.statsRow}>
+            {[
+              {n:bookings.length,    l:"অনুমোদিত বুকিং"},
+              {n:bookedDates.length, l:"ব্লক করা তারিখ"},
+              {n:noteList.length,    l:"নোট ইভেন্ট"},
+            ].map((s,i)=>(
+              <div key={i} style={S.statCard}>
+                <span style={S.statNum}>{s.n}</span>
+                <span style={S.statLabel}>{s.l}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Tabs */}
-        <div style={styles.tabs}>
-          {["calendar", "bookings"].map((tab) => (
-            <button
-              key={tab}
-              style={activeTab === tab ? { ...styles.tab, ...styles.activeTab } : styles.tab}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab === "calendar" ? "📅 Availability Calendar" : "📋 My Bookings"}
+        {/* সেভ মেসেজ */}
+        {saveMsg && (
+          <div style={{marginBottom:16,padding:"10px 20px",borderRadius:10,textAlign:"center",background:saveMsg.startsWith("✓")?C.primaryLight:C.redLight,color:saveMsg.startsWith("✓")?C.primaryDark:C.red,fontWeight:700,fontSize:14}}>
+            {saveMsg}
+          </div>
+        )}
+
+        {/* ট্যাব */}
+        <div style={S.tabs}>
+          {[
+            {id:"calendar", label:"📅 উপলব্ধতা ক্যালেন্ডার"},
+            {id:"events",   label:`📝 নোট ইভেন্ট (${noteList.length})`},
+            {id:"bookings", label:"📋 আমার বুকিং"},
+          ].map(tab=>(
+            <button key={tab.id} style={activeTab===tab.id?{...S.tab,...S.activeTab}:S.tab} onClick={()=>setActiveTab(tab.id)}>
+              {tab.label}
             </button>
           ))}
         </div>
 
-        {/* Calendar Tab */}
-        {activeTab === "calendar" && (
-          <div style={styles.calSection}>
-            <div style={styles.calCard}>
-              <h2 style={styles.sectionTitle}>Mark Your Booked Dates</h2>
-              <p style={styles.hint}>
-                Click on dates to mark them as <strong>booked</strong>. Users won't be able to select these dates when booking you.
+        {/* ক্যালেন্ডার ট্যাব */}
+        {activeTab==="calendar" && (
+          <div style={{display:"flex",justifyContent:"center"}}>
+            <div style={S.calCard}>
+              <h2 style={S.sectionTitle}>আপনার উপলব্ধতা পরিচালনা করুন</h2>
+              <p style={{color:C.muted,fontSize:13,marginBottom:24,lineHeight:1.7}}>
+                যেকোনো ভবিষ্যত তারিখে ক্লিক করুন। <strong>নোট</strong> বেছে নিলে বুকিং তথ্য যোগ করতে পারবেন, আর <strong>অন্যান্য</strong> বেছে নিলে ব্যক্তিগত কারণে ব্লক হবে। চিহ্নিত তারিখে আবার ক্লিক করলে সরানো যাবে।
               </p>
-              <Calendar bookedDates={bookedDates} onToggle={toggleDate} />
-              <button
-                style={saving ? { ...styles.saveBtn, opacity: 0.7 } : styles.saveBtn}
-                onClick={saveBookedDates}
-                disabled={saving}
-              >
-                {saving ? "Saving..." : "Save Availability"}
-              </button>
-              {saveMsg && (
-                <p style={{
-                  marginTop: 12,
-                  color: saveMsg.startsWith("✓") ? COLORS.primaryDark : "#ef4444",
-                  fontWeight: 600,
-                  textAlign: "center",
-                }}>
-                  {saveMsg}
-                </p>
-              )}
+              <Calendar bookedDates={bookedDates} noteEvents={noteEvents} onDayClick={handleDayClick}/>
             </div>
           </div>
         )}
 
-        {/* Bookings Tab */}
-        {activeTab === "bookings" && (
-          <div>
-            {bookings.length === 0 ? (
-              <div style={styles.empty}>
-                <span style={{ fontSize: 48 }}>📭</span>
-                <p>No approved bookings yet.</p>
-              </div>
-            ) : (
-              <div style={styles.bookingGrid}>
-                {bookings.map((booking, index) => (
-                  <div key={booking._id} style={styles.bookingCard}>
-                    <div style={styles.bookingHeader}>
-                      <span style={styles.bookingNum}>Booking #{index + 1}</span>
-                      <span style={styles.approvedBadge}>✓ Approved</span>
+        {/* নোট ইভেন্ট ট্যাব */}
+        {activeTab==="events" && (
+          noteList.length===0 ? (
+            <div style={S.empty}>
+              <span style={{fontSize:48}}>📝</span>
+              <p>এখনো কোনো বুকিং নোট নেই।</p>
+            </div>
+          ) : (
+            <div style={S.eventGrid}>
+              {noteList.map(([key,ev])=>{
+                if(!ev||typeof ev!=="object") return null;
+                return (
+                  <div key={key} style={S.eventCard}>
+                    <div style={S.eventHeader}>
+                      <span style={S.eventDate}>{fmtDate(key)}</span>
+                      <span style={S.noteBadge}>📝 নোট</span>
                     </div>
-                    <div style={styles.bookingBody}>
-                      <div style={styles.infoGroup}>
-                        <p style={styles.infoLabel}>👤 Client Name</p>
-                        <p style={styles.infoValue}>{booking.userId?.name || "N/A"}</p>
-                      </div>
-                      <div style={styles.infoGroup}>
-                        <p style={styles.infoLabel}>📱 Mobile</p>
-                        <p style={styles.infoValue}>{booking.userId?.mobile || "N/A"}</p>
-                      </div>
-                      <div style={styles.infoGroup}>
-                        <p style={styles.infoLabel}>📍 Address</p>
-                        <p style={styles.infoValue}>{booking.userId?.address || "N/A"}</p>
-                      </div>
-                      <div style={styles.infoGroup}>
-                        <p style={styles.infoLabel}>💰 Price</p>
-                        <p style={styles.infoValue}>{booking.price} টাকা</p>
-                      </div>
-                      <div style={styles.infoGroup}>
-                        <p style={styles.infoLabel}>🏦 Account</p>
-                        <p style={styles.infoValue}>{booking.accountNumber || "N/A"}</p>
-                      </div>
-                      {booking.date && (
-                        <div style={styles.infoGroup}>
-                          <p style={styles.infoLabel}>📅 Date</p>
-                          <p style={styles.infoValue}>
-                            {new Date(booking.date).toLocaleDateString("en-GB")}
-                          </p>
-                        </div>
-                      )}
+                    <div style={S.eventBody}>
+                      {ev.clientName   && <div style={S.evRow}><span style={S.evLabel}>👤 ক্লায়েন্ট</span><span style={S.evVal}>{String(ev.clientName)}</span></div>}
+                      {ev.clientMobile && <div style={S.evRow}><span style={S.evLabel}>📱 মোবাইল</span><span style={S.evVal}>{String(ev.clientMobile)}</span></div>}
+                      {ev.location     && <div style={S.evRow}><span style={S.evLabel}>📍 স্থান</span><span style={S.evVal}>{String(ev.location)}</span></div>}
+                      {ev.note         && <div style={{...S.evRow,flexDirection:"column",gap:4}}><span style={S.evLabel}>🗒 নোট</span><span style={{...S.evVal,color:C.muted,fontSize:13}}>{String(ev.note)}</span></div>}
+                    </div>
+                    <div style={S.eventActions}>
+                      <button onClick={()=>handleEditNote(key)} style={S.editBtn}>✏️ সম্পাদনা</button>
+                      <button onClick={()=>handleDeleteNote(key)} style={S.deleteBtn}>🗑 মুছুন</button>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                );
+              })}
+            </div>
+          )
         )}
+
+        {/* বুকিং ট্যাব */}
+        {activeTab==="bookings" && (
+          bookings.length===0 ? (
+            <div style={S.empty}>
+              <span style={{fontSize:48}}>📭</span>
+              <p>এখনো কোনো অনুমোদিত বুকিং নেই।</p>
+            </div>
+          ) : (
+            <div style={S.bookingGrid}>
+              {bookings.map((b,i)=>(
+                <div key={b._id} style={S.bookingCard}>
+                  <div style={S.bookingHeader}>
+                    <span style={{fontWeight:700,color:C.dark}}>বুকিং #{i+1}</span>
+                    <span style={S.approvedBadge}>✓ অনুমোদিত</span>
+                  </div>
+                  <div style={S.bookingBody}>
+                    <div style={S.infoGroup}><p style={S.infoLabel}>ক্লায়েন্ট</p><p style={S.infoValue}>{b.userId?.name||"নাই"}</p></div>
+                    <div style={S.infoGroup}><p style={S.infoLabel}>মোবাইল</p><p style={S.infoValue}>{b.userId?.mobile||"নাই"}</p></div>
+                    <div style={S.infoGroup}><p style={S.infoLabel}>ঠিকানা</p><p style={S.infoValue}>{b.userId?.address||"নাই"}</p></div>
+                    <div style={S.infoGroup}><p style={S.infoLabel}>মূল্য</p><p style={S.infoValue}>{b.price} টাকা</p></div>
+                    <div style={S.infoGroup}><p style={S.infoLabel}>একাউন্ট</p><p style={S.infoValue}>{b.accountNumber||"নাই"}</p></div>
+                    {b.date && <div style={S.infoGroup}><p style={S.infoLabel}>তারিখ</p><p style={S.infoValue}>{new Date(b.date).toLocaleDateString("bn-BD")}</p></div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        )}
+
       </div>
     </div>
   );
 };
 
-// ─── Styles ─────────────────────────────────────────────────
-const styles = {
-  page: { minHeight: "100vh", background: COLORS.bg, fontFamily: "'Segoe UI', sans-serif" },
-  container: { maxWidth: 1100, margin: "0 auto", padding: "32px 20px" },
 
-  header: {
-    display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-    marginBottom: 32, flexWrap: "wrap", gap: 16,
-  },
-  title: { fontSize: 32, fontWeight: 800, color: COLORS.dark, margin: 0 },
-  subtitle: { color: COLORS.muted, marginTop: 4, fontSize: 15 },
-
-  statsRow: { display: "flex", gap: 16 },
-  statCard: {
-    background: COLORS.white, borderRadius: 16, padding: "16px 24px",
-    display: "flex", flexDirection: "column", alignItems: "center",
-    boxShadow: "0 2px 12px rgba(0,0,0,0.07)", minWidth: 120,
-    border: `2px solid ${COLORS.primaryLight}`,
-  },
-  statNum: { fontSize: 28, fontWeight: 800, color: COLORS.primary },
-  statLabel: { fontSize: 12, color: COLORS.muted, marginTop: 2, textAlign: "center" },
-
-  tabs: { display: "flex", gap: 8, marginBottom: 24 },
-  tab: {
-    padding: "10px 24px", borderRadius: 12, border: "2px solid #e5e7eb",
-    background: COLORS.white, cursor: "pointer", fontWeight: 600,
-    fontSize: 14, color: COLORS.muted, transition: "all 0.2s",
-  },
-  activeTab: {
-    background: COLORS.primary, color: COLORS.white,
-    border: `2px solid ${COLORS.primary}`,
-  },
-
-  calSection: { display: "flex", justifyContent: "center" },
-  calCard: {
-    background: COLORS.white, borderRadius: 24, padding: 36,
-    boxShadow: "0 4px 24px rgba(0,0,0,0.08)", maxWidth: 480, width: "100%",
-  },
-  sectionTitle: { fontSize: 20, fontWeight: 700, color: COLORS.dark, marginBottom: 8, marginTop: 0 },
-  hint: { color: COLORS.muted, fontSize: 14, marginBottom: 24, lineHeight: 1.6 },
-
-  calendarWrap: { width: "100%" },
-  calHeader: {
-    display: "flex", justifyContent: "space-between", alignItems: "center",
-    marginBottom: 16,
-  },
-  navBtn: {
-    background: COLORS.primaryLight, border: "none", borderRadius: 8,
-    width: 36, height: 36, cursor: "pointer", fontSize: 20,
-    color: COLORS.primaryDark, fontWeight: 700, display: "flex",
-    alignItems: "center", justifyContent: "center",
-  },
-  monthLabel: { fontWeight: 700, fontSize: 17, color: COLORS.dark },
-
-  dayGrid: {
-    display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4, marginBottom: 4,
-  },
-  dayName: {
-    textAlign: "center", fontSize: 11, fontWeight: 700,
-    color: COLORS.muted, padding: "4px 0", textTransform: "uppercase",
-  },
-  dayCell: {
-    textAlign: "center", borderRadius: 10, padding: "8px 0",
-    fontSize: 13, fontWeight: 600, cursor: "pointer",
-    transition: "all 0.15s", position: "relative",
-    userSelect: "none",
-  },
-  pastCell: {
-    color: "#d1d5db", cursor: "not-allowed", background: "transparent",
-  },
-  bookedCell: {
-    background: "#fef2f2", color: "#ef4444",
-    border: "2px solid #fca5a5",
-  },
-  todayCell: {
-    background: COLORS.primaryLight, color: COLORS.primaryDark,
-    border: `2px solid ${COLORS.primary}`, fontWeight: 800,
-  },
-  availCell: {
-    background: "transparent", color: COLORS.dark,
-    border: "2px solid transparent",
-  },
-  dot: {
-    position: "absolute", bottom: 2, left: "50%", transform: "translateX(-50%)",
-    width: 4, height: 4, borderRadius: "50%", background: "#ef4444",
-  },
-
-  legend: { display: "flex", gap: 16, marginTop: 16, justifyContent: "center", flexWrap: "wrap" },
-  legendItem: { display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: COLORS.muted },
-  legendDot: { width: 10, height: 10, borderRadius: "50%", display: "inline-block" },
-
-  saveBtn: {
-    width: "100%", marginTop: 24, padding: "14px 0",
-    background: COLORS.primary, color: COLORS.white,
-    border: "none", borderRadius: 12, fontWeight: 700,
-    fontSize: 16, cursor: "pointer", transition: "background 0.2s",
-  },
-
-  empty: {
-    textAlign: "center", padding: 60, color: COLORS.muted,
-    fontSize: 18, display: "flex", flexDirection: "column",
-    alignItems: "center", gap: 12,
-  },
-
-  bookingGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 20 },
-  bookingCard: {
-    background: COLORS.white, borderRadius: 20,
-    boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
-    border: `1px solid ${COLORS.primaryLight}`, overflow: "hidden",
-  },
-  bookingHeader: {
-    display: "flex", justifyContent: "space-between", alignItems: "center",
-    padding: "16px 20px", background: COLORS.primaryLight,
-    borderBottom: `2px solid ${COLORS.primary}`,
-  },
-  bookingNum: { fontWeight: 700, color: COLORS.dark, fontSize: 16 },
-  approvedBadge: {
-    background: COLORS.primary, color: COLORS.white,
-    borderRadius: 20, padding: "4px 12px", fontSize: 12, fontWeight: 700,
-  },
-  bookingBody: { padding: 20, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 },
-  infoGroup: {},
-  infoLabel: { fontSize: 11, color: COLORS.muted, fontWeight: 600, margin: "0 0 2px", textTransform: "uppercase" },
-  infoValue: { fontSize: 14, color: COLORS.dark, fontWeight: 600, margin: 0 },
+const S = {
+  page:{minHeight:"100vh",background:C.bg,fontFamily:"'Segoe UI', sans-serif"},
+  container:{maxWidth:1100,margin:"0 auto",padding:"32px 20px"},
+  header:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24,flexWrap:"wrap",gap:16},
+  title:{fontSize:32,fontWeight:800,color:C.dark,margin:0},
+  subtitle:{color:C.muted,marginTop:4,fontSize:15},
+  statsRow:{display:"flex",gap:12,flexWrap:"wrap"},
+  statCard:{background:C.white,borderRadius:16,padding:"14px 20px",display:"flex",flexDirection:"column",alignItems:"center",boxShadow:"0 2px 12px rgba(0,0,0,0.07)",border:`2px solid ${C.primaryLight}`,minWidth:110},
+  statNum:{fontSize:26,fontWeight:800,color:C.primary},
+  statLabel:{fontSize:11,color:C.muted,marginTop:2,textAlign:"center"},
+  tabs:{display:"flex",gap:8,marginBottom:24,flexWrap:"wrap"},
+  tab:{padding:"10px 20px",borderRadius:12,border:"2px solid #e5e7eb",background:C.white,cursor:"pointer",fontWeight:600,fontSize:13,color:C.muted},
+  activeTab:{background:C.primary,color:C.white,border:`2px solid ${C.primary}`},
+  calCard:{background:C.white,borderRadius:24,padding:36,boxShadow:"0 4px 24px rgba(0,0,0,0.08)",maxWidth:500,width:"100%"},
+  sectionTitle:{fontSize:20,fontWeight:700,color:C.dark,marginBottom:8,marginTop:0},
+  navBtn:{background:C.primaryLight,border:"none",borderRadius:8,width:36,height:36,cursor:"pointer",fontSize:20,color:C.primaryDark,fontWeight:700},
+  dayGrid:{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4,marginBottom:4},
+  dayName:{textAlign:"center",fontSize:10,fontWeight:700,color:C.muted,padding:"4px 0"},
+  cell:{textAlign:"center",borderRadius:10,padding:"8px 0",fontSize:13,fontWeight:600,cursor:"pointer",transition:"all 0.15s",userSelect:"none",position:"relative"},
+  pastCell:{color:"#d1d5db",cursor:"not-allowed"},
+  bookedCell:{background:C.redLight,color:C.red,border:`2px solid ${C.redBorder}`},
+  noteCell:{background:C.amberLight,color:C.amber,border:"2px solid #fcd34d"},
+  todayCell:{background:C.primaryLight,color:C.primaryDark,border:`2px solid ${C.primary}`,fontWeight:800},
+  availCell:{background:"transparent",color:C.dark,border:"2px solid transparent"},
+  noteDot:{position:"absolute",bottom:2,left:"50%",transform:"translateX(-50%)",width:4,height:4,borderRadius:"50%",background:C.amber},
+  legend:{display:"flex",gap:14,marginTop:16,justifyContent:"center",flexWrap:"wrap"},
+  li:{display:"flex",alignItems:"center",gap:5,fontSize:11,color:C.muted},
+  ld:{width:10,height:10,borderRadius:"50%",display:"inline-block"},
+  eventGrid:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:20},
+  eventCard:{background:C.white,borderRadius:20,boxShadow:"0 2px 16px rgba(0,0,0,0.07)",border:"1px solid #fde68a",overflow:"hidden"},
+  eventHeader:{padding:"14px 20px",background:C.amberLight,borderBottom:"2px solid #fcd34d"},
+  eventDate:{fontWeight:700,color:C.dark,fontSize:14,display:"block"},
+  noteBadge:{background:C.amber,color:C.white,borderRadius:20,padding:"3px 10px",fontSize:11,fontWeight:700,marginTop:4,display:"inline-block"},
+  eventBody:{padding:"16px 20px",display:"flex",flexDirection:"column",gap:10},
+  evRow:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8},
+  evLabel:{fontSize:11,color:C.muted,fontWeight:700,textTransform:"uppercase",whiteSpace:"nowrap"},
+  evVal:{fontSize:14,color:C.dark,fontWeight:600,textAlign:"right"},
+  eventActions:{padding:"12px 20px",display:"flex",gap:8,borderTop:"1px solid #f3f4f6"},
+  editBtn:{flex:1,padding:"8px 0",background:"#eff6ff",color:"#3b82f6",border:"2px solid #bfdbfe",borderRadius:10,fontWeight:700,fontSize:13,cursor:"pointer"},
+  deleteBtn:{flex:1,padding:"8px 0",background:C.redLight,color:C.red,border:`2px solid ${C.redBorder}`,borderRadius:10,fontWeight:700,fontSize:13,cursor:"pointer"},
+  bookingGrid:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20},
+  bookingCard:{background:C.white,borderRadius:20,boxShadow:"0 2px 16px rgba(0,0,0,0.07)",border:`1px solid ${C.primaryLight}`,overflow:"hidden"},
+  bookingHeader:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 20px",background:C.primaryLight,borderBottom:`2px solid ${C.primary}`},
+  approvedBadge:{background:C.primary,color:C.white,borderRadius:20,padding:"4px 12px",fontSize:12,fontWeight:700},
+  bookingBody:{padding:20,display:"grid",gridTemplateColumns:"1fr 1fr",gap:14},
+  infoGroup:{},
+  infoLabel:{fontSize:11,color:C.muted,fontWeight:600,margin:"0 0 2px",textTransform:"uppercase"},
+  infoValue:{fontSize:14,color:C.dark,fontWeight:600,margin:0},
+  empty:{textAlign:"center",padding:60,color:C.muted,fontSize:16,display:"flex",flexDirection:"column",alignItems:"center",gap:12},
 };
 
 export default SurveyorDashboard;

@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+  noteEvents: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
 
     approvals: [
       {

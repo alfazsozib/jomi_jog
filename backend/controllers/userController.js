@@ -238,29 +238,27 @@ export const resetPassword = async (req, res) => {
 
 
 
-
-// ─────────────────────────────────────────────────────────
-// ADD THESE TWO FUNCTIONS TO THE BOTTOM OF userController.js
-// (before the export line)
-// ─────────────────────────────────────────────────────────
-
-// @desc    Get surveyor's booked dates
+// / @desc    Get surveyor's booked dates + note events
 // @route   GET /api/users/:id/booked-dates
 // @access  Public
 export const getBookedDates = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.params.id).select("bookedDates");
+  const user = await User.findById(req.params.id).select("bookedDates noteEvents");
   if (!user) {
     res.status(404);
     throw new Error("User not found");
   }
-  res.json({ bookedDates: user.bookedDates || [] });
+
+  res.json({
+    bookedDates: user.bookedDates || [],
+    noteEvents: user.noteEvents || {},   // already a plain object (Mixed type)
+  });
 });
 
-// @desc    Update surveyor's booked dates
+// @desc    Update surveyor's booked dates + note events
 // @route   PUT /api/users/:id/booked-dates
-// @access  Private (surveyor only)
+// @access  Private
 export const updateBookedDates = asyncHandler(async (req, res) => {
-  const { bookedDates } = req.body;
+  const { bookedDates, noteEvents } = req.body;
 
   const user = await User.findById(req.params.id);
   if (!user) {
@@ -268,10 +266,19 @@ export const updateBookedDates = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 
-  user.bookedDates = bookedDates;
+  user.bookedDates = bookedDates || [];
+  user.noteEvents  = noteEvents  || {};
+
+  // ✅ CRITICAL: must call markModified for Mixed type or Mongoose won't detect the change
+  user.markModified("noteEvents");
+
   await user.save();
 
-  res.json({ message: "Booked dates updated", bookedDates: user.bookedDates });
+  res.json({
+    message: "Availability updated",
+    bookedDates: user.bookedDates,
+    noteEvents: user.noteEvents,
+  });
 });
 
 
