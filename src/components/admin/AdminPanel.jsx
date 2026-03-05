@@ -147,15 +147,48 @@ export default function AdminPanel() {
   // ================ Send Payment Request (Bkash) ================
  const sendPaymentRequest = async (bookingId) => {
   try {
-    console.log(bookingId)
     setRowFlag(bookingId, "paying", true);
+
     const res = await axios.post(
       `http://localhost:5000/api/bookings/admin/payment-request/${bookingId}`
+      // or whatever your route is
     );
-    toast.success(res.data?.message || "Payment request sent");
+
+    const { success, paymentUrl, message } = res.data;
+
+    if (!success || !paymentUrl) {
+      throw new Error(message || "Failed to get payment URL");
+    }
+
+    // Popup logic (same as before)
+    const w = 820;
+    const h = 720;
+    const left = window.screenX + (window.outerWidth - w) / 2;
+    const top = window.screenY + (window.outerHeight - h) / 2;
+
+    const popup = window.open(
+      paymentUrl,
+      "UddoktaPayPayment",
+      `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,location=yes`
+    );
+
+    if (!popup || popup.closed || typeof popup.closed === "undefined") {
+      toast.error("Popup blocked! Please allow popups.");
+      return;
+    }
+
+    const timer = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(timer);
+        toast.info("Payment window closed – refreshing...");
+        fetchPendingRequests();
+      }
+    }, 1500);
+
+    toast.success("Payment page opened + notification email sent!");
   } catch (err) {
-    console.error("Payment request error:", err);
-    toast.error(err.response?.data?.message || "Failed to send payment request");
+    console.error(err);
+    toast.error(err.response?.data?.message || "Payment request failed");
   } finally {
     setRowFlag(bookingId, "paying", false);
   }

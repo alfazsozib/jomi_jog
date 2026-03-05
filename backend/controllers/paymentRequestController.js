@@ -1,11 +1,11 @@
+// controllers/paymentRequestController.js
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import Booking from "../models/bookingModel.js"; // Your Booking model
+import Booking from "../models/bookingModel.js"; // adjust path
 import axios from "axios";
 
 dotenv.config();
 
-// Nodemailer config
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -14,62 +14,85 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Send payment request email
-export const sendPaymentRequest = async (req, res) => {
+const UDDOKTAPAY_BASE_URL = process.env.UDDOKTAPAY_BASE_URL || "https://sandbox.uddoktapay.com";
+const UDDOKTAPAY_API_KEY = process.env.UDDOKTAPAY_API_KEY || "982d381360a69d419689740d9f2e26ce36fb7a50";
+
+export const requestPaymentAndNotify = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Fetch booking & user
     const booking = await Booking.findById(id).populate("userId");
-    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
     const user = booking.userId;
-    if (!user || !user.email) return res.status(404).json({ message: "User email not found" });
+    if (!user || !user.email) return res.status(404).json({ success: false, message: "User email not found" });
 
-    // ----- bKash Payment API -----
-    const bkashRes = await axios.post(
-      "https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/create",
-      {
-        amount: booking.price,
-        intent: "sale",
-        merchantInvoiceNumber: booking._id.toString(),
-        currency: "BDT",
+    // 1. Create UddoktaPay session
+    const payload = {
+      full_name: user.name || "Customer",
+      email: user.email,
+      amount: booking.price.toString(),
+      redirect_url: "http://localhost:3000/payment/success",   // ← update to real URL
+      cancel_url: "http://localhost:3000/payment/cancel",      // ← update to real URL
+      phone: user.mobile || undefined,
+      metadata: {
+        booking_id: booking._id.toString(),
       },
+    };
+
+    const uddoktaRes = await axios.post(
+      `${UDDOKTAPAY_BASE_URL}/api/checkout-v2`,
+      payload,
       {
         headers: {
-          username: process.env.BKASH_USER,
-          password: process.env.BKASH_PASS,
-          accept: "application/json",
-          "content-type": "application/json",
+          "RT-UDDOKTAPAY-API-KEY": UDDOKTAPAY_API_KEY,
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
       }
     );
 
-    const paymentID = bkashRes.data.paymentID;
-    const paymentUrl = `https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/payment?paymentID=${paymentID}`;
+    console.log("[UddoktaPay Response]", JSON.stringify(uddoktaRes.data, null, 2));
 
-    // ----- Send Email -----
+    const paymentUrl = uddoktaRes.data?.payment_url 
+                    || uddoktaRes.data?.checkout_url 
+                    || uddoktaRes.data?.url 
+                    || uddoktaRes.data?.redirect_url;
+
+    if (!paymentUrl) {
+      throw new Error("No payment URL received from UddoktaPay");
+    }
+
+    // 2. Send plain notification email (NO payment link)
     const mailOptions = {
       from: process.env.SMTP_USER,
       to: user.email,
-      subject: "Payment Request",
+      subject: "Payment Request for Your Booking",
       html: `
-        <p>Hello ${user.name},</p>
-        <p>Your payment for booking ID: <strong>${booking._id}</strong> is requested.</p>
-        <p>Amount: <strong>${booking.price} BDT</strong></p>
-        <a href="${paymentUrl}" target="_blank" 
-          style="display:inline-block; padding:10px 20px; background:#f7941d; color:white; text-decoration:none; border-radius:5px;">
-          Pay with bKash
-        </a>
-        <p>Thank you!</p>
+        <p>Hello ${user.name || "Customer"},</p>
+        <p>We have processed your booking (ID: <strong>${booking._id}</strong>).</p>
+        <p><strong>Amount due: ${booking.price} BDT</strong></p>
+        <p>Please complete the payment at your earliest convenience to confirm the booking.</p>
+        <p>You can make the payment through our secure payment portal (a link will be provided when you log in or via notification).</p>
+        <p>Thank you for choosing us!</p>
+        <p>Best regards,<br>Your Company Name</p>
       `,
     };
 
     await transporter.sendMail(mailOptions);
 
-    res.json({ message: `Payment email sent to ${user.email}` });
+    // 3. Return paymentUrl to frontend for popup
+    res.status(200).json({
+      success: true,
+      paymentUrl,
+      message: `Payment request email sent to ${user.email} & session ready`,
+    });
   } catch (err) {
-    console.error("Error sending payment request:", err);
-    res.status(500).json({ message: "Failed to send email", error: err.message });
+    console.error("[Payment Request Error]", err.response?.data || err.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to process payment request",
+      error: err.message,
+    });
   }
 };
