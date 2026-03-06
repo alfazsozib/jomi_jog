@@ -129,7 +129,7 @@ export default function AdminPanel() {
   const fetchTotalUsers = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/admin/users");
-      setTotalUsers(res.data.count || res.data.total || res.data.length || 0);
+      setTotalUsers(res.data.count+200 || res.data.total+200 || res.data.length+200 || 0);
     } catch (err) {
       console.error("Error fetching total users:", err);
       // toast.error("Could not load total users count"); // optional

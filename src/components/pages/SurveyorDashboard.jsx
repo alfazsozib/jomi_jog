@@ -237,7 +237,65 @@ const SurveyorDashboard = () => {
   const fetchNotifications = async () => {
     try {
       const {data} = await axios.get(`http://localhost:5000/api/bookings/notifications/${user._id}`);
-      setNotifications(Array.isArray(data) ? data : []);
+      const notifs = Array.isArray(data) ? data : [];
+      setNotifications(notifs);
+
+      // Auto-block dates from new/unread notifications (like choosing "অন্যান্য")
+      const currentBooked = new Set(bookedDates);
+      const newlyBlocked = [];
+
+      notifs.forEach(n => {
+        if (n.read) return;
+
+        const msg = (n.message || "").trim();
+        if (!msg) return;
+
+        const lower = msg.toLowerCase();
+        if (!lower.includes('বুকিং') && 
+            !lower.includes('booking') && 
+            !lower.includes('গৃহীত') && 
+            !lower.includes('অনুমোদিত') && 
+            !lower.includes('নতুন') && 
+            !lower.includes('তারিখ')) return;
+
+        // Try multiple date patterns
+        let dateKey = null;
+        const patterns = [
+          /(\d{4})[/-](\d{1,2})[/-](\d{1,2})/,           // YYYY-MM-DD
+          /(\d{1,2})[/-](\d{1,2})[/-](\d{4})/,            // DD-MM-YYYY or DD/MM/YYYY
+          /(\d{1,2})[/-](\d{1,2})[/-](\d{2})/             // DD-MM-YY
+        ];
+
+        for (const pat of patterns) {
+          const match = msg.match(pat);
+          if (match) {
+            let y, m, d;
+            if (match[1].length === 4) {
+              [y, m, d] = [match[1], match[2], match[3]];
+            } else {
+              [d, m, y] = [match[1], match[2], match[3]];
+              if (y.length === 2) y = '20' + y;
+            }
+            dateKey = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+            break;
+          }
+        }
+
+        if (dateKey && !currentBooked.has(dateKey)) {
+          const dateObj = new Date(dateKey);
+          if (!isNaN(dateObj.getTime()) && dateObj >= todayD) {
+            newlyBlocked.push(dateKey);
+          }
+        }
+      });
+
+      if (newlyBlocked.length > 0) {
+        const updated = [...bookedDates, ...newlyBlocked];
+        setBookedDates(updated);
+        // Save and force refresh to update calendar + stats
+        await persistToServer(updated, noteEvents);
+        await fetchBookedDates(); // ← ensures calendar re-renders and count updates
+      }
     } catch(err){ console.error("fetchNotifications:", err.response?.status, err.response?.data); }
   };
 
@@ -293,6 +351,29 @@ const SurveyorDashboard = () => {
 
   const handleEditNote = (key) => { setEditingNote(noteEvents[key]); setNoteDate(key); };
 
+  const handleCompleteBooking = async (booking) => {
+    if (!booking?._id) return;
+
+    if (!window.confirm("এই বুকিং সম্পন্ন হিসেবে চিহ্নিত করবেন? তারিখ আবার উপলব্ধ হবে।")) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/api/bookings/${booking._id}`);
+
+      // Free the date in calendar
+      const bookingDate = new Date(booking.date);
+      const key = toKey(bookingDate);
+      const newDates = bookedDates.filter(d => d !== key);
+      setBookedDates(newDates);
+
+      // Refresh lists
+      await fetchBookings();
+      await persistToServer(newDates, noteEvents);
+    } catch(err){
+      console.error("handleCompleteBooking:", err);
+      alert("বুকিং মুছতে সমস্যা হয়েছে।");
+    }
+  };
+
   const persistToServer = async (dates,notes) => {
     setSaving(true); setSaveMsg("");
     try {
@@ -302,6 +383,10 @@ const SurveyorDashboard = () => {
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       setSaveMsg("✓ সফলভাবে সংরক্ষিত হয়েছে!");
+
+      // Force reload from server so notes always persist after refresh
+      await fetchBookedDates();
+      await fetchBookings();
     } catch(err){
       console.error("persistToServer:", err.response?.status, err.response?.data);
       setSaveMsg("✗ সংরক্ষণ ব্যর্থ হয়েছে");
@@ -457,11 +542,62 @@ const SurveyorDashboard = () => {
                     <span style={S.approvedBadge}>✓ গৃহীত</span>
                   </div>
                   <div style={S.bookingBody}>
-                    {/* ✅ name + address only — no phone/email */}
                     <div style={S.infoGroup}><p style={S.infoLabel}>👤 ক্লায়েন্ট</p><p style={S.infoValue}>{b.userId?.name||"নাই"}</p></div>
                     <div style={S.infoGroup}><p style={S.infoLabel}>📍 ঠিকানা</p><p style={S.infoValue}>{b.userId?.address||"নাই"}</p></div>
                     <div style={S.infoGroup}><p style={S.infoLabel}>💰 মূল্য</p><p style={S.infoValue}>{b.price} টাকা</p></div>
                     {b.date&&<div style={S.infoGroup}><p style={S.infoLabel}>📅 তারিখ</p><p style={S.infoValue}>{fmtDateShort(b.date)}</p></div>}
+                  </div>
+                  <div style={{padding:"12px 20px",borderTop:"1px solid #e5e7eb",display:"flex",gap:10,justifyContent:"flex-end"}}>
+                    {/* Existing Complete button */}
+                    <button
+                      onClick={() => handleCompleteBooking(b)}
+                      style={{
+                        padding:"8px 16px",
+                        background:"#10b981",
+                        color:"white",
+                        border:"none",
+                        borderRadius:8,
+                        fontWeight:400,
+                        cursor:"pointer",
+                      }}
+                    >
+                      সম্পন্ন
+                    </button>
+
+                    {/* NEW button: Add to Calendar (block date) */}
+                    <button
+                      onClick={async () => {
+                        if (!b.date) {
+                          alert("এই বুকিং-এ কোনো তারিখ নেই।");
+                          return;
+                        }
+
+                        const bookingDate = new Date(b.date);
+                        const key = toKey(bookingDate);
+
+                        if (bookedDates.includes(key)) {
+                          alert("এই তারিখ ইতিমধ্যে ব্লক করা আছে।");
+                          return;
+                        }
+
+                        if (!window.confirm(`তারিখ ${fmtDateShort(b.date)} ক্যালেন্ডারে ব্লক করবেন?`)) return;
+
+                        const updated = [...bookedDates, key];
+                        setBookedDates(updated);
+                        await persistToServer(updated, noteEvents);
+                      }}
+                      style={{
+                        padding:"8px 16px",
+                        background:C.amber,
+                        color:C.dark,
+                        border:"none",
+                        borderRadius:8,
+                        fontWeight:400,
+                        cursor:"pointer",
+                      }}
+                    >
+                      ক্যালেন্ডারে যোগ করুন
+                    </button>
                   </div>
                 </div>
               ))}
