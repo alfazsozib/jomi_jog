@@ -41,7 +41,14 @@ router.put("/update-consultant/:id", upload.single("profileImage"), updateConsul
 router.get("/consultants/:id",getConsultantById );
 // General user routes
 router.get("/users", getAllUsers);
-
+router.get('/api/admin/users/count', async (req, res) => {
+  try {
+    const count = await User.countDocuments(); // assuming Mongoose
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 // Pending Requests
 router.get("/pending", getPendingRequests);
 

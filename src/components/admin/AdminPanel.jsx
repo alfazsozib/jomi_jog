@@ -23,6 +23,7 @@ export default function AdminPanel() {
   const [surveyors, setSurveyors] = useState([]);
   const [consultants, setConsultants] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [totalUsers, setTotalUsers] = useState(0); // ← added
   const [loading, setLoading] = useState(false);
 
   // tracks per-request sending/payment state: { [bookingId]: { accepting: bool, rejecting: bool, paying: bool } }
@@ -66,7 +67,7 @@ export default function AdminPanel() {
   const stats = [
     { title: "Total Surveyors", value: surveyors.length, icon: <Users size={28} />, color: "#7ED957" },
     { title: "Total Consultants", value: consultants.length, icon: <UserCog size={28} />, color: "#7ED957" },
-    { title: "Total Users", value: 0, icon: <UserPlus size={28} />, color: "#7ED957" },
+    { title: "Total Users", value: totalUsers, icon: <UserPlus size={28} />, color: "#7ED957" }, // ← changed from 0 to totalUsers
     { title: "Pending Requests", value: pendingRequests.length, icon: <Clock size={28} />, color: "#7ED957" }
   ];
 
@@ -74,6 +75,7 @@ export default function AdminPanel() {
     fetchSurveyors();
     fetchConsultants();
     fetchPendingRequests();
+    fetchTotalUsers(); // ← added
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -124,6 +126,16 @@ export default function AdminPanel() {
     }
   };
 
+  const fetchTotalUsers = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/admin/users");
+      setTotalUsers(res.data.count || res.data.total || res.data.length || 0);
+    } catch (err) {
+      console.error("Error fetching total users:", err);
+      // toast.error("Could not load total users count"); // optional
+    }
+  };
+
   // helper to set busy flags for a booking row
   const setRowFlag = (bookingId, flag, value) => {
     setRowBusy(prev => ({ ...prev, [bookingId]: { ...(prev[bookingId] || {}), [flag]: value } }));
@@ -145,55 +157,54 @@ export default function AdminPanel() {
   };
 
   // ================ Send Payment Request (Bkash) ================
- const sendPaymentRequest = async (bookingId) => {
-  try {
-    setRowFlag(bookingId, "paying", true);
+  const sendPaymentRequest = async (bookingId) => {
+    try {
+      setRowFlag(bookingId, "paying", true);
 
-    const res = await axios.post(
-      `http://localhost:5000/api/bookings/admin/payment-request/${bookingId}`
-      // or whatever your route is
-    );
+      const res = await axios.post(
+        `http://localhost:5000/api/bookings/admin/payment-request/${bookingId}`
+        // or whatever your route is
+      );
 
-    const { success, paymentUrl, message } = res.data;
+      const { success, paymentUrl, message } = res.data;
 
-    if (!success || !paymentUrl) {
-      throw new Error(message || "Failed to get payment URL");
-    }
-
-    // Popup logic (same as before)
-    const w = 820;
-    const h = 720;
-    const left = window.screenX + (window.outerWidth - w) / 2;
-    const top = window.screenY + (window.outerHeight - h) / 2;
-
-    const popup = window.open(
-      paymentUrl,
-      "UddoktaPayPayment",
-      `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,location=yes`
-    );
-
-    if (!popup || popup.closed || typeof popup.closed === "undefined") {
-      toast.error("Popup blocked! Please allow popups.");
-      return;
-    }
-
-    const timer = setInterval(() => {
-      if (popup.closed) {
-        clearInterval(timer);
-        toast.info("Payment window closed – refreshing...");
-        fetchPendingRequests();
+      if (!success || !paymentUrl) {
+        throw new Error(message || "Failed to get payment URL");
       }
-    }, 1500);
 
-    toast.success("Payment page opened + notification email sent!");
-  } catch (err) {
-    console.error(err);
-    toast.error(err.response?.data?.message || "Payment request failed");
-  } finally {
-    setRowFlag(bookingId, "paying", false);
-  }
-};
+      // Popup logic (same as before)
+      const w = 820;
+      const h = 720;
+      const left = window.screenX + (window.outerWidth - w) / 2;
+      const top = window.screenY + (window.outerHeight - h) / 2;
 
+      const popup = window.open(
+        paymentUrl,
+        "UddoktaPayPayment",
+        `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,location=yes`
+      );
+
+      if (!popup || popup.closed || typeof popup.closed === "undefined") {
+        toast.error("Popup blocked! Please allow popups.");
+        return;
+      }
+
+      const timer = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(timer);
+          toast.info("Payment window closed – refreshing...");
+          fetchPendingRequests();
+        }
+      }, 1500);
+
+      toast.success("Payment page opened + notification email sent!");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Payment request failed");
+    } finally {
+      setRowFlag(bookingId, "paying", false);
+    }
+  };
 
   // ================ Add / Edit Surveyor =================
   const submitSurveyor = async () => {
