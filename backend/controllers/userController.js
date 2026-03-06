@@ -260,8 +260,14 @@ export const getBookedDates = asyncHandler(async (req, res) => {
 export const updateBookedDates = asyncHandler(async (req, res) => {
   const { bookedDates, noteEvents } = req.body;
 
-  const user = await User.findById(req.params.id);
+  // ✅ Use the authenticated user's ID from the JWT token (set by protect middleware)
+  // This is safer than req.params.id — works even if localStorage has a stale _id
+  const userId = req.user?._id || req.params.id;
+
+  const user = await User.findById(userId);
   if (!user) {
+    // Extra debug info to help diagnose mismatches
+    console.error(`updateBookedDates: User not found. token_id=${req.user?._id}, param_id=${req.params.id}`);
     res.status(404);
     throw new Error("User not found");
   }

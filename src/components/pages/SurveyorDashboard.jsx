@@ -7,46 +7,37 @@ const C = {
   bg: "#F5F3ED", dark: "#1a1a2e", muted: "#888", white: "#ffffff",
   red: "#ef4444", redLight: "#fef2f2", redBorder: "#fca5a5",
   amber: "#f59e0b", amberLight: "#fffbeb",
-  blue: "#3b82f6", blueLight: "#eff6ff", blueBorder: "#bfdbfe",
 };
 
 const todayD = new Date(); todayD.setHours(0,0,0,0);
-const toKey = (d) => { const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${dd}`; };
+const toKey  = (d) => { const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${dd}`; };
 const getDaysInMonth = (y,m) => new Date(y,m+1,0).getDate();
-const getFirstDay = (y,m) => new Date(y,m,1).getDay();
-
+const getFirstDay    = (y,m) => new Date(y,m,1).getDay();
 const MONTHS = ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"];
 const DAYS   = ["রবি","সোম","মঙ্গল","বুধ","বৃহস্পতি","শুক্র","শনি"];
-
-const fmtDate = (key) => new Date(key+"T00:00:00").toLocaleDateString("bn-BD",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-const fmtDateShort = (dateStr) => {
-  if (!dateStr) return "তারিখ নেই";
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("bn-BD",{year:"numeric",month:"long",day:"numeric"});
-};
+const fmtDate      = (key) => new Date(key+"T00:00:00").toLocaleDateString("bn-BD",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+const fmtDateShort = (dateStr) => { if(!dateStr) return "তারিখ নেই"; return new Date(dateStr).toLocaleDateString("bn-BD",{year:"numeric",month:"long",day:"numeric"}); };
 
 // ─── Notification Panel ───────────────────────────────────────
 const NotificationPanel = ({ notifications, onClose, onMarkAllRead }) => (
   <>
     <div onClick={onClose} style={{position:"fixed",inset:0,zIndex:999}}/>
     <div style={{
-      position:"absolute",top:48,right:0,zIndex:1000,
+      position:"absolute",top:52,right:0,zIndex:1000,
       background:C.white,borderRadius:20,
       boxShadow:"0 8px 40px rgba(0,0,0,0.15)",
       width:360,maxWidth:"90vw",maxHeight:480,
       overflow:"hidden",display:"flex",flexDirection:"column",
       border:"1px solid #e5e7eb",
     }}>
-      {/* Header */}
       <div style={{padding:"16px 20px",borderBottom:"1px solid #f3f4f6",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <span style={{fontWeight:800,fontSize:15,color:C.dark}}>🔔 নোটিফিকেশন</span>
         {notifications.some(n=>!n.read) && (
           <button onClick={onMarkAllRead} style={{fontSize:12,color:C.primary,background:"none",border:"none",cursor:"pointer",fontWeight:700}}>
-            সব পড়া হয়েছে
+            সব পড়া হয়েছে ✓
           </button>
         )}
       </div>
-      {/* List */}
       <div style={{overflowY:"auto",flex:1}}>
         {notifications.length===0 ? (
           <div style={{padding:40,textAlign:"center",color:C.muted,fontSize:14}}>
@@ -59,31 +50,20 @@ const NotificationPanel = ({ notifications, onClose, onMarkAllRead }) => (
               padding:"14px 20px",
               borderBottom:"1px solid #f9fafb",
               background: n.read ? C.white : "#f0fdf4",
-              transition:"background 0.2s",
             }}>
               <div style={{display:"flex",alignItems:"flex-start",gap:10}}>
                 <div style={{
-                  width:36,height:36,borderRadius:"50%",
+                  width:36,height:36,borderRadius:"50%",flexShrink:0,
                   background: n.read ? "#f3f4f6" : C.primaryLight,
-                  display:"flex",alignItems:"center",justifyContent:"center",
-                  fontSize:16,flexShrink:0,
+                  display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,
                 }}>✅</div>
                 <div style={{flex:1}}>
-                  <p style={{margin:0,fontSize:13,fontWeight:700,color:C.dark}}>
-                    নতুন বুকিং অনুমোদিত হয়েছে!
+                  <p style={{margin:0,fontSize:13,fontWeight:700,color:C.dark}}>{n.message}</p>
+                  <p style={{margin:"3px 0 0",fontSize:11,color:C.muted}}>
+                    {n.createdAt ? new Date(n.createdAt).toLocaleDateString("bn-BD",{year:"numeric",month:"short",day:"numeric"}) : ""}
                   </p>
-                  <p style={{margin:"3px 0 0",fontSize:12,color:C.muted}}>
-                    👤 {n.clientName} &nbsp;|&nbsp; 📅 {fmtDateShort(n.date)}
-                  </p>
-                  {n.address && (
-                    <p style={{margin:"2px 0 0",fontSize:12,color:C.muted}}>📍 {n.address}</p>
-                  )}
                   {!n.read && (
-                    <span style={{
-                      display:"inline-block",marginTop:4,
-                      background:C.primary,color:C.white,
-                      borderRadius:20,padding:"1px 8px",fontSize:10,fontWeight:700,
-                    }}>নতুন</span>
+                    <span style={{display:"inline-block",marginTop:4,background:C.primary,color:C.white,borderRadius:20,padding:"1px 8px",fontSize:10,fontWeight:700}}>নতুন</span>
                   )}
                 </div>
               </div>
@@ -97,7 +77,6 @@ const NotificationPanel = ({ notifications, onClose, onMarkAllRead }) => (
 
 const Backdrop = ({onClick}) => <div onClick={onClick} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:1000,backdropFilter:"blur(2px)"}}/>;
 
-// ─── পছন্দ ডায়ালগ ────────────────────────────────────────────
 const ChoiceDialog = ({date,onNote,onOther,onClose}) => (
   <><Backdrop onClick={onClose}/>
   <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",zIndex:1001,background:C.white,borderRadius:24,padding:36,boxShadow:"0 20px 60px rgba(0,0,0,0.18)",width:360,maxWidth:"90vw"}}>
@@ -108,29 +87,18 @@ const ChoiceDialog = ({date,onNote,onOther,onClose}) => (
     </div>
     <p style={{textAlign:"center",color:C.muted,fontSize:13,marginBottom:20}}>এই তারিখটি কেন অনুপলব্ধ করছেন?</p>
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
-      <button onClick={onNote} style={{padding:"14px 0",background:C.primary,color:C.white,border:"none",borderRadius:14,fontWeight:700,fontSize:15,cursor:"pointer"}}>
-        📝 নোট — বুকিং তথ্য যোগ করুন
-      </button>
-      <button onClick={onOther} style={{padding:"14px 0",background:C.bg,color:C.dark,border:"2px solid #e5e7eb",borderRadius:14,fontWeight:700,fontSize:15,cursor:"pointer"}}>
-        🔒 অন্যান্য — ব্যক্তিগত কারণ
-      </button>
+      <button onClick={onNote}  style={{padding:"14px 0",background:C.primary,color:C.white,border:"none",borderRadius:14,fontWeight:700,fontSize:15,cursor:"pointer"}}>📝 নোট — বুকিং তথ্য যোগ করুন</button>
+      <button onClick={onOther} style={{padding:"14px 0",background:C.bg,color:C.dark,border:"2px solid #e5e7eb",borderRadius:14,fontWeight:700,fontSize:15,cursor:"pointer"}}>🔒 অন্যান্য — ব্যক্তিগত কারণ</button>
       <button onClick={onClose} style={{padding:"10px 0",background:"transparent",color:C.muted,border:"none",fontSize:13,cursor:"pointer"}}>বাতিল</button>
     </div>
   </div></>
 );
 
-// ─── নোট ফর্ম ডায়ালগ ─────────────────────────────────────────
 const NoteDialog = ({date,existing,onSave,onClose}) => {
-  const [form,setForm] = useState({
-    clientName:   existing?.clientName   || "",
-    clientMobile: existing?.clientMobile || "",
-    location:     existing?.location     || "",
-    note:         existing?.note         || "",
-  });
+  const [form,setForm] = useState({clientName:existing?.clientName||"",clientMobile:existing?.clientMobile||"",location:existing?.location||"",note:existing?.note||""});
   const handle = (e) => setForm(f=>({...f,[e.target.name]:e.target.value}));
   const inp = {width:"100%",padding:"10px 14px",border:"2px solid #e5e7eb",borderRadius:10,fontSize:14,outline:"none",boxSizing:"border-box",fontFamily:"inherit"};
   const lbl = {fontSize:12,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:"0.05em",display:"block",marginBottom:4};
-
   return (
     <><Backdrop onClick={onClose}/>
     <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",zIndex:1001,background:C.white,borderRadius:24,padding:32,boxShadow:"0 20px 60px rgba(0,0,0,0.18)",width:420,maxWidth:"90vw",maxHeight:"90vh",overflowY:"auto"}}>
@@ -148,23 +116,19 @@ const NoteDialog = ({date,existing,onSave,onClose}) => {
         <div><label style={lbl}>নোট</label><textarea name="note" value={form.note} onChange={handle} placeholder="অতিরিক্ত তথ্য লিখুন..." rows={3} style={{...inp,resize:"vertical"}}/></div>
       </div>
       <div style={{display:"flex",gap:10,marginTop:20}}>
-        <button onClick={()=>onSave(date,form)} style={{flex:1,padding:"12px 0",background:C.primary,color:C.white,border:"none",borderRadius:12,fontWeight:700,fontSize:15,cursor:"pointer"}}>
-          {existing?"আপডেট করুন":"বুকিং সংরক্ষণ করুন"}
-        </button>
+        <button onClick={()=>onSave(date,form)} style={{flex:1,padding:"12px 0",background:C.primary,color:C.white,border:"none",borderRadius:12,fontWeight:700,fontSize:15,cursor:"pointer"}}>{existing?"আপডেট করুন":"বুকিং সংরক্ষণ করুন"}</button>
         <button onClick={onClose} style={{padding:"12px 20px",background:C.bg,color:C.muted,border:"2px solid #e5e7eb",borderRadius:12,fontWeight:600,cursor:"pointer"}}>বাতিল</button>
       </div>
     </div></>
   );
 };
 
-// ─── ক্যালেন্ডার ──────────────────────────────────────────────
 const Calendar = ({bookedDates,noteEvents,onDayClick}) => {
   const [cur,setCur] = useState({year:todayD.getFullYear(),month:todayD.getMonth()});
   const prev = () => setCur(c=>c.month===0?{year:c.year-1,month:11}:{...c,month:c.month-1});
   const next = () => setCur(c=>c.month===11?{year:c.year+1,month:0}:{...c,month:c.month+1});
   const daysInMonth=getDaysInMonth(cur.year,cur.month), firstDay=getFirstDay(cur.year,cur.month);
   const cells=[]; for(let i=0;i<firstDay;i++) cells.push(null); for(let d=1;d<=daysInMonth;d++) cells.push(d);
-
   return (
     <div style={{width:"100%"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
@@ -190,8 +154,7 @@ const Calendar = ({bookedDates,noteEvents,onDayClick}) => {
           return (
             <div key={key} style={cs} onClick={()=>!isPast&&onDayClick(key)}
               title={isPast?"অতীত তারিখ":isNote?`বুকিং: ${noteEvents[key]?.clientName||"নোট"}`:isOther?"ব্লক করা":"পাওয়া যাচ্ছে"}>
-              {day}
-              {isNote&&<span style={S.noteDot}/>}
+              {day}{isNote&&<span style={S.noteDot}/>}
             </div>
           );
         })}
@@ -206,35 +169,34 @@ const Calendar = ({bookedDates,noteEvents,onDayClick}) => {
   );
 };
 
-// ─── dashboard ──────────────────────────────────────────
+// ─── মূল ড্যাশবোর্ড ──────────────────────────────────────────
 const SurveyorDashboard = () => {
   const user = JSON.parse(localStorage.getItem("userInfo")||"{}");
-  const SEEN_KEY = `seen_bookings_${user._id}`;
 
-  const [bookings,    setBookings]    = useState([]);
-  const [bookedDates, setBookedDates] = useState([]);
-  const [noteEvents,  setNoteEvents]  = useState({});
-  const [activeTab,   setActiveTab]   = useState("calendar");
-  const [choiceDate,  setChoiceDate]  = useState(null);
-  const [noteDate,    setNoteDate]    = useState(null);
-  const [editingNote, setEditingNote] = useState(null);
-  const [saving,      setSaving]      = useState(false);
-  const [saveMsg,     setSaveMsg]     = useState("");
+  const [bookings,      setBookings]      = useState([]);
+  const [bookedDates,   setBookedDates]   = useState([]);
+  const [noteEvents,    setNoteEvents]    = useState({});
+  const [notifications, setNotifications] = useState([]);
+  const [activeTab,     setActiveTab]     = useState("calendar");
+  const [choiceDate,    setChoiceDate]    = useState(null);
+  const [noteDate,      setNoteDate]      = useState(null);
+  const [editingNote,   setEditingNote]   = useState(null);
+  const [saving,        setSaving]        = useState(false);
+  const [saveMsg,       setSaveMsg]       = useState("");
+  const [showNotif,     setShowNotif]     = useState(false);
 
-  // ── Notification state ──────────────────────────────────────
-  const [showNotif,   setShowNotif]   = useState(false);
-  const [seenIds,     setSeenIds]     = useState(() => {
-    try { return JSON.parse(localStorage.getItem(SEEN_KEY) || "[]"); }
-    catch { return []; }
-  });
-
-  useEffect(()=>{ if(!user?._id||user.role!=="surveyor") return; fetchBookings(); fetchBookedDates(); },[]);
+  useEffect(()=>{
+    if(!user?._id || user.role!=="surveyor") return;
+    fetchBookings();
+    fetchBookedDates();
+    fetchNotifications();
+  },[]);
 
   const fetchBookings = async () => {
     try {
       const {data} = await axios.get(`http://localhost:5000/api/bookings/surveyor/${user._id}`);
-      setBookings(data.filter(b => b.status==="approved"));
-    } catch(err){ console.error(err); }
+      setBookings(Array.isArray(data) ? data : []);
+    } catch(err){ console.error("fetchBookings:", err.response?.status, err.response?.data); }
   };
 
   const fetchBookedDates = async () => {
@@ -257,32 +219,25 @@ const SurveyorDashboard = () => {
         });
         setNoteEvents(cleaned);
       } else { setNoteEvents({}); }
-    } catch(err){ setBookedDates([]); setNoteEvents({}); }
+    } catch(err){ console.error("fetchBookedDates:", err.response?.status, err.response?.data); }
   };
 
-  // ── Notifications derived from bookings ──────────────────────
-  // Each approved booking = one notification
-  const notifications = bookings.map(b => ({
-    id:         b._id,
-    clientName: b.userId?.name || "ক্লায়েন্ট",
-    date:       b.date,
-    address:    b.userId?.address || "",
-    price:      b.price,
-    read:       seenIds.includes(b._id),
-  }));
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  const markAllRead = () => {
-    const allIds = bookings.map(b => b._id);
-    setSeenIds(allIds);
-    localStorage.setItem(SEEN_KEY, JSON.stringify(allIds));
+  const fetchNotifications = async () => {
+    try {
+      const {data} = await axios.get(`http://localhost:5000/api/bookings/notifications/${user._id}`);
+      setNotifications(Array.isArray(data) ? data : []);
+    } catch(err){ console.error("fetchNotifications:", err.response?.status, err.response?.data); }
   };
 
-  const handleBellClick = () => {
-    setShowNotif(v => !v);
+  const unreadCount = notifications.filter(n=>!n.read).length;
+
+  const markAllRead = async () => {
+    try {
+      await axios.put(`http://localhost:5000/api/bookings/notifications/${user._id}/read`);
+      setNotifications(prev => prev.map(n=>({...n, read:true})));
+    } catch(err){ console.error("markAllRead:", err); }
   };
 
-  // ── Calendar handlers ─────────────────────────────────────────
   const handleDayClick = (key) => {
     if(bookedDates.includes(key)){
       if(window.confirm(`${fmtDate(key)} — এই তারিখের ব্লক সরাতে চান?`)){
@@ -327,10 +282,13 @@ const SurveyorDashboard = () => {
       await axios.put(
         `http://localhost:5000/api/users/${user._id}/booked-dates`,
         { bookedDates: dates, noteEvents: notes },
-        { headers:{Authorization:`Bearer ${user.token}`} }
+        { headers: { Authorization: `Bearer ${user.token}` } }
       );
       setSaveMsg("✓ সফলভাবে সংরক্ষিত হয়েছে!");
-    } catch(err){ console.error(err); setSaveMsg("✗ সংরক্ষণ ব্যর্থ হয়েছে"); }
+    } catch(err){
+      console.error("persistToServer:", err.response?.status, err.response?.data);
+      setSaveMsg("✗ সংরক্ষণ ব্যর্থ হয়েছে");
+    }
     finally{ setSaving(false); setTimeout(()=>setSaveMsg(""),2500); }
   };
 
@@ -339,9 +297,8 @@ const SurveyorDashboard = () => {
   return (
     <div style={S.page}>
       <Navbar/>
-
       {choiceDate && <ChoiceDialog date={choiceDate} onNote={handleChooseNote} onOther={handleChooseOther} onClose={()=>setChoiceDate(null)}/>}
-      {noteDate   && <NoteDialog date={noteDate} existing={editingNote} onSave={handleSaveNote} onClose={()=>{setNoteDate(null);setEditingNote(null);}}/>}
+      {noteDate   && <NoteDialog  date={noteDate}   existing={editingNote}    onSave={handleSaveNote}     onClose={()=>{setNoteDate(null);setEditingNote(null);}}/>}
 
       <div style={S.container}>
 
@@ -353,45 +310,40 @@ const SurveyorDashboard = () => {
           </div>
 
           <div style={{display:"flex",alignItems:"center",gap:16,flexWrap:"wrap"}}>
-            {/* ── Notification Bell ── */}
+            {/* 🔔 Bell */}
             <div style={{position:"relative"}}>
               <button
-                onClick={handleBellClick}
+                onClick={()=>setShowNotif(v=>!v)}
                 style={{
                   width:44,height:44,borderRadius:"50%",
-                  background: unreadCount > 0 ? C.primaryLight : "#f3f4f6",
-                  border: unreadCount > 0 ? `2px solid ${C.primary}` : "2px solid #e5e7eb",
-                  cursor:"pointer",fontSize:20,display:"flex",
-                  alignItems:"center",justifyContent:"center",
-                  position:"relative",transition:"all 0.2s",
+                  background:unreadCount>0?C.primaryLight:"#f3f4f6",
+                  border:unreadCount>0?`2px solid ${C.primary}`:"2px solid #e5e7eb",
+                  cursor:"pointer",fontSize:20,
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  position:"relative",
                 }}
-                title="নোটিফিকেশন"
               >
                 🔔
-                {unreadCount > 0 && (
+                {unreadCount>0 && (
                   <span style={{
                     position:"absolute",top:-4,right:-4,
-                    background:C.red,color:C.white,
-                    borderRadius:"50%",width:20,height:20,
-                    fontSize:11,fontWeight:800,
+                    background:C.red,color:C.white,borderRadius:"50%",
+                    width:20,height:20,fontSize:11,fontWeight:800,
                     display:"flex",alignItems:"center",justifyContent:"center",
                     border:"2px solid white",
-                  }}>
-                    {unreadCount}
-                  </span>
+                  }}>{unreadCount}</span>
                 )}
               </button>
-
               {showNotif && (
                 <NotificationPanel
                   notifications={notifications}
-                  onClose={() => setShowNotif(false)}
-                  onMarkAllRead={() => { markAllRead(); }}
+                  onClose={()=>setShowNotif(false)}
+                  onMarkAllRead={()=>{ markAllRead(); setShowNotif(false); }}
                 />
               )}
             </div>
 
-            {/* ── Stats ── */}
+            {/* Stats */}
             <div style={S.statsRow}>
               {[
                 {n:bookings.length,    l:"অনুমোদিত বুকিং"},
@@ -427,7 +379,7 @@ const SurveyorDashboard = () => {
           ))}
         </div>
 
-        {/* ── ক্যালেন্ডার ট্যাব ── */}
+        {/* ── ক্যালেন্ডার ─────────────────────────────────────── */}
         {activeTab==="calendar" && (
           <div style={{display:"flex",justifyContent:"center"}}>
             <div style={S.calCard}>
@@ -440,7 +392,7 @@ const SurveyorDashboard = () => {
           </div>
         )}
 
-        {/* ── নোট ইভেন্ট ট্যাব ── */}
+        {/* ── নোট ইভেন্ট ──────────────────────────────────────── */}
         {activeTab==="events" && (
           noteList.length===0 ? (
             <div style={S.empty}><span style={{fontSize:48}}>📝</span><p>এখনো কোনো বুকিং নোট নেই।</p></div>
@@ -471,7 +423,7 @@ const SurveyorDashboard = () => {
           )
         )}
 
-        {/* ── আমার বুকিং ট্যাব ── */}
+        {/* ── আমার বুকিং ──────────────────────────────────────── */}
         {activeTab==="bookings" && (
           bookings.length===0 ? (
             <div style={S.empty}>
@@ -479,94 +431,23 @@ const SurveyorDashboard = () => {
               <p>এখনো কোনো অনুমোদিত বুকিং নেই।</p>
             </div>
           ) : (
-            <>
-              {/* New booking alert banner */}
-              {unreadCount > 0 && (
-                <div style={{
-                  marginBottom:20,padding:"14px 20px",
-                  background:"#f0fdf4",borderRadius:14,
-                  border:`2px solid ${C.primary}`,
-                  display:"flex",alignItems:"center",justifyContent:"space-between",
-                  flexWrap:"wrap",gap:10,
-                }}>
-                  <span style={{color:C.primaryDark,fontWeight:700,fontSize:14}}>
-                    🎉 আপনার {unreadCount}টি নতুন বুকিং অনুমোদিত হয়েছে!
-                  </span>
-                  <button onClick={markAllRead} style={{
-                    background:C.primary,color:C.white,border:"none",
-                    borderRadius:10,padding:"6px 16px",fontSize:13,
-                    fontWeight:700,cursor:"pointer",
-                  }}>
-                    পড়া হয়েছে ✓
-                  </button>
+            <div style={S.bookingGrid}>
+              {bookings.map((b,i)=>(
+                <div key={b._id} style={S.bookingCard}>
+                  <div style={S.bookingHeader}>
+                    <span style={{fontWeight:700,color:C.dark}}>বুকিং #{i+1}</span>
+                    <span style={S.approvedBadge}>✓ গৃহীত</span>
+                  </div>
+                  <div style={S.bookingBody}>
+                    {/* ✅ name + address only — no phone/email */}
+                    <div style={S.infoGroup}><p style={S.infoLabel}>👤 ক্লায়েন্ট</p><p style={S.infoValue}>{b.userId?.name||"নাই"}</p></div>
+                    <div style={S.infoGroup}><p style={S.infoLabel}>📍 ঠিকানা</p><p style={S.infoValue}>{b.userId?.address||"নাই"}</p></div>
+                    <div style={S.infoGroup}><p style={S.infoLabel}>💰 মূল্য</p><p style={S.infoValue}>{b.price} টাকা</p></div>
+                    {b.date&&<div style={S.infoGroup}><p style={S.infoLabel}>📅 তারিখ</p><p style={S.infoValue}>{fmtDateShort(b.date)}</p></div>}
+                  </div>
                 </div>
-              )}
-
-              <div style={S.bookingGrid}>
-                {bookings.map((b,i)=>{
-                  const isNew = !seenIds.includes(b._id);
-                  return (
-                    <div key={b._id} style={{
-                      ...S.bookingCard,
-                      border: isNew ? `2px solid ${C.primary}` : `1px solid ${C.primaryLight}`,
-                      boxShadow: isNew ? `0 4px 20px rgba(126,217,87,0.25)` : "0 2px 16px rgba(0,0,0,0.07)",
-                    }}>
-                      <div style={{
-                        ...S.bookingHeader,
-                        background: isNew ? C.primaryLight : C.primaryLight,
-                      }}>
-                        <div style={{display:"flex",alignItems:"center",gap:8}}>
-                          <span style={{fontWeight:700,color:C.dark}}>বুকিং #{i+1}</span>
-                          {isNew && (
-                            <span style={{
-                              background:C.primary,color:C.white,
-                              borderRadius:20,padding:"2px 8px",
-                              fontSize:10,fontWeight:800,
-                            }}>নতুন</span>
-                          )}
-                        </div>
-                        <span style={S.approvedBadge}>✓ অনুমোদিত</span>
-                      </div>
-                      <div style={S.bookingBody}>
-                        {/* Client Name */}
-                        <div style={S.infoGroup}>
-                          <p style={S.infoLabel}>👤 ক্লায়েন্ট</p>
-                          <p style={S.infoValue}>{b.userId?.name||"নাই"}</p>
-                        </div>
-                        {/* Address */}
-                        <div style={S.infoGroup}>
-                          <p style={S.infoLabel}>📍 ঠিকানা</p>
-                          <p style={S.infoValue}>{b.userId?.address||"নাই"}</p>
-                        </div>
-                        {/* Price */}
-                        <div style={S.infoGroup}>
-                          <p style={S.infoLabel}>💰 মূল্য</p>
-                          <p style={S.infoValue}>{b.price} টাকা</p>
-                        </div>
-                        {/* Date */}
-                        {b.date && (
-                          <div style={S.infoGroup}>
-                            <p style={S.infoLabel}>📅 তারিখ</p>
-                            <p style={S.infoValue}>{fmtDateShort(b.date)}</p>
-                          </div>
-                        )}
-                        {/* Account */}
-                        <div style={S.infoGroup}>
-                          <p style={S.infoLabel}>🏦 একাউন্ট</p>
-                          <p style={S.infoValue}>{b.accountNumber||"নাই"}</p>
-                        </div>
-                        {/* Status */}
-                        <div style={S.infoGroup}>
-                          <p style={S.infoLabel}>📌 স্ট্যাটাস</p>
-                          <p style={{...S.infoValue,color:C.primaryDark}}>অনুমোদিত ✓</p>
-                        </div>
-                      </div>
-                      {/* Note: no phone/email shown intentionally */}
-                    </div>
-                  );
-                })}
-              </div>
-            </>
+              ))}
+            </div>
           )
         )}
 
@@ -575,7 +456,6 @@ const SurveyorDashboard = () => {
   );
 };
 
-// ─── স্টাইল ──────────────────────────────────────────────────
 const S = {
   page:{minHeight:"100vh",background:C.bg,fontFamily:"'Segoe UI', sans-serif"},
   container:{maxWidth:1100,margin:"0 auto",padding:"32px 20px"},
@@ -616,8 +496,8 @@ const S = {
   eventActions:{padding:"12px 20px",display:"flex",gap:8,borderTop:"1px solid #f3f4f6"},
   editBtn:{flex:1,padding:"8px 0",background:"#eff6ff",color:"#3b82f6",border:"2px solid #bfdbfe",borderRadius:10,fontWeight:700,fontSize:13,cursor:"pointer"},
   deleteBtn:{flex:1,padding:"8px 0",background:C.redLight,color:C.red,border:`2px solid ${C.redBorder}`,borderRadius:10,fontWeight:700,fontSize:13,cursor:"pointer"},
-  bookingGrid:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20},
-  bookingCard:{background:C.white,borderRadius:20,overflow:"hidden",transition:"box-shadow 0.2s"},
+  bookingGrid:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:20},
+  bookingCard:{background:C.white,borderRadius:20,boxShadow:"0 2px 16px rgba(0,0,0,0.07)",border:`1px solid ${C.primaryLight}`,overflow:"hidden"},
   bookingHeader:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 20px",background:C.primaryLight,borderBottom:`2px solid ${C.primary}`},
   approvedBadge:{background:C.primary,color:C.white,borderRadius:20,padding:"4px 12px",fontSize:12,fontWeight:700},
   bookingBody:{padding:20,display:"grid",gridTemplateColumns:"1fr 1fr",gap:14},
