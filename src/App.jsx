@@ -13,7 +13,7 @@ import SignupPage from "./components/pages/SignupPage";
 import Surveyor from "./components/pages/Surveyor";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import SurveyorsDetails from "./components/pages/SurveyorsDetails.jsx";
-import AdminPermission from "./components/pages/AdminPermission.jsx";
+// import AdminPermission from "./components/pages/AdminPermission.jsx";
 import UserDashboard from "./components/pages/UserDashboard.jsx";
 import SurveyorDashboard from "./components/pages/SurveyorDashboard.jsx";
 import AllSurveyors from "./components/pages/AllSurveyors.jsx";
@@ -38,8 +38,7 @@ function App() {
         <Route path="/contact-page" element={<ContactPage />} />
         <Route path="/allsurveyors" element={<AllSurveyors />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-<Route path="/reset-password/:token" element={<ResetPassword />} />
-
+<Route path="/reset-password" element={<ResetPassword />} />
 <Route path="/consultants/:id" element={<ConsultantDetails />} />
 
         {/* Demo add Admin pages */}

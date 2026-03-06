@@ -6,6 +6,19 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS, // App Password — not normal password!
+  },
+});
+
 // @desc    Register new user
 // @route   POST /api/users
 // @access  Public
@@ -180,68 +193,109 @@ const getUserById = async (req, res) => {
   }
 };
 
-// @desc    Forgot password - generate token & send email
+// @desc    Forgot password - send reset email
 // @route   POST /api/users/forgot-password
 // @access  Public
-export const forgotPassword = async (req, res) => {
+const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
-  const user = await User.findOne({ email });
 
-  if (!user) return res.status(404).json({ message: "User not found" });
+  if (!email) {
+    res.status(400);
+    throw new Error("ইমেইল প্রয়োজন");
+  }
 
-  const resetToken = crypto.randomBytes(32).toString("hex");
+  const normalizedEmail = email.toLowerCase();
 
-  user.resetPasswordToken = resetToken;
-  user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 mins
-  await user.save();
+  const user = await User.findOne({ email: normalizedEmail });
 
-  const resetUrl = `http://localhost:5000/reset-password/${resetToken}`;
+  if (!user) {
+    res.status(404);
+    throw new Error("এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।");
+  }
+
+  // Generate simple reset link (for now — no token/expiry)
+  // In production: use crypto.randomBytes + save token to user + expiry
+  const resetUrl = `http://localhost:5173/reset-password?email=${encodeURIComponent(normalizedEmail)}`;
+
+  const mailOptions = {
+    from: `"জমিযোগ" <${process.env.SMTP_USER}>`,
+    to: normalizedEmail,
+    subject: "জমিযোগ - পাসওয়ার্ড রিসেট অনুরোধ",
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #7ED957;">পাসওয়ার্ড রিসেট করতে চান?</h2>
+        <p>আপনি (বা অন্য কেউ) আপনার জমিযোগ অ্যাকাউন্টের পাসওয়ার্ড রিসেট করতে চেয়েছেন।</p>
+        <p>নিচের বাটনে ক্লিক করে নতুন পাসওয়ার্ড সেট করুন:</p>
+        
+        <a href="${resetUrl}" 
+           style="display: inline-block; background: #7ED957; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0;">
+          নতুন পাসওয়ার্ড সেট করুন
+        </a>
+
+        <p style="color: #555; margin-top: 20px;">
+          এই লিঙ্ক ক্লিক করার পর নতুন পাসওয়ার্ড দিন।<br>
+          <strong>লিঙ্কটি নিরাপদে ১ ঘণ্টার মধ্যে ব্যবহার করুন।</strong>
+        </p>
+
+        <p style="color: #777; font-size: 14px; margin-top: 30px;">
+          যদি আপনি এই অনুরোধ করেননি, তাহলে এই ইমেইল উপেক্ষা করুন — কোনো পরিবর্তন হবে না।
+        </p>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+        <p style="font-size: 12px; color: #888; text-align: center;">
+          ধন্যবাদ,<br>জমিযোগ টিম
+        </p>
+      </div>
+    `,
+  };
 
   try {
-    await sendEmail({
-      to: user.email,
-      subject: "Password Reset Request",
-      text: `Click this link to reset your password: ${resetUrl}`,
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({
+      success: true,
+      message: "পাসওয়ার্ড রিসেট লিঙ্ক আপনার ইমেইলে পাঠানো হয়েছে। (স্প্যাম/জাঙ্ক ফোল্ডার চেক করুন)",
     });
-
-    res.json({ message: "Password reset link sent to your email" });
-  } catch (err) {
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-    await user.save();
-    res.status(500).json({ message: "Email could not be sent" });
+  } catch (error) {
+    console.error("Forgot password email error:", error);
+    res.status(500);
+    throw new Error("ইমেইল পাঠাতে সমস্যা হয়েছে। পরে আবার চেষ্টা করুন।");
   }
-};
+});
 
-// @desc    Reset password
-// @route   PUT /api/users/reset-password/:token
+// @desc    Reset password (simple version — no token yet)
+// @route   POST /api/users/reset-password
 // @access  Public
-export const resetPassword = async (req, res) => {
-  const { token } = req.params;
-  const { password } = req.body;
+const resetPassword = asyncHandler(async (req, res) => {
+  const { email, newPassword } = req.body;
 
-  const user = await User.findOne({
-    resetPasswordToken: token,
-    resetPasswordExpire: { $gt: Date.now() },
-  });
+  if (!email || !newPassword) {
+    res.status(400);
+    throw new Error("ইমেইল এবং নতুন পাসওয়ার্ড প্রয়োজন");
+  }
 
-  if (!user) return res.status(400).json({ message: "Invalid or expired token" });
+  const normalizedEmail = email.toLowerCase();
 
-  // ✅ Plain password — pre-save hook will hash it
-  user.password = password;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpire = undefined;
+  const user = await User.findOne({ email: normalizedEmail });
+
+  if (!user) {
+    res.status(404);
+    throw new Error("ইউজার পাওয়া যায়নি");
+  }
+
+  // Set new password (pre-save hook will hash it)
+  user.password = newPassword;
   await user.save();
 
-  res.json({ message: "Password reset successfully" });
-};
+  res.status(200).json({
+    success: true,
+    message: "পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে। এখন লগইন করুন।",
+  });
+});
 
-
-
-// / @desc    Get surveyor's booked dates + note events
+// @desc    Get surveyor's booked dates + note events
 // @route   GET /api/users/:id/booked-dates
 // @access  Public
-export const getBookedDates = asyncHandler(async (req, res) => {
+const getBookedDates = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id).select("bookedDates noteEvents");
   if (!user) {
     res.status(404);
@@ -257,7 +311,7 @@ export const getBookedDates = asyncHandler(async (req, res) => {
 // @desc    Update surveyor's booked dates + note events
 // @route   PUT /api/users/:id/booked-dates
 // @access  Private
-export const updateBookedDates = asyncHandler(async (req, res) => {
+const updateBookedDates = asyncHandler(async (req, res) => {
   const { bookedDates, noteEvents } = req.body;
 
   // ✅ Use the authenticated user's ID from the JWT token (set by protect middleware)
@@ -287,5 +341,15 @@ export const updateBookedDates = asyncHandler(async (req, res) => {
   });
 });
 
-
-export { registerUser, loginUser, getSurveyors, getUsers, deleteUser, getUserById };
+export {
+  registerUser,
+  loginUser,
+  getSurveyors,
+  getUsers,
+  deleteUser,
+  getUserById,
+  forgotPassword,
+  resetPassword,
+  getBookedDates,
+  updateBookedDates,
+};

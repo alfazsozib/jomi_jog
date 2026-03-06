@@ -34,8 +34,10 @@ router.get("/surveyors", getSurveyors);
 router.get("/", getUsers);
 
 // Forgot / Reset password
+// router.post("/forgot-password", forgotPassword);
+// router.post("/reset-password/:token", resetPassword);
 router.post("/forgot-password", forgotPassword);
-router.post("/reset-password/:token", resetPassword);
+router.post("/reset-password", resetPassword);
 
 // ✅ Booked dates — MUST be before /:id
 router.get("/:id/booked-dates", getBookedDates);
