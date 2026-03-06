@@ -19,7 +19,7 @@ const fmtDate      = (key) => new Date(key+"T00:00:00").toLocaleDateString("bn-B
 const fmtDateShort = (dateStr) => { if(!dateStr) return "তারিখ নেই"; return new Date(dateStr).toLocaleDateString("bn-BD",{year:"numeric",month:"long",day:"numeric"}); };
 
 // ─── Notification Panel ───────────────────────────────────────
-const NotificationPanel = ({ notifications, onClose, onMarkAllRead }) => (
+const NotificationPanel = ({ notifications, onClose, onMarkAllRead, onNotificationClick }) => (
   <>
     <div onClick={onClose} style={{position:"fixed",inset:0,zIndex:999}}/>
     <div style={{
@@ -46,11 +46,23 @@ const NotificationPanel = ({ notifications, onClose, onMarkAllRead }) => (
           </div>
         ) : (
           notifications.map((n,i) => (
-            <div key={i} style={{
-              padding:"14px 20px",
-              borderBottom:"1px solid #f9fafb",
-              background: n.read ? C.white : "#f0fdf4",
-            }}>
+            <div 
+              key={i} 
+              onClick={() => onNotificationClick(n)}
+              style={{
+                padding:"14px 20px",
+                borderBottom:"1px solid #f9fafb",
+                background: n.read ? C.white : "#f0fdf4",
+                cursor: "pointer",
+                transition: "background 0.12s",
+              }}
+              onMouseEnter={(e) => {
+                if (!n.read) e.currentTarget.style.background = "#e6f4ea";
+              }}
+              onMouseLeave={(e) => {
+                if (!n.read) e.currentTarget.style.background = "#f0fdf4";
+              }}
+            >
               <div style={{display:"flex",alignItems:"flex-start",gap:10}}>
                 <div style={{
                   width:36,height:36,borderRadius:"50%",flexShrink:0,
@@ -238,6 +250,11 @@ const SurveyorDashboard = () => {
     } catch(err){ console.error("markAllRead:", err); }
   };
 
+  const handleNotificationClick = (notification) => {
+    setActiveTab("bookings");
+    setShowNotif(false);
+  };
+
   const handleDayClick = (key) => {
     if(bookedDates.includes(key)){
       if(window.confirm(`${fmtDate(key)} — এই তারিখের ব্লক সরাতে চান?`)){
@@ -339,6 +356,7 @@ const SurveyorDashboard = () => {
                   notifications={notifications}
                   onClose={()=>setShowNotif(false)}
                   onMarkAllRead={()=>{ markAllRead(); setShowNotif(false); }}
+                  onNotificationClick={handleNotificationClick}
                 />
               )}
             </div>
