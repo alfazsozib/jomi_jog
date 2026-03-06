@@ -91,7 +91,7 @@ const Footer = () => {
             যোগাযোগের তথ্য
           </h1>
           <div className="space-y-2 text-sm sm:text-base mb-4">
-            <p>+8801885447306</p>
+            <p>+8801518-689430</p>
             <p>jomijog@gmail.com</p>
           </div>
 
