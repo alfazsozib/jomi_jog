@@ -206,14 +206,14 @@ const SurveyorDashboard = () => {
 
   const fetchBookings = async () => {
     try {
-      const {data} = await axios.get(`http://localhost:5000/api/bookings/surveyor/${user._id}`);
+      const {data} = await axios.get(`https://jomijog.com/api/bookings/surveyor/${user._id}`);
       setBookings(Array.isArray(data) ? data : []);
     } catch(err){ console.error("fetchBookings:", err.response?.status, err.response?.data); }
   };
 
   const fetchBookedDates = async () => {
     try {
-      const {data} = await axios.get(`http://localhost:5000/api/users/${user._id}/booked-dates`);
+      const {data} = await axios.get(`https://jomijog.com/api/users/${user._id}/booked-dates`);
       setBookedDates(data.bookedDates||[]);
       const raw = data.noteEvents;
       if(raw && typeof raw==="object" && !Array.isArray(raw)) {
@@ -236,7 +236,7 @@ const SurveyorDashboard = () => {
 
   const fetchNotifications = async () => {
     try {
-      const {data} = await axios.get(`http://localhost:5000/api/bookings/notifications/${user._id}`);
+      const {data} = await axios.get(`https://jomijog.com/api/bookings/notifications/${user._id}`);
       const notifs = Array.isArray(data) ? data : [];
       setNotifications(notifs);
 
@@ -303,7 +303,7 @@ const SurveyorDashboard = () => {
 
   const markAllRead = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/bookings/notifications/${user._id}/read`);
+      await axios.put(`https://jomijog.com/api/bookings/notifications/${user._id}/read`);
       setNotifications(prev => prev.map(n=>({...n, read:true})));
     } catch(err){ console.error("markAllRead:", err); }
   };
@@ -357,7 +357,7 @@ const SurveyorDashboard = () => {
     if (!window.confirm("এই বুকিং সম্পন্ন হিসেবে চিহ্নিত করবেন? তারিখ আবার উপলব্ধ হবে।")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/bookings/${booking._id}`);
+      await axios.delete(`https://jomijog.com/api/bookings/${booking._id}`);
 
       // Free the date in calendar
       const bookingDate = new Date(booking.date);
@@ -378,7 +378,7 @@ const SurveyorDashboard = () => {
     setSaving(true); setSaveMsg("");
     try {
       await axios.put(
-        `http://localhost:5000/api/users/${user._id}/booked-dates`,
+        `https://jomijog.com/api/users/${user._id}/booked-dates`,
         { bookedDates: dates, noteEvents: notes },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );

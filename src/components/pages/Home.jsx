@@ -11,7 +11,7 @@ import Navbar from "../Navbar/Navbar";
 import UserFeedback from "../UserFeedback/UserFeedback";
 import FAQ from "./FAQ";
 
-axios.defaults.baseURL = "http://localhost:5000";
+axios.defaults.baseURL = "https://jomijog.com";
 
 const Home = () => {
   const [showAddReview, setShowAddReview] = useState(false);

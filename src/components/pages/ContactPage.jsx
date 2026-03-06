@@ -21,7 +21,7 @@ export default function ContactPage() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/contact", {
+      const res = await fetch("https://jomijog.com/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -88,7 +88,7 @@ export default function ContactPage() {
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <Phone className="w-6 h-6 text-[#7ED957]" />
-              <span className="text-lg text-gray-800">+8801885447306</span>
+              <span className="text-lg text-gray-800">+8801518-689430</span>
             </div>
             <div className="flex items-center gap-4">
               <Mail className="w-6 h-6 text-[#7ED957]" />

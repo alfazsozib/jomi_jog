@@ -145,10 +145,10 @@ const SurveyorsDetails = () => {
   const fetchSurveyor = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/admin/surveyors/${id}`);
+      const { data } = await axios.get(`https://jomijog.com/api/admin/surveyors/${id}`);
       setSurveyor(data);
       try {
-        const res = await axios.get(`http://localhost:5000/api/users/${id}/booked-dates`);
+        const res = await axios.get(`https://jomijog.com/api/users/${id}/booked-dates`);
         setBookedDates(res.data.bookedDates || []);
       } catch {
         setBookedDates([]);
@@ -181,7 +181,7 @@ const SurveyorsDetails = () => {
 
     try {
       setBookingLoading(true);
-      await axios.post("http://localhost:5000/api/bookings", {
+      await axios.post("https://jomijog.com/api/bookings", {
         userId:     loggedUser._id,
         surveyorId: surveyor._id,
         price:      surveyor.price,
@@ -238,7 +238,7 @@ const SurveyorsDetails = () => {
             <div className="w-full max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white">
               <div className="flex justify-center items-center p-4">
                 <img
-                  src={surveyor.profileImage ? `http://localhost:5000/uploads/${surveyor.profileImage}` : "/default-surveyor.jpg"}
+                  src={surveyor.profileImage ? `https://jomijog.com/uploads/${surveyor.profileImage}` : "/default-surveyor.jpg"}
                   alt={surveyor.name}
                   className="h-auto w-full object-contain rounded-2xl"
                 />

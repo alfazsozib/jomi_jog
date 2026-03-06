@@ -36,7 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 // CORS - replace with your frontend URL in production
 // app.use(
 //   cors({
-//     origin: "http://localhost:5000", // change to your deployed frontend URL
+//     origin: "https://jomijog.com", // change to your deployed frontend URL
 //     credentials: true,
 //   })
 // );

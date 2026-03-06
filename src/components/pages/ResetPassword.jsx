@@ -40,7 +40,7 @@ const ResetPassword = () => {
     setError("");
 
     try {
-      await axios.post("http://localhost:5000/api/users/reset-password", {
+      await axios.post("https://jomijog.com/api/users/reset-password", {
         email: emailFromUrl,
         newPassword,
       });

@@ -16,7 +16,7 @@ const ForgotPassword = () => {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/users/forgot-password", { email });
+      const res = await axios.post("https://jomijog.com/api/users/forgot-password", { email });
 
       if (res.data.success) {
         setMessage("পাসওয়ার্ড রিসেট লিঙ্ক আপনার ইমেইলে পাঠানো হয়েছে। দয়া করে ইনবক্স বা স্প্যাম ফোল্ডার চেক করুন।");

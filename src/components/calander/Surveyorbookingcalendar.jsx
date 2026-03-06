@@ -50,7 +50,7 @@ const SurveyorBookingCalendar = ({ surveyorId, onDateSelect }) => {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `http://localhost:5000/api/users/${surveyorId}/booked-dates`
+        `https://jomijog.com/api/users/${surveyorId}/booked-dates`
       );
       setBookedDates(data.bookedDates || []);
     } catch (err) {
