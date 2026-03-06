@@ -1,11 +1,13 @@
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ← added for redirect
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../Navbar/Navbar";
 
 const SignUpPage = () => {
   const [role, setRole] = useState("user"); // default to user
+  const navigate = useNavigate(); // ← added for redirect
 
   // Common fields for both roles
   const [formData, setFormData] = useState({
@@ -16,7 +18,7 @@ const SignUpPage = () => {
     age: "",
     mobile: "",
     address: "",
-    // Surveyor-only fields (will be sent only when role = surveyor)
+    // Surveyor-only fields
     companyName: "",
     companyAddress: "",
     licenseNumber: "",
@@ -62,7 +64,7 @@ const SignUpPage = () => {
 
       // Send all fields (backend can ignore surveyor fields for user role)
       Object.keys(formData).forEach((key) => {
-        if (key !== "confirmPassword") { // don't send confirmPassword
+        if (key !== "confirmPassword") {
           dataToSend.append(key, formData[key]);
         }
       });
@@ -74,9 +76,9 @@ const SignUpPage = () => {
         dataToSend
       );
 
-      toast.success("রেজিস্ট্রেশন সফল হয়েছে!");
+      toast.success("রেজিস্ট্রেশন সফল হয়েছে! লগইন পেজে নিয়ে যাওয়া হচ্ছে...");
 
-      // Reset form
+      // Reset form (optional — but good practice)
       setFormData({
         name: "",
         email: "",
@@ -95,6 +97,11 @@ const SignUpPage = () => {
       });
       setProfileImage(null);
       setPreview(null);
+
+      // Redirect to login page after 2 seconds (user can see success toast)
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (error) {
       toast.error(error.response?.data?.message || "রেজিস্ট্রেশন ব্যর্থ হয়েছে");
     } finally {
