@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import demo1 from "../../assets/images/hero page.jpg";
-import demo2 from "../../assets/images/hero_page_3.png"; // you can change later
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import demo3 from "../../assets/images/demo-9.png"; // you can change later
 import demo4 from "../../assets/images/Frame 74.png";
+import demo1 from "../../assets/images/hero page.jpg";
+import demo2 from "../../assets/images/hero_page_3.png"; // you can change later
 
 import CartSurveyor from "../cart/CartSurveyor";
 import Navbar from "../Navbar/Navbar";
@@ -75,7 +75,11 @@ const Home = () => {
         headers: { Authorization: `Bearer ${user.token}` },
       };
 
-      const { data } = await axios.post("/api/feedbacks", reviewToSubmit, config);
+      const { data } = await axios.post(
+        "/api/feedbacks",
+        reviewToSubmit,
+        config,
+      );
       setReviews((prev) => [data, ...prev]);
 
       alert("মতামত জমা হয়েছে ✅");
@@ -95,15 +99,15 @@ const Home = () => {
       {/* HERO SECTION */}
       <div className="relative px-4 sm:px-8">
         <div className="relative w-full h-[45vh] sm:h-[55vh] lg:h-[70vh] rounded-2xl overflow-hidden shadow-lg">
-
           {/* 🔁 IMAGE CAROUSEL */}
           {images.map((img, index) => (
             <img
               key={index}
               src={img}
               alt="Hero Slide"
-              className={`absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-500 ${index === currentSlide ? "opacity-100" : "opacity-0"
-                }`}
+              className={`absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-500 ${
+                index === currentSlide ? "opacity-100" : "opacity-0"
+              }`}
             />
           ))}
 
@@ -112,7 +116,6 @@ const Home = () => {
 
           {/* TEXT (STATIC) */}
           <div className="relative z-10 flex flex-col justify-center h-full px-4 sm:px-8 md:px-20 text-white">
-
             {/* Heading */}
             <h2 className="text-xl sm:text-2xl md:text-5xl font-bold mb-3 sm:mb-4 leading-snug sm:leading-snug md:leading-snug">
               যখনই প্রয়োজন, <br />
@@ -134,13 +137,9 @@ const Home = () => {
                 সার্ভেয়ার বুক করুন
               </button>
             </div>
-
           </div>
-
         </div>
       </div>
-
-
 
       <CartSurveyor />
 

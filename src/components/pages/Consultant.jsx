@@ -1,14 +1,14 @@
 import axios from "axios";
 
-import Navbar from "../Navbar/Navbar";
 import { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import experienceIcon from "../../assets/icons/Experience.jpg";
 import priceIcon from "../../assets/icons/Price.jpg";
+import Navbar from "../Navbar/Navbar";
 
 const Consultant = () => {
- const [consultants, setConsultants] = useState([]);
+  const [consultants, setConsultants] = useState([]);
   const navigate = useNavigate();
 
   // Fetch consultants from backend
@@ -16,10 +16,10 @@ const Consultant = () => {
     const fetchConsultants = async () => {
       try {
         const { data } = await axios.get(
-          "https://jomijog.com/api/admin/consultants"
+          "https://jomijog.com/api/admin/consultants",
         );
         setConsultants(data);
-        console.log(data)
+        console.log(data);
       } catch (error) {
         console.error("Error fetching consultants:", error);
       }
@@ -94,7 +94,6 @@ const Consultant = () => {
   );
 
   return (
-
     <div className="bg-[#F5F3ED]">
       <Navbar />
       <h1 className="pt-16 pb-10 text-[#151515] text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium text-center">
@@ -112,6 +111,5 @@ const Consultant = () => {
     </div>
   );
 };
-
 
 export default Consultant;

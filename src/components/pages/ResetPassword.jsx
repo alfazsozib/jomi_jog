@@ -1,7 +1,7 @@
 // src/pages/ResetPassword.jsx
-import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
 
 const ResetPassword = () => {
@@ -45,7 +45,9 @@ const ResetPassword = () => {
         newPassword,
       });
 
-      setMessage("পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে! লগইন পেজে নিয়ে যাওয়া হচ্ছে...");
+      setMessage(
+        "পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে! লগইন পেজে নিয়ে যাওয়া হচ্ছে...",
+      );
 
       // Auto-redirect after 2.5 seconds
       setTimeout(() => {
@@ -54,7 +56,7 @@ const ResetPassword = () => {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-        "পাসওয়ার্ড রিসেট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।"
+          "পাসওয়ার্ড রিসেট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।",
       );
     } finally {
       setLoading(false);
@@ -71,8 +73,14 @@ const ResetPassword = () => {
             নতুন পাসওয়ার্ড সেট করুন
           </h2>
 
-          {error && <p className="text-center mb-4 text-red-600 font-medium">{error}</p>}
-          {message && <p className="text-center mb-4 text-green-600 font-medium">{message}</p>}
+          {error && (
+            <p className="text-center mb-4 text-red-600 font-medium">{error}</p>
+          )}
+          {message && (
+            <p className="text-center mb-4 text-green-600 font-medium">
+              {message}
+            </p>
+          )}
 
           {!error && !message && (
             <form onSubmit={handleSubmit} className="space-y-5">

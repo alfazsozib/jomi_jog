@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { FaStar } from "react-icons/fa";
 import axios from "axios";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { FaStar } from "react-icons/fa";
 
 const UserFeedback = () => {
   const [reviews, setReviews] = useState([]);
@@ -47,10 +47,7 @@ const UserFeedback = () => {
     );
 
   const startIndex = page * ITEMS_PER_PAGE;
-  const currentReviews = reviews.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE
-  );
+  const currentReviews = reviews.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <section className="bg-[#F5F3ED] my-24 py-16 px-6 sm:px-12">
@@ -72,7 +69,8 @@ const UserFeedback = () => {
           viewport={{ once: true }}
           className="text-gray-600 max-w-2xl mx-auto mb-12"
         >
-          শত শত গ্রাহক আমাদের সেবায় সন্তুষ্ট। নিচে তাদের কয়েকটি মতামত দেওয়া হলো।
+          শত শত গ্রাহক আমাদের সেবায় সন্তুষ্ট। নিচে তাদের কয়েকটি মতামত দেওয়া
+          হলো।
         </motion.p>
 
         {/* Carousel */}

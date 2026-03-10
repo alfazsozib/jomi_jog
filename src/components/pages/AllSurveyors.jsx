@@ -2,9 +2,9 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../Navbar/Navbar";
 import experienceIcon from "../../assets/icons/Experience.jpg";
 import priceIcon from "../../assets/icons/taka.png";
+import Navbar from "../Navbar/Navbar";
 
 const AllSurveyors = () => {
   const [surveyors, setSurveyors] = useState([]);
@@ -16,7 +16,7 @@ const AllSurveyors = () => {
       try {
         setLoading(true);
         const { data } = await axios.get(
-          "https://jomijog.com/api/users/surveyors"
+          "https://jomijog.com/api/users/surveyors",
         );
         setSurveyors(data);
       } catch (error) {
@@ -59,8 +59,9 @@ const AllSurveyors = () => {
             ))}
         </div>
 
-        <h2 className="text-base sm:text-lg font-semibold text-gray-800 mt-2 cursor-pointer"
-        onClick={() => navigate(`/surveyors/${_id}`)}
+        <h2
+          className="text-base sm:text-lg font-semibold text-gray-800 mt-2 cursor-pointer"
+          onClick={() => navigate(`/surveyors/${_id}`)}
         >
           {name}
         </h2>
@@ -124,7 +125,9 @@ const AllSurveyors = () => {
                       ? `${surveyor.experience} বছর`
                       : "অভিজ্ঞতা নেই"
                   }
-                  price={surveyor.price ? `${surveyor.price} টাকা` : "নির্ধারিত নেই"}
+                  price={
+                    surveyor.price ? `${surveyor.price} টাকা` : "নির্ধারিত নেই"
+                  }
                 />
               ))
             ) : (

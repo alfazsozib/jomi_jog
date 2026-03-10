@@ -1,8 +1,8 @@
 // controllers/paymentRequestController.js
-import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-import Booking from "../models/bookingModel.js"; // adjust path
 import axios from "axios";
+import dotenv from "dotenv";
+import nodemailer from "nodemailer";
+import Booking from "../models/bookingModel.js"; // adjust path
 
 dotenv.config();
 
@@ -32,8 +32,8 @@ export const requestPaymentAndNotify = async (req, res) => {
       full_name: user.name || "Customer",
       email: user.email,
       amount: booking.price.toString(),
-      redirect_url: "http://localhost:3000/payment/success",   // ← update to real URL
-      cancel_url: "http://localhost:3000/payment/cancel",      // ← update to real URL
+      redirect_url: "https://jomijog.com/payment/success",   // ← update to real URL
+      cancel_url: "https://jomijog.com/payment/cancel",      // ← update to real URL
       phone: user.mobile || undefined,
       metadata: {
         booking_id: booking._id.toString(),

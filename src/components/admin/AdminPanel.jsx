@@ -1,22 +1,22 @@
 // File: src/components/Admin/AdminPanel.jsx
-import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Navbar from "../Navbar/Navbar";
-import Footer from "../pages/Footer";
 import { motion } from "framer-motion";
 import {
-  Users,
-  UserPlus,
-  UserCog,
-  Clock,
-  Trash2,
-  Edit,
   Check,
+  Clock,
+  DollarSign,
+  Edit,
+  Trash2,
+  UserCog,
+  UserPlus,
+  Users,
   X,
-  DollarSign
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Navbar from "../Navbar/Navbar";
+import Footer from "../pages/Footer";
 
 export default function AdminPanel() {
   const [view, setView] = useState("dashboard");
@@ -43,7 +43,7 @@ export default function AdminPanel() {
     price: "",
     education: "",
     training: "",
-    profileImage: null
+    profileImage: null,
   };
 
   const initialConsultantState = {
@@ -56,7 +56,7 @@ export default function AdminPanel() {
     experience: "",
     price: "",
     licenseNumber: "",
-    profileImage: null
+    profileImage: null,
   };
 
   const [newSurveyor, setNewSurveyor] = useState(initialSurveyorState);
@@ -65,10 +65,30 @@ export default function AdminPanel() {
   const [editConsultantId, setEditConsultantId] = useState(null);
 
   const stats = [
-    { title: "Total Surveyors", value: surveyors.length, icon: <Users size={28} />, color: "#7ED957" },
-    { title: "Total Consultants", value: consultants.length, icon: <UserCog size={28} />, color: "#7ED957" },
-    { title: "Total Users", value: totalUsers, icon: <UserPlus size={28} />, color: "#7ED957" }, // ← changed from 0 to totalUsers
-    { title: "Pending Requests", value: pendingRequests.length, icon: <Clock size={28} />, color: "#7ED957" }
+    {
+      title: "Total Surveyors",
+      value: surveyors.length,
+      icon: <Users size={28} />,
+      color: "#7ED957",
+    },
+    {
+      title: "Total Consultants",
+      value: consultants.length,
+      icon: <UserCog size={28} />,
+      color: "#7ED957",
+    },
+    {
+      title: "Total Users",
+      value: totalUsers,
+      icon: <UserPlus size={28} />,
+      color: "#7ED957",
+    }, // ← changed from 0 to totalUsers
+    {
+      title: "Pending Requests",
+      value: pendingRequests.length,
+      icon: <Clock size={28} />,
+      color: "#7ED957",
+    },
   ];
 
   useEffect(() => {
@@ -76,7 +96,6 @@ export default function AdminPanel() {
     fetchConsultants();
     fetchPendingRequests();
     fetchTotalUsers(); // ← added
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ================= Spinner Component =================
@@ -116,7 +135,9 @@ export default function AdminPanel() {
   const fetchPendingRequests = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("https://jomijog.com/api/bookings/admin/pending");
+      const res = await axios.get(
+        "https://jomijog.com/api/bookings/admin/pending",
+      );
       setPendingRequests(res.data || []);
     } catch (err) {
       console.error(err);
@@ -129,7 +150,12 @@ export default function AdminPanel() {
   const fetchTotalUsers = async () => {
     try {
       const res = await axios.get("https://jomijog.com/api/admin/users");
-      setTotalUsers(res.data.count+200 || res.data.total+200 || res.data.length+200 || 0);
+      setTotalUsers(
+        res.data.count + 200 ||
+          res.data.total + 200 ||
+          res.data.length + 200 ||
+          0,
+      );
     } catch (err) {
       console.error("Error fetching total users:", err);
       // toast.error("Could not load total users count"); // optional
@@ -138,19 +164,26 @@ export default function AdminPanel() {
 
   // helper to set busy flags for a booking row
   const setRowFlag = (bookingId, flag, value) => {
-    setRowBusy(prev => ({ ...prev, [bookingId]: { ...(prev[bookingId] || {}), [flag]: value } }));
+    setRowBusy((prev) => ({
+      ...prev,
+      [bookingId]: { ...(prev[bookingId] || {}), [flag]: value },
+    }));
   };
 
   // ================ Booking Accept / Reject ================
   const handleBookingStatus = async (id, status) => {
     try {
       setRowFlag(id, status === "accepted" ? "accepting" : "rejecting", true);
-      await axios.put(`https://jomijog.com/api/bookings/admin/${id}`, { status });
+      await axios.put(`https://jomijog.com/api/bookings/admin/${id}`, {
+        status,
+      });
       toast.success(`Booking ${status} successfully`);
       await fetchPendingRequests();
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to update booking status");
+      toast.error(
+        err.response?.data?.message || "Failed to update booking status",
+      );
     } finally {
       setRowFlag(id, status === "accepted" ? "accepting" : "rejecting", false);
     }
@@ -162,7 +195,7 @@ export default function AdminPanel() {
       setRowFlag(bookingId, "paying", true);
 
       const res = await axios.post(
-        `https://jomijog.com/api/bookings/admin/payment-request/${bookingId}`
+        `https://jomijog.com/api/bookings/admin/payment-request/${bookingId}`,
         // or whatever your route is
       );
 
@@ -181,7 +214,7 @@ export default function AdminPanel() {
       const popup = window.open(
         paymentUrl,
         "UddoktaPayPayment",
-        `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,location=yes`
+        `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,location=yes`,
       );
 
       if (!popup || popup.closed || typeof popup.closed === "undefined") {
@@ -211,17 +244,27 @@ export default function AdminPanel() {
     try {
       setLoading(true);
       const formData = new FormData();
-      Object.keys(newSurveyor).forEach((key) => formData.append(key, newSurveyor[key] ?? ""));
+      Object.keys(newSurveyor).forEach((key) =>
+        formData.append(key, newSurveyor[key] ?? ""),
+      );
       if (editSurveyorId) {
-        await axios.put(`https://jomijog.com/api/admin/update-surveyor/${editSurveyorId}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
+        await axios.put(
+          `https://jomijog.com/api/admin/update-surveyor/${editSurveyorId}`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          },
+        );
         toast.success("Surveyor updated successfully");
         setEditSurveyorId(null);
       } else {
-        await axios.post("https://jomijog.com/api/admin/add-surveyor", formData, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
+        await axios.post(
+          "https://jomijog.com/api/admin/add-surveyor",
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          },
+        );
         toast.success("Surveyor added successfully");
       }
       setNewSurveyor(initialSurveyorState);
@@ -258,17 +301,27 @@ export default function AdminPanel() {
     try {
       setLoading(true);
       const formData = new FormData();
-      Object.keys(newConsultant).forEach((key) => formData.append(key, newConsultant[key] ?? ""));
+      Object.keys(newConsultant).forEach((key) =>
+        formData.append(key, newConsultant[key] ?? ""),
+      );
       if (editConsultantId) {
-        await axios.put(`https://jomijog.com/api/admin/update-consultant/${editConsultantId}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
+        await axios.put(
+          `https://jomijog.com/api/admin/update-consultant/${editConsultantId}`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          },
+        );
         toast.success("Consultant updated successfully");
         setEditConsultantId(null);
       } else {
-        await axios.post("https://jomijog.com/api/admin/add-consultant", formData, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
+        await axios.post(
+          "https://jomijog.com/api/admin/add-consultant",
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          },
+        );
         toast.success("Consultant added successfully");
       }
       setNewConsultant(initialConsultantState);
@@ -303,7 +356,9 @@ export default function AdminPanel() {
   // ================= Render Pending Requests =================
   const renderPendingRequests = () => {
     const surveyorRequests = pendingRequests.filter((req) => req.surveyorId);
-    const consultantRequests = pendingRequests.filter((req) => req.consultantId);
+    const consultantRequests = pendingRequests.filter(
+      (req) => req.consultantId,
+    );
 
     const renderTable = (requests, title, type) => (
       <div className="bg-white rounded-2xl shadow-md p-6 mb-10">
@@ -328,17 +383,31 @@ export default function AdminPanel() {
                 <tr key={id} className="border-b">
                   <td className="p-3">{req.userId?.name || "Unknown User"}</td>
                   <td className="p-3">{req.userId?.mobile || "N/A"}</td>
-                  <td className="p-3">{req[`${type.toLowerCase()}Id`]?.name || `Unknown ${type}`}</td>
-                  <td className="p-3">{req[`${type.toLowerCase()}Id`]?.mobile || "N/A"}</td>
+                  <td className="p-3">
+                    {req[`${type.toLowerCase()}Id`]?.name || `Unknown ${type}`}
+                  </td>
+                  <td className="p-3">
+                    {req[`${type.toLowerCase()}Id`]?.mobile || "N/A"}
+                  </td>
                   <td className="p-3">{req.price || "N/A"}</td>
-                  <td className="p-3">{req.date ? new Date(req.date).toLocaleDateString("en-GB") : "N/A"}</td>
+                  <td className="p-3">
+                    {req.date
+                      ? new Date(req.date).toLocaleDateString("en-GB")
+                      : "N/A"}
+                  </td>
                   <td className="p-3 flex gap-2">
                     <button
                       onClick={() => handleBookingStatus(id, "accepted")}
                       disabled={busy.accepting || busy.rejecting || busy.paying}
                       className={`bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 flex items-center gap-1 ${busy.accepting ? "opacity-70 cursor-not-allowed" : ""}`}
                     >
-                      {busy.accepting ? "Accepting..." : <><Check size={16} /> Accept</>}
+                      {busy.accepting ? (
+                        "Accepting..."
+                      ) : (
+                        <>
+                          <Check size={16} /> Accept
+                        </>
+                      )}
                     </button>
 
                     <button
@@ -346,7 +415,13 @@ export default function AdminPanel() {
                       disabled={busy.rejecting || busy.accepting || busy.paying}
                       className={`bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 flex items-center gap-1 ${busy.rejecting ? "opacity-70 cursor-not-allowed" : ""}`}
                     >
-                      {busy.rejecting ? "Rejecting..." : <><X size={16} /> Reject</>}
+                      {busy.rejecting ? (
+                        "Rejecting..."
+                      ) : (
+                        <>
+                          <X size={16} /> Reject
+                        </>
+                      )}
                     </button>
 
                     {/* Payment button */}
@@ -355,7 +430,13 @@ export default function AdminPanel() {
                       disabled={busy.paying || busy.accepting || busy.rejecting}
                       className={`bg-amber-500 text-white px-3 py-1 rounded-md hover:bg-amber-600 flex items-center gap-1 ${busy.paying ? "opacity-70 cursor-not-allowed" : ""}`}
                     >
-                      {busy.paying ? "Sending..." : <><DollarSign size={16} /> Payment</>}
+                      {busy.paying ? (
+                        "Sending..."
+                      ) : (
+                        <>
+                          <DollarSign size={16} /> Payment
+                        </>
+                      )}
                     </button>
                   </td>
                 </tr>
@@ -368,7 +449,11 @@ export default function AdminPanel() {
     return (
       <div>
         {renderTable(surveyorRequests, "Surveyor Booking Requests", "Surveyor")}
-        {renderTable(consultantRequests, "Consultant Booking Requests", "Consultant")}
+        {renderTable(
+          consultantRequests,
+          "Consultant Booking Requests",
+          "Consultant",
+        )}
       </div>
     );
   };
@@ -391,7 +476,11 @@ export default function AdminPanel() {
             <tr key={item._id} className="border-b">
               <td className="p-3">
                 {item.profileImage ? (
-                  <img src={`https://jomijog.com/uploads/${item.profileImage}`} alt={item.name} className="w-10 h-10 rounded-full object-cover" />
+                  <img
+                    src={`https://jomijog.com/uploads/${item.profileImage}`}
+                    alt={item.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
                 ) : (
                   <div className="w-10 h-10 bg-gray-300 rounded-full" />
                 )}
@@ -400,8 +489,26 @@ export default function AdminPanel() {
               <td className="p-3">{item.email}</td>
               <td className="p-3">{item.mobile}</td>
               <td className="p-3 flex gap-2">
-                <button onClick={() => (type === "surveyor" ? editSurveyor(item) : editConsultant(item))} className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition flex items-center gap-1"><Edit size={16} /> Edit</button>
-                <button onClick={() => (type === "surveyor" ? deleteSurveyor(item._id) : deleteConsultant(item._id))} className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition flex items-center gap-1"><Trash2 size={16} /> Delete</button>
+                <button
+                  onClick={() =>
+                    type === "surveyor"
+                      ? editSurveyor(item)
+                      : editConsultant(item)
+                  }
+                  className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition flex items-center gap-1"
+                >
+                  <Edit size={16} /> Edit
+                </button>
+                <button
+                  onClick={() =>
+                    type === "surveyor"
+                      ? deleteSurveyor(item._id)
+                      : deleteConsultant(item._id)
+                  }
+                  className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition flex items-center gap-1"
+                >
+                  <Trash2 size={16} /> Delete
+                </button>
               </td>
             </tr>
           ))}
@@ -412,45 +519,119 @@ export default function AdminPanel() {
 
   const renderSurveyorForm = () => (
     <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
-      <h3 className="text-lg font-semibold mb-4">{editSurveyorId ? "Edit Surveyor" : "Add New Surveyor"}</h3>
+      <h3 className="text-lg font-semibold mb-4">
+        {editSurveyorId ? "Edit Surveyor" : "Add New Surveyor"}
+      </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.keys(initialSurveyorState).map((key) =>
           key === "profileImage" ? (
-            <input key={key} type="file" accept="image/*" onChange={(e) => setNewSurveyor({ ...newSurveyor, profileImage: e.target.files[0] })} />
+            <input
+              key={key}
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setNewSurveyor({
+                  ...newSurveyor,
+                  profileImage: e.target.files[0],
+                })
+              }
+            />
           ) : (
-            <input key={key} type={key === "password" ? "password" : key === "price" ? "number" : "text"} placeholder={key.charAt(0).toUpperCase() + key.slice(1)} value={newSurveyor[key]} onChange={(e) => setNewSurveyor({ ...newSurveyor, [key]: e.target.value })} className="border p-2 rounded-md focus:outline-[#7ED957]" />
-          )
+            <input
+              key={key}
+              type={
+                key === "password"
+                  ? "password"
+                  : key === "price"
+                    ? "number"
+                    : "text"
+              }
+              placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+              value={newSurveyor[key]}
+              onChange={(e) =>
+                setNewSurveyor({ ...newSurveyor, [key]: e.target.value })
+              }
+              className="border p-2 rounded-md focus:outline-[#7ED957]"
+            />
+          ),
         )}
       </div>
-      <button onClick={submitSurveyor} className="bg-[#7ED957] text-black px-4 py-2 rounded-lg mt-4 font-semibold hover:bg-[#6dc44e] transition">{editSurveyorId ? "Update Surveyor" : "Add Surveyor"}</button>
+      <button
+        onClick={submitSurveyor}
+        className="bg-[#7ED957] text-black px-4 py-2 rounded-lg mt-4 font-semibold hover:bg-[#6dc44e] transition"
+      >
+        {editSurveyorId ? "Update Surveyor" : "Add Surveyor"}
+      </button>
     </div>
   );
 
   const renderConsultantForm = () => (
     <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
-      <h3 className="text-lg font-semibold mb-4">{editConsultantId ? "Edit Consultant" : "Add New Consultant"}</h3>
+      <h3 className="text-lg font-semibold mb-4">
+        {editConsultantId ? "Edit Consultant" : "Add New Consultant"}
+      </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.keys(initialConsultantState).map((key) =>
           key === "profileImage" ? (
-            <input key={key} type="file" accept="image/*" onChange={(e) => setNewConsultant({ ...newConsultant, profileImage: e.target.files[0] })} />
+            <input
+              key={key}
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setNewConsultant({
+                  ...newConsultant,
+                  profileImage: e.target.files[0],
+                })
+              }
+            />
           ) : (
-            <input key={key} type={key === "password" ? "password" : key === "price" ? "number" : "text"} placeholder={key.charAt(0).toUpperCase() + key.slice(1)} value={newConsultant[key]} onChange={(e) => setNewConsultant({ ...newConsultant, [key]: e.target.value })} className="border p-2 rounded-md focus:outline-[#7ED957]" />
-          )
+            <input
+              key={key}
+              type={
+                key === "password"
+                  ? "password"
+                  : key === "price"
+                    ? "number"
+                    : "text"
+              }
+              placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+              value={newConsultant[key]}
+              onChange={(e) =>
+                setNewConsultant({ ...newConsultant, [key]: e.target.value })
+              }
+              className="border p-2 rounded-md focus:outline-[#7ED957]"
+            />
+          ),
         )}
       </div>
-      <button onClick={submitConsultant} className="bg-[#7ED957] text-black px-4 py-2 rounded-lg mt-4 font-semibold hover:bg-[#6dc44e] transition">{editConsultantId ? "Update Consultant" : "Add Consultant"}</button>
+      <button
+        onClick={submitConsultant}
+        className="bg-[#7ED957] text-black px-4 py-2 rounded-lg mt-4 font-semibold hover:bg-[#6dc44e] transition"
+      >
+        {editConsultantId ? "Update Consultant" : "Add Consultant"}
+      </button>
     </div>
   );
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-[#151515]">
       <Navbar />
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+      />
       <div className="flex flex-1">
         <div className="w-64 bg-[#2F2C2C] text-white flex flex-col p-4">
-          <h2 className="text-2xl font-bold mb-6 text-[#7ED957]">Admin Panel</h2>
+          <h2 className="text-2xl font-bold mb-6 text-[#7ED957]">
+            Admin Panel
+          </h2>
           {["dashboard", "surveyors", "consultants", "pending"].map((item) => (
-            <button key={item} className={`text-left mb-3 px-3 py-2 rounded-md hover:bg-[#7ED957] hover:text-black ${view === item ? "bg-[#7ED957] text-black" : ""}`} onClick={() => setView(item)}>
+            <button
+              key={item}
+              className={`text-left mb-3 px-3 py-2 rounded-md hover:bg-[#7ED957] hover:text-black ${view === item ? "bg-[#7ED957] text-black" : ""}`}
+              onClick={() => setView(item)}
+            >
               {item.charAt(0).toUpperCase() + item.slice(1)}
             </button>
           ))}
@@ -460,16 +641,37 @@ export default function AdminPanel() {
           {loading && <Spinner />}
 
           {!loading && view === "dashboard" && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-              <h2 className="text-2xl font-semibold mb-6">Dashboard Overview</h2>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <h2 className="text-2xl font-semibold mb-6">
+                Dashboard Overview
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stats.map((s, index) => (
-                  <div key={index} className="bg-white rounded-2xl shadow-md p-5 flex items-center justify-between border border-gray-100 hover:shadow-lg transition-all">
+                  <div
+                    key={index}
+                    className="bg-white rounded-2xl shadow-md p-5 flex items-center justify-between border border-gray-100 hover:shadow-lg transition-all"
+                  >
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-600">{s.title}</h3>
-                      <p className="text-2xl font-bold text-[#151515]">{s.value}</p>
+                      <h3 className="text-sm font-semibold text-gray-600">
+                        {s.title}
+                      </h3>
+                      <p className="text-2xl font-bold text-[#151515]">
+                        {s.value}
+                      </p>
                     </div>
-                    <div className="p-3 rounded-full" style={{ backgroundColor: s.color + "33", color: s.color }}>{s.icon}</div>
+                    <div
+                      className="p-3 rounded-full"
+                      style={{
+                        backgroundColor: s.color + "33",
+                        color: s.color,
+                      }}
+                    >
+                      {s.icon}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -477,23 +679,39 @@ export default function AdminPanel() {
           )}
 
           {!loading && view === "surveyors" && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-              <h2 className="text-2xl font-semibold mb-6">Surveyors Management</h2>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <h2 className="text-2xl font-semibold mb-6">
+                Surveyors Management
+              </h2>
               {renderSurveyorForm()}
               {renderTable(surveyors, "surveyor")}
             </motion.div>
           )}
 
           {!loading && view === "consultants" && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-              <h2 className="text-2xl font-semibold mb-6">Consultants Management</h2>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <h2 className="text-2xl font-semibold mb-6">
+                Consultants Management
+              </h2>
               {renderConsultantForm()}
               {renderTable(consultants, "consultant")}
             </motion.div>
           )}
 
           {!loading && view === "pending" && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
               {renderPendingRequests()}
             </motion.div>
           )}

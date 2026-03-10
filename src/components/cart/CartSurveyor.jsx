@@ -16,7 +16,7 @@ const CartSurveyor = () => {
     const fetchSurveyors = async () => {
       try {
         const { data } = await axios.get(
-          "https://jomijog.com/api/users/surveyors"
+          "https://jomijog.com/api/users/surveyors",
         );
 
         console.log("Surveyors fetched:", data); // Debug log
@@ -66,8 +66,9 @@ const CartSurveyor = () => {
         </div>
 
         {/* Name */}
-        <h2 className="text-base sm:text-lg font-semibold text-gray-800 mt-2 cursor-pointer"
-         onClick={() => navigate(`/surveyors/${_id}`)}
+        <h2
+          className="text-base sm:text-lg font-semibold text-gray-800 mt-2 cursor-pointer"
+          onClick={() => navigate(`/surveyors/${_id}`)}
         >
           {name}
         </h2>

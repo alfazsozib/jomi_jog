@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import axios from "axios";
+import { useEffect, useState } from "react";
 import Navbar from "../Navbar/Navbar";
 import Footer from "./Footer"; // make sure you have a Footer component
 
@@ -8,7 +8,9 @@ const AdminPermission = () => {
 
   const fetchRequests = async () => {
     try {
-      const { data } = await axios.get("https://jomijog.com/api/bookings/admin");
+      const { data } = await axios.get(
+        "https://jomijog.com/api/bookings/admin",
+      );
       setRequests(data);
     } catch (error) {
       console.error(error);
@@ -32,11 +34,23 @@ const AdminPermission = () => {
   const renderStatusBadge = (status) => {
     switch (status) {
       case "approved":
-        return <span className="px-3 py-1 bg-green-500 text-white rounded-full text-sm font-semibold">Approved</span>;
+        return (
+          <span className="px-3 py-1 bg-green-500 text-white rounded-full text-sm font-semibold">
+            Approved
+          </span>
+        );
       case "cancelled":
-        return <span className="px-3 py-1 bg-red-500 text-white rounded-full text-sm font-semibold">Cancelled</span>;
+        return (
+          <span className="px-3 py-1 bg-red-500 text-white rounded-full text-sm font-semibold">
+            Cancelled
+          </span>
+        );
       default:
-        return <span className="px-3 py-1 bg-yellow-400 text-white rounded-full text-sm font-semibold">Pending</span>;
+        return (
+          <span className="px-3 py-1 bg-yellow-400 text-white rounded-full text-sm font-semibold">
+            Pending
+          </span>
+        );
     }
   };
 
@@ -52,7 +66,9 @@ const AdminPermission = () => {
         </h1>
 
         {requests.length === 0 && (
-          <p className="text-center text-gray-500 text-lg">No pending requests</p>
+          <p className="text-center text-gray-500 text-lg">
+            No pending requests
+          </p>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -70,20 +86,35 @@ const AdminPermission = () => {
               <h2 className="text-2xl font-semibold mb-3 border-b pb-2 text-gray-700">
                 User Details
               </h2>
-              <p className="text-gray-600"><strong>নাম:</strong> {req.user.name}</p>
-              <p className="text-gray-600"><strong>মোবাইল:</strong> {req.user.mobile || "নাই"}</p>
+              <p className="text-gray-600">
+                <strong>নাম:</strong> {req.user.name}
+              </p>
+              <p className="text-gray-600">
+                <strong>মোবাইল:</strong> {req.user.mobile || "নাই"}
+              </p>
               {req.user.address && (
-                <p className="text-gray-600"><strong>ঠিকানা:</strong> {req.user.address}</p>
+                <p className="text-gray-600">
+                  <strong>ঠিকানা:</strong> {req.user.address}
+                </p>
               )}
 
               {/* Surveyor Details */}
               <h2 className="text-2xl font-semibold mt-6 mb-3 border-b pb-2 text-gray-700">
                 Surveyor Details
               </h2>
-              <p className="text-gray-600"><strong>নাম:</strong> {req.surveyor.name}</p>
-              <p className="text-gray-600"><strong>মোবাইল:</strong> {req.surveyor.mobile || "নির্ধারিত নেই"}</p>
-              <p className="text-gray-600"><strong>অভিজ্ঞতা:</strong> {req.surveyor.experience || "নাই"}</p>
-              <p className="text-gray-600"><strong>মূল্য:</strong> {req.surveyor.price || "নির্ধারিত নেই"}</p>
+              <p className="text-gray-600">
+                <strong>নাম:</strong> {req.surveyor.name}
+              </p>
+              <p className="text-gray-600">
+                <strong>মোবাইল:</strong>{" "}
+                {req.surveyor.mobile || "নির্ধারিত নেই"}
+              </p>
+              <p className="text-gray-600">
+                <strong>অভিজ্ঞতা:</strong> {req.surveyor.experience || "নাই"}
+              </p>
+              <p className="text-gray-600">
+                <strong>মূল্য:</strong> {req.surveyor.price || "নির্ধারিত নেই"}
+              </p>
 
               {/* Action Buttons (only show if pending) */}
               {req.status === "pending" && (

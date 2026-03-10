@@ -1,9 +1,9 @@
 import { Mail, MapPin, Phone } from "lucide-react";
-import landImage2 from "../../assets/images/land-10.jpg";
-import Navbar from "../Navbar/Navbar";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import landImage2 from "../../assets/images/land-10.jpg";
+import Navbar from "../Navbar/Navbar";
 
 export default function ContactPage() {
   const [loading, setLoading] = useState(false);
@@ -190,7 +190,8 @@ export default function ContactPage() {
       {/* Footer */}
       <div className="py-6 text-center">
         <p className="text-gray-600 text-sm">
-          © ২০২৫ <span className="text-[#7ED957] font-bold">জমিযোগ</span> । সর্বস্বত্ব সংরক্ষিত
+          © ২০২৫ <span className="text-[#7ED957] font-bold">জমিযোগ</span> ।
+          সর্বস্বত্ব সংরক্ষিত
         </p>
       </div>
 

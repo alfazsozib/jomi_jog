@@ -1,6 +1,6 @@
+import axios from "axios";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import Navbar from "../Navbar/Navbar";
 
 const ForgotPassword = () => {
@@ -16,14 +16,20 @@ const ForgotPassword = () => {
     setError("");
 
     try {
-      const res = await axios.post("https://jomijog.com/api/users/forgot-password", { email });
+      const res = await axios.post(
+        "https://jomijog.com/api/users/forgot-password",
+        { email },
+      );
 
       if (res.data.success) {
-        setMessage("পাসওয়ার্ড রিসেট লিঙ্ক আপনার ইমেইলে পাঠানো হয়েছে। দয়া করে ইনবক্স বা স্প্যাম ফোল্ডার চেক করুন।");
+        setMessage(
+          "পাসওয়ার্ড রিসেট লিঙ্ক আপনার ইমেইলে পাঠানো হয়েছে। দয়া করে ইনবক্স বা স্প্যাম ফোল্ডার চেক করুন।",
+        );
       }
     } catch (err) {
       setError(
-        err.response?.data?.message || "ইমেইল পাঠাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।"
+        err.response?.data?.message ||
+          "ইমেইল পাঠাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।",
       );
     } finally {
       setLoading(false);
@@ -40,7 +46,11 @@ const ForgotPassword = () => {
             পাসওয়ার্ড রিসেট
           </h2>
 
-          {message && <p className="text-center mb-6 text-green-600 font-medium">{message}</p>}
+          {message && (
+            <p className="text-center mb-6 text-green-600 font-medium">
+              {message}
+            </p>
+          )}
           {error && <p className="text-center mb-6 text-red-600">{error}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-5">

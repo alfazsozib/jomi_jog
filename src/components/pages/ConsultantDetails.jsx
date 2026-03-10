@@ -2,11 +2,11 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import experienceIcon from "../../assets/icons/Experience.jpg";
 import priceIcon from "../../assets/icons/Price.jpg";
 import Navbar from "../Navbar/Navbar";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 const ConsultantDetails = () => {
   const { id } = useParams();
@@ -21,7 +21,7 @@ const ConsultantDetails = () => {
     const fetchConsultant = async () => {
       try {
         const { data } = await axios.get(
-          `https://jomijog.com/api/admin/consultants/${id}`
+          `https://jomijog.com/api/admin/consultants/${id}`,
         );
         setConsultant(data);
       } catch (error) {
@@ -162,7 +162,9 @@ const ConsultantDetails = () => {
             <div className="flex items-center text-gray-600 gap-3 mt-3">
               <img src={priceIcon} alt="Price" className="w-6 h-6" />
               <span className="text-lg font-medium">
-                {consultant.price ? `${consultant.price} টাকা` : "নির্ধারিত নেই"}
+                {consultant.price
+                  ? `${consultant.price} টাকা`
+                  : "নির্ধারিত নেই"}
               </span>
             </div>
 
@@ -184,7 +186,7 @@ const ConsultantDetails = () => {
                       </span>
                       <span>{value || "নাই"}</span>
                     </div>
-                  ) : null
+                  ) : null,
                 )}
             </div>
 

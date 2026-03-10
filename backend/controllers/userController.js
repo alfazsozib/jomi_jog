@@ -1,13 +1,11 @@
 import asyncHandler from "express-async-handler";
-import User from "../models/userModel.js";
-import bcrypt from "bcryptjs";
-import generateToken from "../utils/generateToken.js";
 import fs from "fs";
 import path from "path";
-import crypto from "crypto";
+import User from "../models/userModel.js";
+import generateToken from "../utils/generateToken.js";
 
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import nodemailer from "nodemailer";
 
 dotenv.config();
 
@@ -215,7 +213,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
   // Generate simple reset link (for now — no token/expiry)
   // In production: use crypto.randomBytes + save token to user + expiry
-  const resetUrl = `http://localhost:5173/reset-password?email=${encodeURIComponent(normalizedEmail)}`;
+  const resetUrl = `https://jomijog.com/reset-password?email=${encodeURIComponent(normalizedEmail)}`;
 
   const mailOptions = {
     from: `"জমিযোগ" <${process.env.SMTP_USER}>`,
@@ -342,14 +340,5 @@ const updateBookedDates = asyncHandler(async (req, res) => {
 });
 
 export {
-  registerUser,
-  loginUser,
-  getSurveyors,
-  getUsers,
-  deleteUser,
-  getUserById,
-  forgotPassword,
-  resetPassword,
-  getBookedDates,
-  updateBookedDates,
+  deleteUser, forgotPassword, getBookedDates, getSurveyors, getUserById, getUsers, loginUser, registerUser, resetPassword, updateBookedDates
 };

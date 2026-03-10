@@ -11,7 +11,9 @@ const CartConsultant = () => {
   useEffect(() => {
     const fetchConsultants = async () => {
       try {
-        const { data } = await axios.get("https://jomijog.com/api/users/consultants"); 
+        const { data } = await axios.get(
+          "https://jomijog.com/api/users/consultants",
+        );
         setConsultants(data);
       } catch (error) {
         console.error("Error fetching consultants:", error);
@@ -26,7 +28,9 @@ const CartConsultant = () => {
       {/* Image */}
       <div className="relative w-full h-64 pt-5 flex items-center justify-center bg-white rounded-t-2xl overflow-hidden">
         <img
-          src={img ? `data:image/jpeg;base64,${img}` : "/default-consultant.jpg"}
+          src={
+            img ? `data:image/jpeg;base64,${img}` : "/default-consultant.jpg"
+          }
           alt={name}
           className="max-h-full max-w-full object-contain"
         />

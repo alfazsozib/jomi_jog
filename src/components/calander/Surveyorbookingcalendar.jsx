@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import axios from "axios";
+import { useEffect, useState } from "react";
 
 /**
  * SurveyorBookingCalendar
@@ -20,10 +20,20 @@ const COLORS = {
 };
 
 const MONTHS = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
-const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -50,7 +60,7 @@ const SurveyorBookingCalendar = ({ surveyorId, onDateSelect }) => {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `https://jomijog.com/api/users/${surveyorId}/booked-dates`
+        `https://jomijog.com/api/users/${surveyorId}/booked-dates`,
       );
       setBookedDates(data.bookedDates || []);
     } catch (err) {
@@ -100,15 +110,23 @@ const SurveyorBookingCalendar = ({ surveyorId, onDateSelect }) => {
           <>
             {/* Nav */}
             <div style={styles.calHeader}>
-              <button style={styles.navBtn} onClick={prev}>‹</button>
-              <span style={styles.monthLabel}>{MONTHS[cur.month]} {cur.year}</span>
-              <button style={styles.navBtn} onClick={next}>›</button>
+              <button style={styles.navBtn} onClick={prev}>
+                ‹
+              </button>
+              <span style={styles.monthLabel}>
+                {MONTHS[cur.month]} {cur.year}
+              </span>
+              <button style={styles.navBtn} onClick={next}>
+                ›
+              </button>
             </div>
 
             {/* Day names */}
             <div style={styles.dayGrid}>
               {DAYS.map((d) => (
-                <div key={d} style={styles.dayName}>{d}</div>
+                <div key={d} style={styles.dayName}>
+                  {d}
+                </div>
               ))}
             </div>
 
@@ -146,9 +164,11 @@ const SurveyorBookingCalendar = ({ surveyorId, onDateSelect }) => {
                     style={cellStyle}
                     onClick={() => !isDisabled && handleSelect(key)}
                     title={
-                      isPast ? "Past date"
-                      : isBooked ? "Already booked"
-                      : "Available — click to select"
+                      isPast
+                        ? "Past date"
+                        : isBooked
+                          ? "Already booked"
+                          : "Available — click to select"
                     }
                   >
                     {day}
@@ -160,16 +180,28 @@ const SurveyorBookingCalendar = ({ surveyorId, onDateSelect }) => {
             {/* Legend */}
             <div style={styles.legend}>
               <span style={styles.legendItem}>
-                <span style={{ ...styles.legendDot, background: COLORS.primary }} /> Available
+                <span
+                  style={{ ...styles.legendDot, background: COLORS.primary }}
+                />{" "}
+                Available
               </span>
               <span style={styles.legendItem}>
-                <span style={{ ...styles.legendDot, background: "#ef4444" }} /> Booked
+                <span style={{ ...styles.legendDot, background: "#ef4444" }} />{" "}
+                Booked
               </span>
               <span style={styles.legendItem}>
-                <span style={{ ...styles.legendDot, background: "#f59e0b", border: `2px solid ${COLORS.primaryDark}` }} /> Selected
+                <span
+                  style={{
+                    ...styles.legendDot,
+                    background: "#f59e0b",
+                    border: `2px solid ${COLORS.primaryDark}`,
+                  }}
+                />{" "}
+                Selected
               </span>
               <span style={styles.legendItem}>
-                <span style={{ ...styles.legendDot, background: "#d1d5db" }} /> Past
+                <span style={{ ...styles.legendDot, background: "#d1d5db" }} />{" "}
+                Past
               </span>
             </div>
 
@@ -178,9 +210,15 @@ const SurveyorBookingCalendar = ({ surveyorId, onDateSelect }) => {
               <div style={styles.selectedDisplay}>
                 ✓ Selected:{" "}
                 <strong>
-                  {new Date(selectedDate + "T00:00:00").toLocaleDateString("en-GB", {
-                    weekday: "long", year: "numeric", month: "long", day: "numeric",
-                  })}
+                  {new Date(selectedDate + "T00:00:00").toLocaleDateString(
+                    "en-GB",
+                    {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    },
+                  )}
                 </strong>
               </div>
             )}
@@ -194,69 +232,126 @@ const SurveyorBookingCalendar = ({ surveyorId, onDateSelect }) => {
 const styles = {
   wrap: { width: "100%" },
   card: {
-    background: COLORS.white, borderRadius: 24, padding: 28,
+    background: COLORS.white,
+    borderRadius: 24,
+    padding: 28,
     boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
     border: `1px solid ${COLORS.primaryLight}`,
   },
-  title: { fontSize: 18, fontWeight: 700, color: COLORS.dark, margin: "0 0 6px" },
-  subtitle: { fontSize: 13, color: COLORS.muted, marginBottom: 20, lineHeight: 1.5 },
+  title: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: COLORS.dark,
+    margin: "0 0 6px",
+  },
+  subtitle: {
+    fontSize: 13,
+    color: COLORS.muted,
+    marginBottom: 20,
+    lineHeight: 1.5,
+  },
   loading: { textAlign: "center", padding: 40, color: COLORS.muted },
 
   calHeader: {
-    display: "flex", justifyContent: "space-between",
-    alignItems: "center", marginBottom: 16,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
   },
   navBtn: {
-    background: COLORS.primaryLight, border: "none", borderRadius: 8,
-    width: 34, height: 34, cursor: "pointer", fontSize: 20,
-    color: COLORS.primaryDark, fontWeight: 700,
+    background: COLORS.primaryLight,
+    border: "none",
+    borderRadius: 8,
+    width: 34,
+    height: 34,
+    cursor: "pointer",
+    fontSize: 20,
+    color: COLORS.primaryDark,
+    fontWeight: 700,
   },
   monthLabel: { fontWeight: 700, fontSize: 16, color: COLORS.dark },
 
   dayGrid: {
-    display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4, marginBottom: 4,
+    display: "grid",
+    gridTemplateColumns: "repeat(7, 1fr)",
+    gap: 4,
+    marginBottom: 4,
   },
   dayName: {
-    textAlign: "center", fontSize: 10, fontWeight: 700, color: COLORS.muted,
-    padding: "4px 0", textTransform: "uppercase",
+    textAlign: "center",
+    fontSize: 10,
+    fontWeight: 700,
+    color: COLORS.muted,
+    padding: "4px 0",
+    textTransform: "uppercase",
   },
   dayCell: {
-    textAlign: "center", borderRadius: 10, padding: "9px 0",
-    fontSize: 13, fontWeight: 600, transition: "all 0.15s",
-    userSelect: "none", position: "relative",
+    textAlign: "center",
+    borderRadius: 10,
+    padding: "9px 0",
+    fontSize: 13,
+    fontWeight: 600,
+    transition: "all 0.15s",
+    userSelect: "none",
+    position: "relative",
   },
   pastCell: { color: "#d1d5db", cursor: "not-allowed" },
   bookedCell: {
-    background: "#fef2f2", color: "#ef4444",
-    border: "2px solid #fca5a5", cursor: "not-allowed",
+    background: "#fef2f2",
+    color: "#ef4444",
+    border: "2px solid #fca5a5",
+    cursor: "not-allowed",
   },
   todayCell: {
-    background: COLORS.primaryLight, color: COLORS.primaryDark,
-    border: `2px solid ${COLORS.primary}`, cursor: "pointer", fontWeight: 800,
+    background: COLORS.primaryLight,
+    color: COLORS.primaryDark,
+    border: `2px solid ${COLORS.primary}`,
+    cursor: "pointer",
+    fontWeight: 800,
   },
   availCell: {
-    background: COLORS.primaryLight, color: COLORS.primaryDark,
-    border: "2px solid transparent", cursor: "pointer",
+    background: COLORS.primaryLight,
+    color: COLORS.primaryDark,
+    border: "2px solid transparent",
+    cursor: "pointer",
   },
   selectedCell: {
-    background: "#f59e0b", color: COLORS.white,
-    border: `2px solid ${COLORS.primaryDark}`, cursor: "pointer", fontWeight: 800,
+    background: "#f59e0b",
+    color: COLORS.white,
+    border: `2px solid ${COLORS.primaryDark}`,
+    cursor: "pointer",
+    fontWeight: 800,
   },
 
   legend: {
-    display: "flex", gap: 12, marginTop: 16,
-    justifyContent: "center", flexWrap: "wrap",
+    display: "flex",
+    gap: 12,
+    marginTop: 16,
+    justifyContent: "center",
+    flexWrap: "wrap",
   },
   legendItem: {
-    display: "flex", alignItems: "center", gap: 5,
-    fontSize: 11, color: COLORS.muted,
+    display: "flex",
+    alignItems: "center",
+    gap: 5,
+    fontSize: 11,
+    color: COLORS.muted,
   },
-  legendDot: { width: 10, height: 10, borderRadius: "50%", display: "inline-block" },
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: "50%",
+    display: "inline-block",
+  },
 
   selectedDisplay: {
-    marginTop: 16, padding: "12px 16px",
-    background: COLORS.primaryLight, borderRadius: 12,
-    color: COLORS.primaryDark, fontSize: 14, textAlign: "center",
+    marginTop: 16,
+    padding: "12px 16px",
+    background: COLORS.primaryLight,
+    borderRadius: 12,
+    color: COLORS.primaryDark,
+    fontSize: 14,
+    textAlign: "center",
     border: `1px solid ${COLORS.primary}`,
   },
 };

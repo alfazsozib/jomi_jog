@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from "react";
-import { FiMenu, FiSearch, FiX, FiUser, FiLoader } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import { FiLoader, FiMenu, FiSearch, FiUser, FiX } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import logoImage from "../../assets/icons/258x74_white.png";
 
@@ -77,7 +77,10 @@ function Navbar() {
           <Link to={"/"} className="hover:text-[#7ED957] transition">
             হোম
           </Link>
-          <Link to={"/allsurveyors"} className="hover:text-[#7ED957] transition">
+          <Link
+            to={"/allsurveyors"}
+            className="hover:text-[#7ED957] transition"
+          >
             সার্ভেয়ার
           </Link>
           <Link to={"/consultant"} className="hover:text-[#7ED957] transition">
@@ -89,7 +92,10 @@ function Navbar() {
           <Link to={"/knowledge"} className="hover:text-[#7ED957] transition">
             সাধারণ জ্ঞান
           </Link>
-          <Link to={"/contact-page"} className="hover:text-[#7ED957] transition">
+          <Link
+            to={"/contact-page"}
+            className="hover:text-[#7ED957] transition"
+          >
             যোগাযোগ
           </Link>
         </nav>
@@ -196,10 +202,16 @@ function Navbar() {
             <Link to={"/"} className="hover:text-[#7ED957] transition">
               হোম
             </Link>
-            <Link to={"/allsurveyors"} className="hover:text-[#7ED957] transition">
+            <Link
+              to={"/allsurveyors"}
+              className="hover:text-[#7ED957] transition"
+            >
               সার্ভেয়ার
             </Link>
-            <Link to={"/consultant"} className="hover:text-[#7ED957] transition">
+            <Link
+              to={"/consultant"}
+              className="hover:text-[#7ED957] transition"
+            >
               পরামর্শদাতা
             </Link>
             <Link to={"/about"} className="hover:text-[#7ED957] transition">

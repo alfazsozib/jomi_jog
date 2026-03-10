@@ -1,6 +1,6 @@
+import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import Navbar from "../Navbar/Navbar";
 
 const LoginPage = () => {
@@ -18,13 +18,11 @@ const LoginPage = () => {
     setLoading(true); // Start loading
 
     try {
-      console.log(role)
-      const { data } = await axios.post(
-        "https://jomijog.com/api/users/login",
-        { ...formData, role }
-      );
-
-
+      console.log(role);
+      const { data } = await axios.post("https://jomijog.com/api/users/login", {
+        ...formData,
+        role,
+      });
 
       // Save user info
       localStorage.setItem("userInfo", JSON.stringify(data));

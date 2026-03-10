@@ -73,7 +73,7 @@ const SignUpPage = () => {
 
       const { data } = await axios.post(
         "https://jomijog.com/api/users",
-        dataToSend
+        dataToSend,
       );
 
       toast.success("রেজিস্ট্রেশন সফল হয়েছে! লগইন পেজে নিয়ে যাওয়া হচ্ছে...");
@@ -103,7 +103,9 @@ const SignUpPage = () => {
         navigate("/login");
       }, 2000);
     } catch (error) {
-      toast.error(error.response?.data?.message || "রেজিস্ট্রেশন ব্যর্থ হয়েছে");
+      toast.error(
+        error.response?.data?.message || "রেজিস্ট্রেশন ব্যর্থ হয়েছে",
+      );
     } finally {
       setLoading(false);
     }
@@ -383,7 +385,8 @@ const SignUpPage = () => {
 
       <div className="py-6 text-center">
         <p className="text-gray-600 text-sm">
-          © ২০২৫ <span className="text-[#7ED957] font-bold">জমিযোগ</span> । সর্বস্বত্ব সংরক্ষিত
+          © ২০২৫ <span className="text-[#7ED957] font-bold">জমিযোগ</span> ।
+          সর্বস্বত্ব সংরক্ষিত
         </p>
       </div>
 
